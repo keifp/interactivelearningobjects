@@ -44,12 +44,21 @@
   .cat h3 span{background:var(--teal-soft);color:var(--teal-dark);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;font-weight:700}
   .cat p{margin:0 0 16px;color:var(--ink-2);max-width:70ch}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:8px;transition:transform .15s,box-shadow .15s}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:0 0 18px;display:flex;flex-direction:column;gap:8px;transition:transform .15s,box-shadow .15s;overflow:hidden}
+  .card .shot{display:block;margin:0 0 6px!important;font-size:0;line-height:0;background:var(--bg-3);border-bottom:1px solid var(--line)}
+  .card .shot img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover}
+  .card strong,.card small,.card>a:not(.shot){margin-left:18px;margin-right:18px}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .hero .strip{grid-column:1/-1}
+  .mosaic{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mosaic img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);display:block}
+  .mosaic img:first-child{grid-column:1/-1;aspect-ratio:16/9}
+  @media (max-width:860px){.hero .wrap{grid-template-columns:1fr}.mosaic{grid-template-columns:1fr 1fr 1fr}.mosaic img:first-child{grid-column:1/-1}}
   .card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
   .card strong{font-size:1.02rem}
   .card small{color:var(--muted);line-height:1.45}
-  .card a{margin-top:auto;font-weight:600;font-size:.93rem}
-  .card a::after{content:" ↗"}
+  .card>a:not(.shot){margin-top:auto;font-weight:600;font-size:.93rem}
+  .card>a:not(.shot)::after{content:" ↗"}
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
   .steps div{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px}
   .steps b{display:block;color:var(--teal);font-size:.8rem;letter-spacing:.1em;margin-bottom:6px}
@@ -86,12 +95,19 @@
 <main id="top">
   <div class="hero">
     <div class="wrap">
+      <div>
       <p class="kicker">Interactive learning objects, built to order</p>
       <h1>Learning that learners can touch.</h1>
       <p class="lede">Custom HTML interactives for online and blended courses: walkable 3D spaces, 3D object explorers, branching scenarios, timelines, maps, and practice activities. Every piece is self-contained, accessible, and ready to drop into Canvas, Blackboard, Moodle, D2L, or any LMS as an embed, a link, or a SCORM package.</p>
       <div class="btns">
         <a class="btn primary" href="#consult">Schedule a free consultation</a>
         <a class="btn" href="#work">Browse live samples</a>
+      </div>
+      </div>
+      <div class="mosaic" aria-hidden="true">
+        <img src="samples/thumbs/walkable-space.jpg" alt="" width="960" height="600">
+        <img src="samples/thumbs/3d-equipment-explorer.jpg" alt="" width="960" height="600">
+        <img src="samples/thumbs/interactive-map.jpg" alt="" width="960" height="600">
       </div>
       <div class="strip">
         <div><strong>No plugins, no logins</strong>Single-file HTML that runs anywhere a browser does.</div>
@@ -111,9 +127,9 @@
         <h3>Immersive &amp; 3D <span>Explore</span></h3>
         <p>For skills that depend on spatial understanding: assessing an environment, recognizing equipment, or practicing a setup before doing it for real.</p>
         <div class="grid">
-          <div class="card"><strong>Walkable 3D space</strong><small>First-person walkthrough of a furnished home with guided assessment tasks and a checklist.</small><a href="samples/walkable-space.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>3D object explorer</strong><small>Rotate, inspect, and label real equipment models with step-by-step setup guidance.</small><a href="samples/3d-equipment-explorer.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Instruments &amp; simulators</strong><small>A playable one-octave piano with synthesis, note labels, and keyboard control.</small><a href="samples/piano-synthesizer.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/walkable-space.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/walkable-space.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Walkable 3D space</strong><small>First-person walkthrough of a furnished home with guided assessment tasks and a checklist.</small><a href="samples/walkable-space.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/3d-equipment-explorer.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/3d-equipment-explorer.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>3D object explorer</strong><small>Rotate, inspect, and label real equipment models with step-by-step setup guidance.</small><a href="samples/3d-equipment-explorer.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/piano-synthesizer.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/piano-synthesizer.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Instruments &amp; simulators</strong><small>A playable one-octave piano with synthesis, note labels, and keyboard control.</small><a href="samples/piano-synthesizer.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
@@ -121,9 +137,9 @@
         <h3>Scenarios &amp; storytelling <span>Decide</span></h3>
         <p>For judgment-heavy topics where the right answer depends on context: ethics, communication, policy, and professional practice.</p>
         <div class="grid">
-          <div class="card"><strong>Branching scenario</strong><small>A multi-path decision story with consequences, reflection prompts, and a debrief at the end.</small><a href="samples/branching-scenario.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Interactive infographic</strong><small>Profile cards and expandable stories that turn a static handout into something explorable.</small><a href="samples/interactive-infographic.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Dialog cards</strong><small>Flip-to-reveal cards for roles, terms, or conversation practice.</small><a href="samples/dialog-cards.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/branching-scenario.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/branching-scenario.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Branching scenario</strong><small>A multi-path decision story with consequences, reflection prompts, and a debrief at the end.</small><a href="samples/branching-scenario.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/interactive-infographic.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-infographic.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive infographic</strong><small>Profile cards and expandable stories that turn a static handout into something explorable.</small><a href="samples/interactive-infographic.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/dialog-cards.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/dialog-cards.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Dialog cards</strong><small>Flip-to-reveal cards for roles, terms, or conversation practice.</small><a href="samples/dialog-cards.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
@@ -131,9 +147,9 @@
         <h3>Visual explainers <span>Understand</span></h3>
         <p>For sequences, systems, and relationships that are hard to hold in your head from a paragraph of text.</p>
         <div class="grid">
-          <div class="card"><strong>Interactive timeline</strong><small>A stage-by-stage process with expandable detail, key terms, and a progress indicator.</small><a href="samples/interactive-timeline.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Interactive map / system diagram</strong><small>A policy ecosystem map with clickable nodes, relationships, and filters.</small><a href="samples/interactive-map.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Movement slider</strong><small>Scrub through an image sequence to observe motion and answer objective-exam questions.</small><a href="samples/movement-slider.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/interactive-timeline.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-timeline.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive timeline</strong><small>A stage-by-stage process with expandable detail, key terms, and a progress indicator.</small><a href="samples/interactive-timeline.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/interactive-map.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-map.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive map / system diagram</strong><small>A policy ecosystem map with clickable nodes, relationships, and filters.</small><a href="samples/interactive-map.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/movement-slider.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/movement-slider.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Movement slider</strong><small>Scrub through an image sequence to observe motion and answer objective-exam questions.</small><a href="samples/movement-slider.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
@@ -141,12 +157,12 @@
         <h3>Practice &amp; assessment <span>Check</span></h3>
         <p>Low-stakes practice with instant feedback. Each one can report a score to your LMS gradebook when packaged as SCORM.</p>
         <div class="grid">
-          <div class="card"><strong>Quiz set</strong><small>Mixed question types with feedback, retry, and a summary score.</small><a href="samples/quiz-set.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Flashcards</strong><small>Flip, shuffle, and self-rate cards for terminology and recall.</small><a href="samples/flashcards.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Drag the words</strong><small>Fill-in-the-blank by dragging terms into a passage.</small><a href="samples/drag-the-words.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Find the hotspot</strong><small>Click the right region of an image; great for anatomy, interfaces, and safety checks.</small><a href="samples/find-the-hotspot.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Crossword</strong><small>A vocabulary crossword with hints and checking.</small><a href="samples/crossword.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><strong>Documentation tool</strong><small>Guided reflection with a printable / submittable summary at the end.</small><a href="samples/documentation-tool.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/quiz-set.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/quiz-set.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Quiz set</strong><small>Mixed question types with feedback, retry, and a summary score.</small><a href="samples/quiz-set.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/flashcards.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/flashcards.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Flashcards</strong><small>Flip, shuffle, and self-rate cards for terminology and recall.</small><a href="samples/flashcards.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/drag-the-words.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/drag-the-words.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Drag the words</strong><small>Fill-in-the-blank by dragging terms into a passage.</small><a href="samples/drag-the-words.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/find-the-hotspot.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/find-the-hotspot.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Find the hotspot</strong><small>Click the right region of an image; great for anatomy, interfaces, and safety checks.</small><a href="samples/find-the-hotspot.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/crossword.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/crossword.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Crossword</strong><small>A vocabulary crossword with hints and checking.</small><a href="samples/crossword.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/documentation-tool.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/documentation-tool.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Documentation tool</strong><small>Guided reflection with a printable / submittable summary at the end.</small><a href="samples/documentation-tool.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
