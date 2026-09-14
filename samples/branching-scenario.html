@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scenario 1 — The Community Health Survey (Expanded Branching)</title>
+  <style>
+    :root {
+      --bg: #0f1620;
+      --panel: #161f2c;
+      --panel-2: #1c2738;
+      --line: #2a3548;
+      --line-2: #3a475c;
+      --ink: #eaf0f8;
+      --ink-soft: #c9d3e2;
+      --muted: #8d9ab0;
+      --accent: #6aa9ff;
+      --accent-2: #8ee2c4;
+      --good: #8ee2c4;
+      --warn: #97f2eb;
+      --bad: #ff9aa6;
+      --good-bg: rgba(142, 226, 196, 0.10);
+      --warn-bg: rgba(151, 242, 235, 0.10);
+      --bad-bg: rgba(255, 154, 166, 0.10);
+      --good-bd: rgba(142, 226, 196, 0.45);
+      --warn-bd: rgba(151, 242, 235, 0.45);
+      --bad-bd: rgba(255, 154, 166, 0.45);
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(1100px 700px at 110% -10%, rgba(106, 169, 255, 0.16), transparent 60%),
+        radial-gradient(900px 600px at -10% 110%, rgba(142, 226, 196, 0.12), transparent 60%),
+        var(--bg);
+    }
+
+    .frame {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 30px 0 56px;
+    }
+
+    /* Header */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 22px;
+      align-items: end;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--line-2);
+      background: var(--panel);
+      border-radius: 999px;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 12px 0 4px;
+      font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+
+    .lede {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      max-width: 760px;
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line-2);
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn.ghost { background: transparent; }
+
+    .btn.finish:not([disabled]) {
+      background: linear-gradient(180deg, rgba(142,226,196,0.22), rgba(142,226,196,0.10));
+      border-color: var(--good-bd);
+      color: var(--good);
+    }
+    .btn.finish.completed {
+      background: var(--good-bg);
+      border-color: var(--good-bd);
+      color: var(--good);
+      cursor: default;
+      transform: none;
+    }
+    .btn.finish.completed:hover { transform: none; border-color: var(--good-bd); }
+
+    .completion-banner {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--good-bd);
+      background: var(--good-bg);
+      color: var(--good);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    .completion-banner .check {
+      width: 26px; height: 26px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: rgba(142,226,196,0.25);
+      font-size: 0.9rem;
+    }
+
+    /* Main layout */
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+    }
+
+    /* Story card */
+    .card {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      box-shadow: var(--shadow);
+      min-height: 540px;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      background: rgba(255,255,255,0.02);
+      color: var(--ink-soft);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+
+    .chip.A,
+    .chip.B,
+    .chip.C { color: var(--accent); border-color: rgba(106,169,255,0.5); background: rgba(106,169,255,0.08); }
+
+    .scene-title {
+      margin: 4px 0 10px;
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      line-height: 1.15;
+    }
+
+    .scene-body p { color: var(--ink-soft); line-height: 1.6; margin: 0 0 12px; font-size: 1.02rem; }
+
+    .options { display: grid; gap: 10px; margin-top: 22px; }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line-2);
+      border-left: 4px solid var(--accent);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .option:hover { transform: translateY(-1px); border-color: var(--accent); background: rgba(106,169,255,0.08); }
+
+    .option .tag {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #0b1422;
+      font-weight: 900;
+      display: grid; place-items: center;
+      font-size: 0.88rem;
+    }
+
+    .option-title { font-weight: 800; font-size: 1rem; }
+    .option-detail { color: var(--muted); font-size: 0.92rem; line-height: 1.45; margin-top: 2px; }
+    .option-arrow { color: var(--accent); font-weight: 900; }
+
+    /* Outcome */
+    .outcome {
+      margin-top: 22px;
+      border-radius: 12px;
+      padding: 18px 20px;
+      border: 1px solid var(--line-2);
+    }
+
+    .outcome.good { background: var(--good-bg); border-color: var(--good-bd); }
+    .outcome.warn { background: var(--warn-bg); border-color: var(--warn-bd); }
+    .outcome.bad  { background: var(--bad-bg);  border-color: var(--bad-bd); }
+
+    .outcome-kicker {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 4px;
+    }
+
+    .outcome-title {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .outcome.good .outcome-title { color: var(--good); }
+    .outcome.warn .outcome-title { color: var(--warn); }
+    .outcome.bad  .outcome-title { color: var(--bad); }
+
+    .point-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+
+    .point {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    .point .icon {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .point .icon.ok    { background: rgba(142,226,196,0.18); color: var(--good); }
+    .point .icon.alert { background: rgba(151, 242, 235,0.18); color: var(--warn); }
+    .point .icon.no    { background: rgba(255,154,166,0.20); color: var(--bad); }
+
+    .closing {
+      margin: 14px 0 0;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line-2);
+      color: var(--ink);
+      font-size: 0.96rem;
+      line-height: 1.5;
+    }
+
+    /* Sidebar */
+    .side {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      position: sticky;
+      top: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .side h3 {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .progress {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--line-2);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 220ms ease;
+    }
+
+    .trail { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+    .trail li {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .trail .step {
+      display: inline-grid; place-items: center;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--panel-2);
+      border: 1px solid var(--line-2);
+      color: var(--accent);
+      font-size: 0.75rem; font-weight: 800;
+    }
+
+    .trail strong { color: var(--ink); }
+
+    .empty { color: var(--muted); font-size: 0.9rem; line-height: 1.45; margin: 0; }
+
+    /* Map modal */
+    .modal {
+      position: fixed; inset: 0;
+      display: none;
+      place-items: start center;
+      padding: 32px 16px;
+      background: rgba(5, 8, 14, 0.7);
+      z-index: 30;
+      overflow: auto;
+    }
+
+    .modal.open { display: grid; }
+
+    .modal-box {
+      width: min(1100px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-head h2 { margin: 0; font-size: 1.25rem; }
+
+    /* SVG-like CSS tree */
+    .map { display: grid; gap: 18px; }
+
+    .map .row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+    .node {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--line-2);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+
+    .node.start  { background: rgba(106,169,255,0.16); border-color: var(--accent); color: var(--accent); font-weight: 850; }
+    .node.A      { background: rgba(106,169,255,0.12); border-color: rgba(106,169,255,0.45); color: var(--accent); }
+    .node.B      { background: var(--bad-bg);  border-color: var(--bad-bd);  color: var(--bad); }
+    .node.C      { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn); }
+
+    .node.good   { background: var(--good-bg); border-color: var(--good-bd); color: var(--good); }
+    .node.warn   { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn); }
+    .node.bad    { background: var(--bad-bg);  border-color: var(--bad-bd);  color: var(--bad); }
+
+    .lane {
+      flex: 1 1 320px;
+      min-width: 280px;
+      padding: 12px;
+      border: 1px dashed var(--line-2);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .lane h4 { margin: 0 0 4px; font-size: 0.95rem; color: var(--accent); }
+    .arrow { color: var(--muted); font-weight: 800; font-size: 0.9rem; }
+
+    .legend {
+      margin-top: 14px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      font-size: 0.82rem; color: var(--muted);
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      margin-right: 6px; vertical-align: middle;
+      border: 1px solid var(--line-2);
+    }
+
+    /* Final summary on outcome view */
+    .reflect {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border-left: 4px solid var(--accent);
+      background: rgba(106,169,255,0.08);
+      color: var(--ink-soft);
+      font-size: 0.95rem; line-height: 1.5;
+    }
+
+    @media (max-width: 960px) {
+      .stage { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .hero { grid-template-columns: 1fr; align-items: start; }
+    }
+
+    @media (max-width: 560px) {
+      .option { grid-template-columns: 32px 1fr; }
+      .option-arrow { display: none; }
+      .option .tag { width: 28px; height: 28px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <header class="hero">
+      <div>
+        <span class="badge">Scenario 1 · Data Ethics</span>
+        <h1>The Community Health Survey</h1>
+        <p class="lede">A nonprofit's mental health survey in a small, low-income community runs into a familiar dilemma: a hospital offers anonymized patient data, and your supervisor wants to merge the datasets. Your decisions about IRB review, consent, data minimization, and reporting will determine who is protected — and who could be re-identified.</p>
+      </div>
+      <div class="controls">
+        <button id="mapBtn" class="btn ghost" type="button">⌬ Branch Map</button>
+        <button id="backBtn" class="btn" type="button" disabled>← Back</button>
+        <button id="resetBtn" class="btn" type="button">↻ Restart</button>
+        <button id="finishBtn" class="btn finish" type="button" disabled>✓ Finish</button>
+      </div>
+    </header>
+
+    <section class="stage" aria-live="polite">
+      <article class="card" id="card">
+        <div class="crumb" id="crumb"></div>
+        <h2 class="scene-title" id="sceneTitle"></h2>
+        <div class="scene-body" id="sceneBody"></div>
+        <div class="options" id="options"></div>
+      </article>
+
+      <aside class="side" aria-label="Decision trail">
+        <h3>YOUR PATH</h3>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        <ol class="trail" id="trail"></ol>
+        <p class="empty" id="empty">Each choice you make will appear here, in the order you took it.</p>
+      </aside>
+    </section>
+  </div>
+
+  <div class="modal" id="mapModal" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2 id="mapTitle">Full Response Tree</h2>
+        <button class="btn" id="closeMapBtn" type="button">Close ✕</button>
+      </div>
+      <div id="mapTree" class="map"></div>
+      <div class="legend">
+        <span><span class="swatch" style="background: rgba(106,169,255,0.16); border-color: rgba(106,169,255,0.45);"></span>Branch A · Ethics-First</span>
+        <span><span class="swatch" style="background: var(--bad-bg);  border-color: var(--bad-bd);"></span>Branch B · Immediate Merge</span>
+        <span><span class="swatch" style="background: var(--warn-bg); border-color: var(--warn-bd);"></span>Branch C · Limited Merge</span>
+        <span><span class="swatch" style="background: var(--good-bg); border-color: var(--good-bd);"></span>Strong / Best</span>
+        <span><span class="swatch" style="background: var(--warn-bg); border-color: var(--warn-bd);"></span>Mixed / Caution</span>
+        <span><span class="swatch" style="background: var(--bad-bg);  border-color: var(--bad-bd);"></span>Risk / Harm</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ====================================================================
+       Data: every node, choice, and outcome transcribed from the PDF map.
+       Symbols match the PDF: ✔ (ok), ⚠ (alert), ✖ (no).
+       ==================================================================== */
+    const OK = "ok", ALERT = "alert", NO = "no";
+
+    function makeOutcome(branch, headline, tone, points, closing) {
+      return {
+        kind: "outcome",
+        branch,
+        title: headline,
+        tone,
+        points,
+        closing
+      };
+    }
+
+    const tree = {
+      // ---------------- Decision Point 1 ----------------
+      start: {
+        kind: "decision",
+        branch: null,
+        crumb: ["Scenario", "Decision Point 1"],
+        title: "Should you merge the hospital data with your survey data?",
+        body: [
+          "You work for a nonprofit conducting a mental health survey in a low-income community.",
+          "A local hospital offers anonymized patient data — diagnosis codes, age, zip code, and insurance status. Your supervisor wants to merge it with your survey data to strengthen the analysis."
+        ],
+        options: [
+          { id: "A", label: "Consult the IRB / ethics officer", detail: "Pause the project and ask for formal guidance before any merge.", next: "DP2A" },
+          { id: "B", label: "Merge immediately",                detail: "Move quickly so the analysis can begin.",                       next: "DP2B" },
+          { id: "C", label: "Use limited fields (zip + insurance)", detail: "Try to reduce risk by leaving out diagnosis codes and age.", next: "DP2C" }
+        ]
+      },
+
+      /* =========================================================
+         BRANCH A — Ethics-First Approach
+         ========================================================= */
+      DP2A: {
+        kind: "decision",
+        branch: "A",
+        crumb: ["Branch A · Ethics-First", "Decision Point 2A · IRB Response"],
+        title: "The IRB flags moderate re-identification risk.",
+        body: [
+          "You pause and consult the IRB. Because the community is small, the IRB warns the merged dataset could allow re-identification, and asks how you intend to address that risk."
+        ],
+        options: [
+          { id: "A1", label: "Proceed with the full dataset + safeguards", detail: "Keep all variables but commit to strict protections.", next: "DP3A1" },
+          { id: "A2", label: "Reduce dataset before merging",              detail: "Remove or aggregate variables before combining records.", next: "DP3A2" },
+          { id: "A3", label: "Seek participant consent before merging",    detail: "Make sure participants understand and approve the linkage.", next: "DP3A3" }
+        ]
+      },
+
+      DP3A1: {
+        kind: "decision",
+        branch: "A",
+        crumb: ["Branch A", "Decision Point 3A1 · Safeguards Implementation"],
+        title: "IRB requires safeguards.",
+        body: [ "Your team must decide which protection is strong enough for sensitive community-level data." ],
+        options: [
+          { id: "A1a", label: "Store data on a secure, access-controlled server", detail: "Limit access to approved team members.", next: "OUT_A1a" },
+          { id: "A1b", label: "De-identify further (aggregate or bin variables)", detail: "Group zip codes, ages, and rare diagnoses to lower identifiability.", next: "OUT_A1b" },
+          { id: "A1c", label: "Skip safeguards to save time",                     detail: "Move ahead despite the IRB's condition.", next: "OUT_A1c" }
+        ]
+      },
+      OUT_A1a: makeOutcome("A", "A1a · Strong Practice", "good", [
+        [OK, "Controlled access"],
+        [OK, "Audit trail"],
+        [OK, "Institutional compliance"]
+      ], "Access controls keep the data inside a defensible perimeter — strong, but it does not by itself reduce what's in the dataset."),
+
+      OUT_A1b: makeOutcome("A", "A1b · Best Practice", "good", [
+        [OK, "Minimizes mosaic effect"],
+        [OK, "Still analytically useful"],
+        [OK, "Gold-standard ethical handling"]
+      ], "Aggregating and binning addresses the actual privacy risk while preserving useful trends. This is the strongest path through the scenario."),
+
+      OUT_A1c: makeOutcome("A", "A1c · Breakdown in Compliance", "bad", [
+        [NO, "Violates IRB conditions"],
+        [NO, "Institutional risk reintroduced"]
+      ], "Skipping safeguards after IRB review is worse than never seeking review — it is a documented violation."),
+
+      DP3A2: {
+        kind: "decision",
+        branch: "A",
+        crumb: ["Branch A", "Decision Point 3A2 · Data Minimization"],
+        title: "You reduce variables.",
+        body: [ "The goal is to keep the analysis useful while lowering identifiability. Which reduction is the right one?" ],
+        options: [
+          { id: "A2a", label: "Remove diagnosis codes",                  detail: "Drop the most sensitive health information.",         next: "OUT_A2a" },
+          { id: "A2b", label: "Aggregate zip codes into regions",         detail: "Preserve geographic trends without small-area exposure.", next: "OUT_A2b" },
+          { id: "A2c", label: "Keep all variables but justify internally", detail: "Document the analytical case rather than reduce.",      next: "OUT_A2c" }
+        ]
+      },
+      OUT_A2a: makeOutcome("A", "A2a · Lower Sensitivity, Lower Depth", "warn", [
+        [OK, "Lower sensitivity"],
+        [NO, "Reduced analytic depth"]
+      ], "Removing diagnosis codes lowers risk but also limits the clinical insight available."),
+
+      OUT_A2b: makeOutcome("A", "A2b · Strong Balance", "good", [
+        [OK, "Maintains trends"],
+        [OK, "Reduces identifiability"]
+      ], "Aggregation is one of the most powerful tools against the mosaic effect."),
+
+      OUT_A2c: makeOutcome("A", "A2c · Weak Justification", "bad", [
+        [ALERT, "Weak justification"],
+        [NO, "Still ethically exposed"]
+      ], "Documentation is not the same as protection."),
+
+      DP3A3: {
+        kind: "decision",
+        branch: "A",
+        crumb: ["Branch A", "Decision Point 3A3 · Consent Strategy"],
+        title: "You pursue participant consent.",
+        body: [ "Consent decisions can take time, but they shape whether participants are partners or merely data sources." ],
+        options: [
+          { id: "A3a", label: "Re-contact participants for explicit consent", detail: "Ask current participants to approve this specific use.", next: "OUT_A3a" },
+          { id: "A3b", label: "Add consent language for future participants only", detail: "Improve future collection but leave current data unresolved.", next: "OUT_A3b" },
+          { id: "A3c", label: "Assume prior consent covers this use",         detail: "Treat the original consent as sufficient.",            next: "OUT_A3c" }
+        ]
+      },
+      OUT_A3a: makeOutcome("A", "A3a · Best Ethical Standard", "good", [
+        [OK, "Fully informed participants"],
+        [OK, "High trust"],
+        [NO, "Time-intensive"]
+      ], "Re-consent treats participants as people with ongoing decision rights. Slower, but the strongest consent posture."),
+
+      OUT_A3b: makeOutcome("A", "A3b · Future-Proofing", "warn", [
+        [OK, "Future-proofing"],
+        [ALERT, "Does not resolve current dataset"]
+      ], "Better tomorrow, unresolved today."),
+
+      OUT_A3c: makeOutcome("A", "A3c · Invalid Assumption", "bad", [
+        [NO, "Invalid assumption"],
+        [NO, "Ethical and legal vulnerability"]
+      ], "Consent must cover the use you intend, not the use you wish you had asked about."),
+
+      /* =========================================================
+         BRANCH B — Immediate Merge
+         ========================================================= */
+      DP2B: {
+        kind: "decision",
+        branch: "B",
+        crumb: ["Branch B · Immediate Merge", "Decision Point 2B · Early Warning Signs"],
+        title: "A team member raises concerns about re-identification.",
+        body: [
+          "You merge the datasets without review. The analysis looks promising, but a colleague flags that combinations of zip code, age, diagnosis code, and insurance status could identify people in small subgroups.",
+          "How do you respond to the warning?"
+        ],
+        options: [
+          { id: "B1", label: "Ignore concerns",         detail: "Trust that 'anonymized' is enough.",                 next: "DP3B1" },
+          { id: "B2", label: "Attempt internal fixes",  detail: "Try to reduce risk inside the team, without IRB.",   next: "DP3B2" },
+          { id: "B3", label: "Escalate after merging",  detail: "Notify a review body now that the merge exists.",     next: "DP3B3" }
+        ]
+      },
+
+      DP3B1: {
+        kind: "decision",
+        branch: "B",
+        crumb: ["Branch B", "Decision Point 3B1 · Public Use"],
+        title: "How far do you take the merged findings?",
+        body: [ "Without formal review, the next call is whether to publish at all." ],
+        options: [
+          { id: "B1a", label: "Publish findings externally", detail: "Release granular findings publicly.", next: "OUT_B1a" },
+          { id: "B1b", label: "Keep data internal only",     detail: "Avoid public release but keep using the data.", next: "OUT_B1b" }
+        ]
+      },
+      OUT_B1a: makeOutcome("B", "B1a · Worst Case", "bad", [
+        [NO, "Re-identification occurs"],
+        [NO, "Community harm + reputational damage"]
+      ], "External publication amplifies every earlier mistake. This is the worst-case ending in the scenario."),
+
+      OUT_B1b: makeOutcome("B", "B1b · Hidden Risk", "bad", [
+        [ALERT, "Risk remains hidden"],
+        [NO, "Still ethically flawed"]
+      ], "Keeping data internal masks the problem rather than fixing it."),
+
+      DP3B2: {
+        kind: "decision",
+        branch: "B",
+        crumb: ["Branch B", "Decision Point 3B2 · Internal Mitigation"],
+        title: "You attempt to fix things inside the team.",
+        body: [ "These fixes may help — but no one outside the project has confirmed the dataset is safe." ],
+        options: [
+          { id: "B2a", label: "Remove a few variables",        detail: "Drop selected fields as a partial fix.",     next: "OUT_B2a" },
+          { id: "B2b", label: "Restrict access to dataset",    detail: "Limit who can open the merged data.",        next: "OUT_B2b" },
+          { id: "B2c", label: "Document nothing",              detail: "Avoid creating a record of the concern or response.", next: "OUT_B2c" }
+        ]
+      },
+      OUT_B2a: makeOutcome("B", "B2a · Partial Fix", "warn", [
+        [ALERT, "Partial fix"],
+        [NO, "No formal validation"]
+      ], "A partial fix without external review cannot be defended later."),
+
+      OUT_B2b: makeOutcome("B", "B2b · Limits Exposure", "warn", [
+        [OK, "Limits exposure"],
+        [NO, "Doesn't address core risk"]
+      ], "Restricting access manages who sees the data, not whether the data is safe to hold."),
+
+      OUT_B2c: makeOutcome("B", "B2c · High Risk", "bad", [
+        [NO, "No accountability"],
+        [NO, "Major governance failure"]
+      ], "Failing to document is itself an ethical failure — it removes the possibility of repair."),
+
+      DP3B3: {
+        kind: "decision",
+        branch: "B",
+        crumb: ["Branch B", "Decision Point 3B3 · Late Escalation"],
+        title: "You escalate after the merge.",
+        body: [ "Whether this becomes a repairable mistake or a deeper governance failure depends on your timing." ],
+        options: [
+          { id: "B3a", label: "Notify IRB immediately",          detail: "Pause and let the review body decide next steps.", next: "OUT_B3a" },
+          { id: "B3b", label: "Wait until results are finalized", detail: "Delay escalation until the analysis is complete.", next: "OUT_B3b" }
+        ]
+      },
+      OUT_B3a: makeOutcome("B", "B3a · Recovery Path", "warn", [
+        [OK, "IRB may allow modified continuation"],
+        [NO, "Loss of institutional trust"],
+        [NO, "Project delays"]
+      ], "Late escalation is better than concealment — but earlier review is always stronger."),
+
+      OUT_B3b: makeOutcome("B", "B3b · Compounded Breach", "bad", [
+        [NO, "Compounds ethical breach"],
+        [NO, "Potential harm"]
+      ], "Time does not heal ethical breaches — it deepens them."),
+
+      /* =========================================================
+         BRANCH C — Limited Data Merge
+         ========================================================= */
+      DP2C: {
+        kind: "decision",
+        branch: "C",
+        crumb: ["Branch C · Limited Merge", "Decision Point 2C · Analysis Phase"],
+        title: "Patterns emerge that could identify small subgroups.",
+        body: [
+          "You merge only zip code and insurance status with the survey data. The limited approach reduces some risk, but small-group patterns are still appearing in the analysis."
+        ],
+        options: [
+          { id: "C1", label: "Continue without review",                detail: "Decide the dataset is limited enough to proceed.", next: "DP3C1" },
+          { id: "C2", label: "Seek a quick ethics consultation",       detail: "Ask for guidance before reporting the patterns.",   next: "DP3C2" },
+          { id: "C3", label: "Expand dataset to improve analysis",     detail: "Add more hospital variables because the limited fields feel thin.", next: "DP3C3" }
+        ]
+      },
+
+      DP3C1: {
+        kind: "decision",
+        branch: "C",
+        crumb: ["Branch C", "Decision Point 3C1 · Reporting"],
+        title: "How specific should the report be?",
+        body: [ "Reporting choices now determine whether 'limited' actually stays limited." ],
+        options: [
+          { id: "C1a", label: "Report granular findings (small groups)", detail: "Highlight detailed patterns for small subgroups.", next: "OUT_C1a" },
+          { id: "C1b", label: "Report only high-level trends",            detail: "Suppress small cells and focus on broad patterns.", next: "OUT_C1b" }
+        ]
+      },
+      OUT_C1a: makeOutcome("C", "C1a · Small-Group Identification Risk", "bad", [
+        [NO, "Small-group identification risk"]
+      ], "A 'limited' dataset can still create harm if reported at too granular a level."),
+
+      OUT_C1b: makeOutcome("C", "C1b · Lower Risk", "warn", [
+        [OK, "Lower risk"],
+        [ALERT, "Still lacks formal oversight"]
+      ], "Responsible reporting can partially compensate for skipping review — but not entirely."),
+
+      DP3C2: {
+        kind: "decision",
+        branch: "C",
+        crumb: ["Branch C", "Decision Point 3C2 · Ethics Check"],
+        title: "Ethics consultation produces recommendations.",
+        body: [ "An ethics consultation suggests changes that would lower risk before reporting." ],
+        options: [
+          { id: "C2a", label: "Accept recommendations and adjust dataset", detail: "Revise the data and reporting plan before continuing.", next: "OUT_C2a" },
+          { id: "C2b", label: "Treat consultation as optional advice",     detail: "Apply only the changes that don't slow the project.",     next: "OUT_C2b" }
+        ]
+      },
+      OUT_C2a: makeOutcome("C", "C2a · Best Recovery Path", "good", [
+        [OK, "Defensible process"],
+        [OK, "Reduced risk"]
+      ], "Asking for ethics input and acting on it is the strongest move available within Branch C."),
+
+      OUT_C2b: makeOutcome("C", "C2b · Undermines Purpose of Consultation", "bad", [
+        [ALERT, "Undermines purpose of consultation"],
+        [NO, "Leaves gaps"]
+      ], "Selective compliance with ethics advice is not the same as compliance."),
+
+      DP3C3: {
+        kind: "decision",
+        branch: "C",
+        crumb: ["Branch C", "Decision Point 3C3 · Scope Expansion"],
+        title: "You consider expanding the dataset.",
+        body: [ "Each new variable can sharpen the analysis — and sharpen identifiability." ],
+        options: [
+          { id: "C3a", label: "Add diagnosis codes later",     detail: "Bring sensitive clinical details into the merged dataset.", next: "OUT_C3a" },
+          { id: "C3b", label: "Add age + other demographics",  detail: "Increase detail without adding diagnosis codes.",         next: "OUT_C3b" }
+        ]
+      },
+      OUT_C3a: makeOutcome("C", "C3a · Scope Creep", "bad", [
+        [NO, "Reintroduces high re-identification risk"]
+      ], "Scope creep undoes the protective intent of starting small."),
+
+      OUT_C3b: makeOutcome("C", "C3b · Risk Increases Incrementally", "bad", [
+        [ALERT, "Risk increases incrementally"],
+        [NO, "No oversight"]
+      ], "The mosaic effect: variables that look harmless individually can be identifying in combination.")
+    };
+
+    /* ====================================================================
+       Application state
+       ==================================================================== */
+    const state = {
+      current: "start",
+      history: [],
+      trail: []
+    };
+
+    const els = {
+      crumb: document.getElementById("crumb"),
+      title: document.getElementById("sceneTitle"),
+      body:  document.getElementById("sceneBody"),
+      options: document.getElementById("options"),
+      trail:   document.getElementById("trail"),
+      empty:   document.getElementById("empty"),
+      bar:     document.getElementById("progressBar"),
+      backBtn: document.getElementById("backBtn"),
+      resetBtn:document.getElementById("resetBtn"),
+      mapBtn:  document.getElementById("mapBtn"),
+      closeMap:document.getElementById("closeMapBtn"),
+      modal:   document.getElementById("mapModal"),
+      mapTree: document.getElementById("mapTree"),
+      card:    document.getElementById("card"),
+      finishBtn: document.getElementById("finishBtn")
+    };
+
+    // Activity-completion state. Once an outcome is reached, the Finish
+    // button is enabled. Clicking it marks the activity as completed.
+    let reachedOutcome = false;
+    let activityCompleted = false;
+
+    function iconChar(t) { return t === OK ? "✔" : t === ALERT ? "⚠" : "✖"; }
+
+    function render() {
+      const node = tree[state.current];
+
+      // Crumb
+      els.crumb.innerHTML = "";
+      const branchClass = node.branch || "";
+      const crumbItems = node.kind === "outcome"
+        ? [`Branch ${node.branch} · Outcome`]
+        : node.crumb;
+      crumbItems.forEach((label, idx) => {
+        const span = document.createElement("span");
+        span.className = "chip" + (idx === 0 && branchClass ? " " + branchClass : "");
+        span.textContent = label;
+        els.crumb.appendChild(span);
+        if (idx < crumbItems.length - 1) {
+          const sep = document.createElement("span");
+          sep.textContent = "›";
+          sep.style.color = "var(--muted)";
+          els.crumb.appendChild(sep);
+        }
+      });
+
+      // Title + body
+      els.options.innerHTML = "";
+      if (node.kind === "outcome") {
+        els.title.textContent = node.title;
+        els.body.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "outcome " + (node.tone === "good" ? "good" : node.tone === "warn" ? "warn" : "bad");
+        const list = node.points.map(p => `
+          <li class="point">
+            <span class="icon ${p[0]}">${iconChar(p[0])}</span>
+            <span>${p[1]}</span>
+          </li>`).join("");
+        card.innerHTML = `
+          <p class="outcome-kicker">Outcome</p>
+          <h3 class="outcome-title">${node.title}</h3>
+          <ul class="point-list">${list}</ul>
+          <p class="closing">${node.closing}</p>`;
+        els.body.appendChild(card);
+
+        // reflection prompt
+        const reflect = document.createElement("div");
+        reflect.className = "reflect";
+        reflect.innerHTML = `<strong>Reflect:</strong> Which earlier decision most shaped this ending — and what would have to change to land on a stronger outcome? Use the <em>Back</em> button to revise, or <em>Restart</em> to try a fresh path.`;
+        els.body.appendChild(reflect);
+
+        // restart shortcut
+        const restart = document.createElement("button");
+        restart.type = "button";
+        restart.className = "btn";
+        restart.style.justifySelf = "start";
+        restart.textContent = "↻ Try another path";
+        restart.addEventListener("click", reset);
+        els.options.appendChild(restart);
+
+      } else {
+        els.title.textContent = node.title;
+        els.body.innerHTML = node.body.map(p => `<p>${p}</p>`).join("");
+        node.options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option";
+          btn.innerHTML = `
+            <span class="tag">${opt.id}</span>
+            <span>
+              <span class="option-title">${opt.label}</span>
+              <span class="option-detail">${opt.detail}</span>
+            </span>
+            <span class="option-arrow" aria-hidden="true">→</span>`;
+          btn.addEventListener("click", () => choose(opt));
+          els.options.appendChild(btn);
+        });
+      }
+
+      // Track whether the learner has reached any outcome (unlocks Finish).
+      if (node.kind === "outcome") reachedOutcome = true;
+
+      // Trail + progress
+      els.trail.innerHTML = state.trail.map((s, i) => `
+        <li><span class="step">${i+1}</span><span><strong>${s.id}</strong> — ${s.label}</span></li>
+      `).join("");
+      els.empty.style.display = state.trail.length ? "none" : "block";
+      els.backBtn.disabled = state.history.length === 0;
+
+      // Finish button reflects whether the activity is unlockable / completed.
+      if (!activityCompleted) {
+        els.finishBtn.disabled = !reachedOutcome;
+      }
+
+      const totalSteps = node.kind === "outcome" ? 3 : Math.max(state.trail.length, 0.4);
+      els.bar.style.width = Math.min(100, (totalSteps / 3) * 100) + "%";
+
+      els.card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function choose(opt) {
+      state.history.push({ current: state.current, trail: [...state.trail] });
+      state.trail.push({ id: opt.id, label: opt.label });
+      state.current = opt.next;
+      render();
+    }
+
+    function back() {
+      const prev = state.history.pop();
+      if (!prev) return;
+      state.current = prev.current;
+      state.trail = prev.trail;
+      render();
+    }
+
+    function reset() {
+      state.current = "start";
+      state.history = [];
+      state.trail = [];
+      // Restart clears progress, but if the activity is already marked
+      // completed we keep that flag (the learner has already finished).
+      if (!activityCompleted) reachedOutcome = false;
+      render();
+    }
+
+    function finish() {
+      if (activityCompleted || els.finishBtn.disabled) return;
+      activityCompleted = true;
+
+      // Relabel the button and lock it.
+      els.finishBtn.textContent = "You may now close this activity";
+      els.finishBtn.classList.add("completed");
+      els.finishBtn.disabled = true;
+      els.finishBtn.setAttribute("aria-label", "Activity completed — you may now close this activity");
+
+      // Disable navigation so the user does not reopen choices after finishing.
+      els.backBtn.disabled = true;
+      els.resetBtn.disabled = true;
+
+      // Visible "Activity completed" banner inside the story card.
+      const banner = document.createElement("div");
+      banner.className = "completion-banner";
+      banner.setAttribute("role", "status");
+      banner.innerHTML = `<span class="check" aria-hidden="true">✓</span><span>Activity completed</span>`;
+      els.body.appendChild(banner);
+
+      // Programmatic completion signal — useful for LMS embeds, parent
+      // windows, or any listener that wants to record completion.
+      const payload = {
+        activity: "Scenario 1 — The Community Health Survey",
+        status: "completed",
+        completedAt: new Date().toISOString(),
+        path: state.trail.map(s => s.id),
+        finalNode: state.current
+      };
+      try { console.log("Activity completed:", payload); } catch (e) {}
+      try {
+        document.dispatchEvent(new CustomEvent("activity:completed", { detail: payload }));
+      } catch (e) {}
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: "activity:completed", detail: payload }, "*");
+        }
+      } catch (e) {}
+    }
+
+    /* ====================================================================
+       Branch map (visual replica of the PDF tree)
+       ==================================================================== */
+    function buildMap() {
+      els.mapTree.innerHTML = "";
+
+      const start = document.createElement("div");
+      start.className = "row";
+      start.innerHTML = `<div class="node start">Decision Point 1 · Should you merge?</div>`;
+      els.mapTree.appendChild(start);
+
+      const arrow1 = document.createElement("div");
+      arrow1.className = "row arrow";
+      arrow1.innerHTML = `<span>↓</span>`;
+      els.mapTree.appendChild(arrow1);
+
+      const branches = document.createElement("div");
+      branches.className = "row";
+      branches.innerHTML = `
+        <div class="node A">A · Ethics-First<br><small>Consult IRB</small></div>
+        <div class="node B">B · Immediate Merge<br><small>Skip review</small></div>
+        <div class="node C">C · Limited Merge<br><small>Zip + Insurance</small></div>`;
+      els.mapTree.appendChild(branches);
+
+      const lanes = [
+        {
+          letter: "A", title: "Branch A · Ethics-First",
+          dp2: "DP 2A · IRB Response",
+          subs: [
+            { name: "DP 3A1 · Safeguards", outs: [["A1a", "Strong Practice", "good"], ["A1b", "Best Practice", "good"], ["A1c", "Breakdown", "bad"]] },
+            { name: "DP 3A2 · Data Minimization", outs: [["A2a", "Lower Sensitivity", "warn"], ["A2b", "Strong Balance", "good"], ["A2c", "Weak Justification", "bad"]] },
+            { name: "DP 3A3 · Consent Strategy", outs: [["A3a", "Best Standard", "good"], ["A3b", "Future-Proofing", "warn"], ["A3c", "Invalid Assumption", "bad"]] }
+          ]
+        },
+        {
+          letter: "B", title: "Branch B · Immediate Merge",
+          dp2: "DP 2B · Early Warnings",
+          subs: [
+            { name: "DP 3B1 · Public Use", outs: [["B1a", "Worst Case", "bad"], ["B1b", "Hidden Risk", "bad"]] },
+            { name: "DP 3B2 · Internal Mitigation", outs: [["B2a", "Partial Fix", "warn"], ["B2b", "Limits Exposure", "warn"], ["B2c", "High Risk", "bad"]] },
+            { name: "DP 3B3 · Late Escalation", outs: [["B3a", "Recovery Path", "warn"], ["B3b", "Compounded Breach", "bad"]] }
+          ]
+        },
+        {
+          letter: "C", title: "Branch C · Limited Merge",
+          dp2: "DP 2C · Analysis Phase",
+          subs: [
+            { name: "DP 3C1 · Reporting", outs: [["C1a", "ID Risk", "bad"], ["C1b", "Lower Risk", "warn"]] },
+            { name: "DP 3C2 · Ethics Check", outs: [["C2a", "Best Recovery", "good"], ["C2b", "Undermined", "bad"]] },
+            { name: "DP 3C3 · Scope Expansion", outs: [["C3a", "Scope Creep", "bad"], ["C3b", "Incremental Risk", "bad"]] }
+          ]
+        }
+      ];
+
+      lanes.forEach(lane => {
+        const arrow = document.createElement("div");
+        arrow.className = "row arrow";
+        arrow.innerHTML = `<span>↓</span>`;
+        els.mapTree.appendChild(arrow);
+
+        const head = document.createElement("div");
+        head.className = "row";
+        head.innerHTML = `<div class="node ${lane.letter}" style="font-size:.95rem;">${lane.title} — ${lane.dp2}</div>`;
+        els.mapTree.appendChild(head);
+
+        const subRow = document.createElement("div");
+        subRow.className = "row";
+        lane.subs.forEach(sub => {
+          const lane2 = document.createElement("div");
+          lane2.className = "lane";
+          lane2.innerHTML = `
+            <h4>${sub.name}</h4>
+            ${sub.outs.map(o => `<div class="node ${o[2]}"><strong>${o[0]}</strong> · ${o[1]}</div>`).join('<div class="arrow">↓</div>')}`;
+          subRow.appendChild(lane2);
+        });
+        els.mapTree.appendChild(subRow);
+      });
+    }
+
+    /* Wire up */
+    els.backBtn.addEventListener("click", back);
+    els.resetBtn.addEventListener("click", reset);
+    els.finishBtn.addEventListener("click", finish);
+    els.mapBtn.addEventListener("click", () => { buildMap(); els.modal.classList.add("open"); });
+    els.closeMap.addEventListener("click", () => els.modal.classList.remove("open"));
+    els.modal.addEventListener("click", (e) => { if (e.target === els.modal) els.modal.classList.remove("open"); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") els.modal.classList.remove("open"); });
+
+    render();
+  </script>
+</body>
+</html>

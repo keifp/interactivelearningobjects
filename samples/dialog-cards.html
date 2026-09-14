@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dialog Cards</title>
+    <style>
+      :root {
+        --green: #202d3c;
+        --accent2: #1dafa3;
+        --ink: #141414;
+        --muted: #52615a;
+        --surface: #ffffff;
+        --page: #f6f7f4;
+        --wrong: #ba1a1a;
+        --shadow: 0 18px 38px rgba(32, 45, 60, 0.16);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Avenir Next", Helvetica,
+          Arial, sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(29, 175, 163, 0.1), transparent 34%),
+          var(--page);
+      }
+
+      .activity {
+        width: min(100%, 760px);
+        margin: 0 auto;
+        padding: clamp(20px, 5vw, 44px) clamp(16px, 4vw, 28px) 28px;
+      }
+
+      header {
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--green);
+        font-size: clamp(2rem, 8vw, 3.1rem);
+        font-weight: 700;
+        letter-spacing: 0;
+        line-height: 1.05;
+      }
+
+      .instructions {
+        max-width: 650px;
+        margin: 12px auto 0;
+        color: #111;
+        font-size: clamp(1rem, 2.8vw, 1.15rem);
+        line-height: 1.45;
+      }
+
+      .card-shell {
+        margin: clamp(24px, 5vw, 38px) auto 0;
+      }
+
+      .progress-wrap {
+        margin: 0 0 22px;
+      }
+
+      .flashcard {
+        position: relative;
+        min-height: clamp(250px, 48vw, 310px);
+        perspective: 1200px;
+      }
+
+      .flashcard-inner {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        transition: transform 280ms ease;
+      }
+
+      .flashcard.is-flipped .flashcard-inner {
+        transform: rotateY(180deg);
+      }
+
+      .face {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 18px;
+        padding: clamp(18px, 4vw, 30px);
+        background: var(--surface);
+        border: 2px solid rgba(32, 45, 60, 0.08);
+        border-top: 8px solid var(--accent2);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backface-visibility: hidden;
+      }
+
+      .face.back {
+        transform: rotateY(180deg);
+      }
+
+      .card-content {
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 22px;
+        text-align: center;
+      }
+
+      .sound-button,
+      .turn-button {
+        border: 0;
+        color: var(--green);
+        background: var(--accent2);
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease;
+      }
+
+      .sound-button {
+        display: inline-grid;
+        width: 54px;
+        height: 54px;
+        place-items: center;
+        border-radius: 999px;
+        box-shadow: 0 8px 18px rgba(29, 175, 163, 0.32);
+      }
+
+      .sound-button svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .sound-button:hover,
+      .turn-button:hover {
+        transform: translateY(-1px);
+        color: var(--accent2);
+        background: var(--green);
+        box-shadow: 0 10px 20px rgba(32, 45, 60, 0.18);
+      }
+
+      .sound-button:active,
+      .turn-button:active,
+      .response-button:active {
+        transform: translateY(0);
+      }
+
+      button:focus-visible {
+        outline: 4px solid rgba(29, 175, 163, 0.52);
+        outline-offset: 3px;
+      }
+
+      .phoneme {
+        margin: 0;
+        color: #000;
+        font-size: clamp(3.1rem, 16vw, 5rem);
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .detail-list {
+        margin: 0;
+        padding: 0;
+        color: #000;
+        font-size: clamp(1.08rem, 3.4vw, 1.35rem);
+        line-height: 1.45;
+      }
+
+      .detail-list div {
+        margin: 2px 0;
+      }
+
+      .detail-list dt,
+      .detail-list dd {
+        display: inline;
+        margin: 0;
+      }
+
+      .detail-list dt {
+        font-weight: 800;
+      }
+
+      .card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+      }
+
+      .response-button,
+      .turn-button {
+        min-height: 46px;
+        border-radius: 999px;
+        padding: 0 18px;
+        font-size: clamp(0.92rem, 2.8vw, 1rem);
+        white-space: nowrap;
+      }
+
+      .response-button {
+        border: 2px solid currentColor;
+        background: #fff;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          color 160ms ease,
+          background-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .response-button.wrong {
+        justify-self: start;
+        color: var(--wrong);
+      }
+
+      .response-button.right {
+        justify-self: end;
+        color: var(--green);
+      }
+
+      .response-button:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        box-shadow: 0 10px 18px rgba(32, 45, 60, 0.14);
+      }
+
+      .response-button.wrong:hover {
+        background: var(--wrong);
+      }
+
+      .response-button.right:hover {
+        background: var(--green);
+      }
+
+      .turn-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 112px;
+      }
+
+      .turn-button svg,
+      .response-button svg {
+        flex: 0 0 auto;
+        width: 18px;
+        height: 18px;
+      }
+
+      .progress-copy {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--green);
+        font-size: 0.98rem;
+        font-weight: 800;
+      }
+
+      .track {
+        width: 100%;
+        height: 16px;
+        margin-top: 8px;
+        overflow: hidden;
+        border: 2px solid rgba(32, 45, 60, 0.2);
+        border-radius: 999px;
+        background: #fff;
+      }
+
+      .bar {
+        width: 0%;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--green), var(--accent2));
+        transition: width 240ms ease;
+      }
+
+      .bottom-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+
+      .summary {
+        display: none;
+        position: relative;
+        margin-top: 28px;
+        padding: 24px 18px 18px;
+        border: 2px solid rgba(32, 45, 60, 0.12);
+        border-radius: var(--radius);
+        background: #fff;
+        color: var(--green);
+        text-align: center;
+        box-shadow: 0 12px 24px rgba(32, 45, 60, 0.12);
+      }
+
+      .summary.is-visible {
+        display: block;
+      }
+
+      .result-tab {
+        display: none;
+        position: absolute;
+        top: -17px;
+        left: 50%;
+        min-height: 34px;
+        transform: translateX(-50%);
+        align-items: center;
+        border-radius: 999px;
+        padding: 0 18px;
+        color: var(--green);
+        background: var(--accent2);
+        font-size: 0.95rem;
+        font-weight: 900;
+        box-shadow: 0 8px 18px rgba(29, 175, 163, 0.28);
+      }
+
+      .summary.is-complete .result-tab,
+      .summary.is-incomplete .result-tab {
+        display: inline-flex;
+      }
+
+      .summary.is-incomplete .result-tab {
+        color: #fff;
+        background: var(--wrong);
+        box-shadow: 0 8px 18px rgba(186, 26, 26, 0.18);
+      }
+
+      .summary p {
+        margin: 0 0 12px;
+        font-size: 1.1rem;
+        font-weight: 800;
+      }
+
+      .restart-button,
+      .reset-button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 999px;
+        padding: 0 18px;
+        color: var(--green);
+        background: var(--accent2);
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .reset-button {
+        border: 2px solid var(--green);
+        color: var(--green);
+        background: #fff;
+        transition:
+          color 160ms ease,
+          background-color 160ms ease,
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .reset-button:hover,
+      .restart-button:hover {
+        color: var(--accent2);
+        background: var(--green);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(32, 45, 60, 0.14);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 540px) {
+        .flashcard {
+          min-height: 330px;
+        }
+
+        .face {
+          padding: 18px 14px;
+        }
+
+        .card-actions {
+          grid-template-columns: 1fr 1fr;
+          grid-template-areas:
+            "turn turn"
+            "wrong right";
+        }
+
+        .turn-button {
+          grid-area: turn;
+          justify-self: center;
+          min-width: 150px;
+        }
+
+        .response-button {
+          width: 100%;
+          padding: 0 10px;
+          font-size: 0.88rem;
+        }
+
+        .response-button.wrong {
+          grid-area: wrong;
+        }
+
+        .response-button.right {
+          grid-area: right;
+        }
+
+        .bottom-actions {
+          margin-top: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.001ms !important;
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="activity" aria-labelledby="activity-title">
+      <header>
+        <h1 id="activity-title">Dialog Cards</h1>
+        <p class="instructions">
+          Click the audio button to listen to the letter sound. Turn the card to
+          see the name, key word, and classification. Choose whether you got it
+          right or wrong to move to the next card.
+        </p>
+      </header>
+
+      <section class="card-shell" aria-label="Flashcard practice">
+        <div class="progress-wrap">
+          <div class="progress-copy">
+            <span id="progressText">Card 1 of 3</span>
+            <span id="scoreText">0 right</span>
+          </div>
+          <div
+            class="track"
+            role="progressbar"
+            aria-label="Activity progress"
+            aria-valuemin="0"
+            aria-valuemax="3"
+            aria-valuenow="1"
+            id="progressTrack"
+          >
+            <div class="bar" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-inner">
+            <article class="face front" id="frontFace" aria-label="Question side">
+              <div class="card-content">
+                <button
+                  class="sound-button"
+                  id="soundButton"
+                  type="button"
+                  aria-label="Play the sound for this letter"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M11 5.2 6.9 8.5H4.5A1.5 1.5 0 0 0 3 10v4a1.5 1.5 0 0 0 1.5 1.5h2.4l4.1 3.3A1.25 1.25 0 0 0 13 17.83V6.17a1.25 1.25 0 0 0-2-.97Zm5.2 3.05a1 1 0 1 0-1.4 1.42A3.25 3.25 0 0 1 15.75 12c0 .91-.36 1.74-.95 2.34a1 1 0 1 0 1.4 1.42A5.22 5.22 0 0 0 17.75 12c0-1.46-.6-2.78-1.55-3.75Zm2.9-2.8a1 1 0 0 0-1.42 1.4A7.2 7.2 0 0 1 19.75 12a7.2 7.2 0 0 1-2.07 5.15 1 1 0 1 0 1.42 1.4A9.2 9.2 0 0 0 21.75 12a9.2 9.2 0 0 0-2.65-6.55Z"
+                    />
+                  </svg>
+                </button>
+                <p class="phoneme" id="phoneme" aria-live="polite"></p>
+              </div>
+
+              <div class="card-actions">
+                <button class="response-button wrong" type="button" data-result="wrong">
+                  I got it wrong
+                </button>
+                <button class="turn-button" id="turnFront" type="button" aria-label="Turn card over">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M17.7 6.3A7.95 7.95 0 0 0 12 4a8 8 0 0 0-7.75 6H2l3.1 3.1L8.2 10H6.34A6 6 0 0 1 16.3 7.7a1 1 0 1 0 1.4-1.4ZM18.9 10.9 15.8 14h1.86A6 6 0 0 1 7.7 16.3a1 1 0 0 0-1.4 1.4A7.95 7.95 0 0 0 12 20a8 8 0 0 0 7.75-6H22l-3.1-3.1Z"
+                    />
+                  </svg>
+                  Turn
+                </button>
+                <button class="response-button right" type="button" data-result="right">
+                  I got it right!
+                </button>
+              </div>
+            </article>
+
+            <article class="face back" id="backFace" aria-label="Answer side" aria-hidden="true" inert>
+              <div class="card-content">
+                <dl class="detail-list">
+                  <div>
+                    <dt>Name:</dt>
+                    <dd id="name"></dd>
+                  </div>
+                  <div>
+                    <dt>Key Word:</dt>
+                    <dd id="keyword"></dd>
+                  </div>
+                  <div>
+                    <dt>Classification:</dt>
+                    <dd id="classification"></dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="card-actions">
+                <button class="response-button wrong" type="button" data-result="wrong">
+                  I got it wrong
+                </button>
+                <button class="turn-button" id="turnBack" type="button" aria-label="Turn card over">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M17.7 6.3A7.95 7.95 0 0 0 12 4a8 8 0 0 0-7.75 6H2l3.1 3.1L8.2 10H6.34A6 6 0 0 1 16.3 7.7a1 1 0 1 0 1.4-1.4ZM18.9 10.9 15.8 14h1.86A6 6 0 0 1 7.7 16.3a1 1 0 0 0-1.4 1.4A7.95 7.95 0 0 0 12 20a8 8 0 0 0 7.75-6H22l-3.1-3.1Z"
+                    />
+                  </svg>
+                  Turn
+                </button>
+                <button class="response-button right" type="button" data-result="right">
+                  I got it right!
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="summary" id="summary" aria-live="polite">
+          <span class="result-tab" id="resultTab" aria-hidden="true">Complete</span>
+          <p id="summaryText"></p>
+          <button class="restart-button" id="restartButton" type="button">
+            Start over
+          </button>
+        </div>
+
+        <div class="bottom-actions">
+          <button class="reset-button" id="resetButton" type="button">
+            Reset
+          </button>
+        </div>
+
+        <p class="sr-only" id="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    
+    <script>
+      const cards = [
+        {
+          phoneme: "/t/",
+          name: "Lowercase t",
+          keyword: "time",
+          classification: "voiceless alveolar stop",
+          audio: "assets/t_sound.mp3",
+        },
+        {
+          phoneme: "/d/",
+          name: "Lowercase d",
+          keyword: "done",
+          classification: "voiced alveolar stop",
+          audio: "assets/d_sound.mp3",
+        },
+        {
+          phoneme: "/p/",
+          name: "Lowercase p",
+          keyword: "pay",
+          classification: "voiceless bilabial stop",
+          audio: "assets/p_sound.mp3",
+        },
+      ];
+
+      const flashcard = document.querySelector("#flashcard");
+      const phoneme = document.querySelector("#phoneme");
+      const nameText = document.querySelector("#name");
+      const keyword = document.querySelector("#keyword");
+      const classification = document.querySelector("#classification");
+      const soundButton = document.querySelector("#soundButton");
+      const frontFace = document.querySelector("#frontFace");
+      const backFace = document.querySelector("#backFace");
+      const turnButtons = document.querySelectorAll(".turn-button");
+      const responseButtons = document.querySelectorAll("[data-result]");
+      const progressText = document.querySelector("#progressText");
+      const scoreText = document.querySelector("#scoreText");
+      const progressTrack = document.querySelector("#progressTrack");
+      const progressBar = document.querySelector("#progressBar");
+      const summary = document.querySelector("#summary");
+      const resultTab = document.querySelector("#resultTab");
+      const summaryText = document.querySelector("#summaryText");
+      const restartButton = document.querySelector("#restartButton");
+      const resetButton = document.querySelector("#resetButton");
+      const status = document.querySelector("#status");
+      const audioPlayer = new Audio();
+      audioPlayer.preload = "auto";
+
+      let currentIndex = 0;
+      let rightCount = 0;
+      let attemptFinished = false;
+
+      function reportScormStatus(status, score) {
+        if (window.dialogCardsScorm) {
+          window.dialogCardsScorm.setStatus(status, score);
+        }
+      }
+
+      function currentCard() {
+        return cards[currentIndex];
+      }
+
+      function setFlipState(isFlipped) {
+        flashcard.classList.toggle("is-flipped", isFlipped);
+        frontFace.setAttribute("aria-hidden", isFlipped ? "true" : "false");
+        backFace.setAttribute("aria-hidden", isFlipped ? "false" : "true");
+        frontFace.toggleAttribute("inert", isFlipped);
+        backFace.toggleAttribute("inert", !isFlipped);
+
+        frontFace.querySelectorAll("button").forEach((button) => {
+          button.tabIndex = isFlipped ? -1 : 0;
+        });
+        backFace.querySelectorAll("button").forEach((button) => {
+          button.tabIndex = isFlipped ? 0 : -1;
+        });
+      }
+
+      function renderCard() {
+        const card = currentCard();
+        setFlipState(false);
+        phoneme.textContent = card.phoneme;
+        nameText.textContent = ` ${card.name}`;
+        keyword.textContent = ` ${card.keyword}`;
+        classification.textContent = ` ${card.classification}`;
+        soundButton.setAttribute(
+          "aria-label",
+          `Play the sound for ${card.name}`
+        );
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        audioPlayer.src = card.audio;
+        audioPlayer.load();
+        updateProgress();
+        status.textContent = `Showing card ${currentIndex + 1} of ${
+          cards.length
+        }: ${card.phoneme}`;
+      }
+
+      function updateProgress() {
+        const visibleIndex = Math.min(currentIndex + 1, cards.length);
+        const percent = (visibleIndex / cards.length) * 100;
+        progressText.textContent = `Card ${visibleIndex} of ${cards.length}`;
+        scoreText.textContent = `${rightCount} right`;
+        progressBar.style.width = `${percent}%`;
+        progressTrack.setAttribute("aria-valuemax", cards.length);
+        progressTrack.setAttribute("aria-valuenow", visibleIndex);
+      }
+
+      function speakCard() {
+        const card = currentCard();
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        audioPlayer.play().catch(() => {
+          status.textContent =
+            "Audio could not play. Check that the sound file is available.";
+        });
+        status.textContent = `Playing sound for ${card.name}.`;
+      }
+
+      function answerCard(result) {
+        audioPlayer.pause();
+        if (attemptFinished) {
+          return;
+        }
+
+        if (result === "right") {
+          rightCount += 1;
+        }
+
+        if (currentIndex < cards.length - 1) {
+          currentIndex += 1;
+          renderCard();
+          return;
+        }
+
+        updateProgress();
+        flashcard.hidden = true;
+        const isComplete = rightCount === cards.length;
+        const score = Math.round((rightCount / cards.length) * 100);
+        summary.classList.toggle("is-complete", isComplete);
+        summary.classList.toggle("is-incomplete", !isComplete);
+        summary.classList.add("is-visible");
+        resultTab.textContent = isComplete ? "Complete" : "Incomplete";
+        summaryText.textContent = isComplete
+          ? `Complete! You got all ${cards.length} right.`
+          : `Incomplete. You got ${rightCount} out of ${cards.length} right.`;
+        status.textContent = isComplete
+          ? "Activity complete. Perfect score."
+          : "Activity incomplete.";
+        reportScormStatus(isComplete ? "completed" : "incomplete", score);
+        attemptFinished = true;
+      }
+
+      function restart() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        currentIndex = 0;
+        rightCount = 0;
+        attemptFinished = false;
+        flashcard.hidden = false;
+        summary.classList.remove("is-visible");
+        summary.classList.remove("is-complete");
+        summary.classList.remove("is-incomplete");
+        reportScormStatus("incomplete", 0);
+        renderCard();
+        soundButton.focus();
+      }
+
+      soundButton.addEventListener("click", speakCard);
+
+      turnButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const isFlipped = !flashcard.classList.contains("is-flipped");
+          setFlipState(isFlipped);
+          status.textContent = isFlipped ? "Answer side shown." : "Question side shown.";
+        });
+      });
+
+      responseButtons.forEach((button) => {
+        button.addEventListener("click", () => answerCard(button.dataset.result));
+      });
+
+      restartButton.addEventListener("click", restart);
+      resetButton.addEventListener("click", restart);
+
+      if (window.dialogCardsScorm) {
+        window.dialogCardsScorm.initialize();
+      }
+      reportScormStatus("incomplete", 0);
+      renderCard();
+    </script>
+  </body>
+</html>

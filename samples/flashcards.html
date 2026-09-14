@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards</title>
+    <style>
+      :root {
+        --primary: #202d3c;
+        --accent2: #1dafa3;
+        --cream: #ebfcfb;
+        --ink: #131a22;
+        --muted: #5f716a;
+        --line: rgba(32, 45, 60, 0.18);
+        --disabled: #d7d9d6;
+        --disabled-ink: #68716d;
+        --correct: #197a43;
+        --incorrect: #b3261e;
+        --white: #ffffff;
+        color-scheme: light;
+        font-family: "Avenir Next", Avenir, Helvetica, Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(135deg, rgba(32, 45, 60, 0.08), transparent 34%),
+          linear-gradient(225deg, rgba(29, 175, 163, 0.23), transparent 32%),
+          var(--cream);
+        color: var(--ink);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app {
+        width: min(100%, 920px);
+        min-height: 100svh;
+        margin: 0 auto;
+        padding: clamp(16px, 3vw, 34px);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: clamp(12px, 2vw, 20px);
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        color: var(--primary);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.45rem, 4.6vw, 2.55rem);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .progress {
+        min-width: 96px;
+        padding: 10px 14px;
+        border: 2px solid var(--primary);
+        border-radius: 8px;
+        background: var(--accent2);
+        color: var(--primary);
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .stage {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 12px;
+        min-height: 0;
+      }
+
+      .card-shell {
+        perspective: 1300px;
+        min-height: 0;
+      }
+
+      .flashcard {
+        position: relative;
+        height: 100%;
+        min-height: 0;
+        transform-style: preserve-3d;
+        transition: transform 560ms cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+
+      .flashcard.is-flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        justify-items: center;
+        gap: clamp(14px, 2vw, 22px);
+        padding: clamp(22px, 4.4vw, 46px);
+        border: 3px solid var(--primary);
+        border-radius: 8px;
+        backface-visibility: hidden;
+        box-shadow: 0 22px 50px rgba(32, 45, 60, 0.18);
+        overflow: auto;
+      }
+
+      .card-front {
+        background: var(--white);
+      }
+
+      .card-back {
+        background: var(--primary);
+        color: var(--white);
+        transform: rotateY(180deg);
+      }
+
+      .label {
+        margin: 0;
+        color: inherit;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .question,
+      .answer {
+        width: 100%;
+        max-width: 680px;
+        margin: 0;
+        font-size: clamp(1.7rem, 5.2vw, 3rem);
+        font-weight: 850;
+        line-height: 1.08;
+        text-align: center;
+        overflow-wrap: anywhere;
+      }
+
+      .answer {
+        color: var(--accent2);
+      }
+
+      .card-back .button {
+        border-color: var(--accent2);
+      }
+
+      .front-content,
+      .back-content {
+        width: 100%;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: clamp(18px, 3vw, 30px);
+        min-height: 0;
+      }
+
+      .controls {
+        width: min(100%, 680px);
+        display: grid;
+        gap: 12px;
+      }
+
+      .answer-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field label {
+        color: var(--primary);
+        font-size: 0.98rem;
+        font-weight: 800;
+      }
+
+      .answer-input {
+        width: 100%;
+        min-height: 58px;
+        padding: 15px 16px;
+        border: 2px solid var(--primary);
+        border-radius: 8px;
+        background: var(--white);
+        color: var(--ink);
+        font-size: clamp(1.06rem, 3.6vw, 1.25rem);
+        outline: none;
+        transition:
+          border-color 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease,
+          transform 160ms ease;
+      }
+
+      .answer-input:hover,
+      .answer-input:focus {
+        background: #f8fefe;
+        box-shadow: 0 0 0 5px rgba(29, 175, 163, 0.28);
+        transform: translateY(-1px);
+      }
+
+      .answer-input.is-correct {
+        border-color: var(--correct);
+        box-shadow: 0 0 0 5px rgba(25, 122, 67, 0.18);
+      }
+
+      .answer-input.is-incorrect {
+        border-color: var(--incorrect);
+        box-shadow: 0 0 0 5px rgba(179, 38, 30, 0.16);
+      }
+
+      .button {
+        min-height: 58px;
+        padding: 0 18px;
+        border: 2px solid var(--primary);
+        border-radius: 8px;
+        background: var(--primary);
+        color: var(--white);
+        font-weight: 850;
+        cursor: pointer;
+        transition:
+          background-color 160ms ease,
+          color 160ms ease,
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .button:hover:not(:disabled),
+      .button:focus-visible:not(:disabled) {
+        background: var(--accent2);
+        color: var(--primary);
+        box-shadow: 0 8px 18px rgba(32, 45, 60, 0.18);
+        transform: translateY(-1px);
+      }
+
+      .button:disabled {
+        cursor: not-allowed;
+        border-color: #aeb5b1;
+        background: var(--disabled);
+        color: var(--disabled-ink);
+        opacity: 1;
+        box-shadow: none;
+      }
+
+      .button.secondary {
+        background: var(--accent2);
+        color: var(--primary);
+      }
+
+      .button.secondary:disabled {
+        border-color: #aeb5b1;
+        background: var(--disabled);
+        color: var(--disabled-ink);
+      }
+
+      .button.secondary:hover:not(:disabled),
+      .button.secondary:focus-visible:not(:disabled) {
+        background: var(--primary);
+        color: var(--white);
+      }
+
+      .controls.is-unlocked {
+        justify-items: center;
+      }
+
+      .controls.is-unlocked .answer-row {
+        width: min(100%, 240px);
+        grid-template-columns: 1fr;
+      }
+
+      .controls.is-unlocked .field,
+      .controls.is-unlocked #checkButton,
+      .controls.is-unlocked .feedback {
+        display: none;
+      }
+
+      .feedback {
+        min-height: 28px;
+        margin: 0;
+        font-weight: 800;
+        line-height: 1.4;
+      }
+
+      .feedback.correct {
+        color: var(--correct);
+      }
+
+      .feedback.incorrect {
+        color: var(--incorrect);
+      }
+
+      .nav {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .nav .button {
+        min-width: 120px;
+      }
+
+      .completion {
+        min-height: 0;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 22px;
+        padding: clamp(28px, 7vw, 64px);
+        border: 3px solid var(--primary);
+        border-radius: 8px;
+        background: var(--white);
+        box-shadow: 0 22px 50px rgba(32, 45, 60, 0.18);
+        text-align: center;
+      }
+
+      .completion[hidden] {
+        display: none;
+      }
+
+      .completion h2 {
+        margin: 0;
+        color: var(--primary);
+        font-size: clamp(2.2rem, 9vw, 5rem);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .completion p {
+        max-width: 520px;
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        font-weight: 750;
+        line-height: 1.4;
+      }
+
+      .score-note {
+        color: var(--primary);
+      }
+
+      @media (max-width: 720px) {
+        .app {
+          padding: 14px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .answer-row {
+          grid-template-columns: 1fr;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .nav {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 430px) {
+        .app {
+          padding: 12px;
+        }
+
+        .flashcard {
+          min-height: 0;
+        }
+
+        .card-face {
+          padding: 18px;
+        }
+
+        .question,
+        .answer {
+          font-size: clamp(1.45rem, 8vw, 2rem);
+        }
+
+        .nav {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app" aria-live="polite">
+      <header class="topbar">
+        <h1>Flashcards</h1>
+        <div class="progress" id="progress">1 / 3</div>
+      </header>
+
+      <section class="stage" id="stage" aria-label="Flashcard practice">
+        <div class="card-shell">
+          <article class="flashcard" id="flashcard">
+            <div class="card-face card-front">
+              <p class="label">Front</p>
+              <div class="front-content">
+                <p class="question" id="question">What planet is known as the Red Planet?</p>
+                <form class="controls" id="answerForm" autocomplete="off">
+                  <div class="answer-row">
+                    <div class="field">
+                      <label for="answerInput">Type your answer</label>
+                      <input
+                        class="answer-input"
+                        id="answerInput"
+                        name="answer"
+                        type="text"
+                        inputmode="text"
+                        placeholder="Enter answer before flipping"
+                        aria-describedby="feedback"
+                      />
+                    </div>
+                    <button class="button" type="submit" id="checkButton">Check</button>
+                    <button class="button secondary" type="button" id="flipButton" disabled>Flip</button>
+                  </div>
+                  <p class="feedback" id="feedback" aria-live="polite"></p>
+                </form>
+              </div>
+              <span aria-hidden="true"></span>
+            </div>
+            <div class="card-face card-back">
+              <p class="label">Back</p>
+              <div class="back-content">
+                <p class="answer" id="answer">Mars</p>
+                <button class="button secondary" type="button" id="showQuestionButton">Show question</button>
+              </div>
+              <span aria-hidden="true"></span>
+            </div>
+          </article>
+        </div>
+
+        <nav class="nav" aria-label="Flashcard navigation">
+          <button class="button secondary" type="button" id="previousButton">Previous</button>
+          <button class="button secondary" type="button" id="nextButton">Next</button>
+        </nav>
+      </section>
+
+      <section class="completion" id="completion" hidden>
+        <p class="label">Complete</p>
+        <h2>Complete</h2>
+        <p>You answered every flashcard correctly.</p>
+        <p class="score-note" id="scoreNote"></p>
+        <button class="button secondary" type="button" id="retryButton">Retry</button>
+      </section>
+    </main>
+
+    <script>
+      const cards = [
+        {
+          front: "What planet is known as the Red Planet?",
+          back: "Mars",
+          accepted: ["mars"],
+        },
+        {
+          front: "What is the largest ocean on Earth?",
+          back: "Pacific Ocean",
+          accepted: ["pacific ocean", "the pacific ocean", "pacific"],
+        },
+        {
+          front: "How many continents are there?",
+          back: "7",
+          accepted: ["7", "seven"],
+        },
+      ];
+
+      const state = {
+        current: 0,
+        solved: Array(cards.length).fill(false),
+        responses: Array(cards.length).fill(""),
+        messages: Array(cards.length).fill(""),
+        messageTypes: Array(cards.length).fill(""),
+        flipped: Array(cards.length).fill(false),
+        firstAttemptResults: Array(cards.length).fill(null),
+      };
+
+      const scorm = {
+        api: null,
+        initialized: false,
+        finished: false,
+      };
+
+      const stage = document.querySelector("#stage");
+      const completion = document.querySelector("#completion");
+      const flashcard = document.querySelector("#flashcard");
+      const question = document.querySelector("#question");
+      const answer = document.querySelector("#answer");
+      const answerForm = document.querySelector("#answerForm");
+      const answerInput = document.querySelector("#answerInput");
+      const feedback = document.querySelector("#feedback");
+      const progress = document.querySelector("#progress");
+      const checkButton = document.querySelector("#checkButton");
+      const flipButton = document.querySelector("#flipButton");
+      const showQuestionButton = document.querySelector("#showQuestionButton");
+      const previousButton = document.querySelector("#previousButton");
+      const nextButton = document.querySelector("#nextButton");
+      const retryButton = document.querySelector("#retryButton");
+      const scoreNote = document.querySelector("#scoreNote");
+
+      function normalize(value) {
+        return value.trim().toLowerCase().replace(/\s+/g, " ");
+      }
+
+      function isCorrectAnswer(value) {
+        return cards[state.current].accepted.includes(normalize(value));
+      }
+
+      function findScormApi(win) {
+        let currentWindow = win;
+        let attempts = 0;
+
+        while (currentWindow && attempts < 500) {
+          try {
+            if (currentWindow.API) {
+              return currentWindow.API;
+            }
+
+            if (currentWindow.parent === currentWindow) {
+              break;
+            }
+
+            currentWindow = currentWindow.parent;
+          } catch {
+            break;
+          }
+          attempts += 1;
+        }
+
+        return null;
+      }
+
+      function callScorm(method, ...args) {
+        if (!scorm.api || typeof scorm.api[method] !== "function") {
+          return null;
+        }
+
+        try {
+          return scorm.api[method](...args);
+        } catch {
+          return null;
+        }
+      }
+
+      function setScormValue(element, value) {
+        callScorm("LMSSetValue", element, value);
+      }
+
+      function commitScorm() {
+        callScorm("LMSCommit", "");
+      }
+
+      function calculateScore() {
+        const correctFirstAttempts = state.firstAttemptResults.filter((result) => result === true).length;
+        return Math.round((correctFirstAttempts / cards.length) * 100);
+      }
+
+      function updateScormProgress() {
+        if (!scorm.initialized) {
+          return;
+        }
+
+        const score = calculateScore();
+        const perfect = allCardsSolved() && score === 100;
+        setScormValue("cmi.core.score.min", "0");
+        setScormValue("cmi.core.score.max", "100");
+        setScormValue("cmi.core.score.raw", String(score));
+        setScormValue("cmi.core.lesson_status", perfect ? "completed" : "incomplete");
+        commitScorm();
+      }
+
+      function initializeScorm() {
+        scorm.api = findScormApi(window) || (window.opener ? findScormApi(window.opener) : null);
+
+        if (!scorm.api) {
+          return;
+        }
+
+        const initialized = callScorm("LMSInitialize", "") === "true";
+        scorm.initialized = initialized;
+
+        if (initialized) {
+          updateScormProgress();
+        }
+      }
+
+      function finishScorm() {
+        if (!scorm.initialized || scorm.finished) {
+          return;
+        }
+
+        updateScormProgress();
+        callScorm("LMSFinish", "");
+        scorm.finished = true;
+      }
+
+      function recordFirstAttempt(isCorrect) {
+        if (state.firstAttemptResults[state.current] === null) {
+          state.firstAttemptResults[state.current] = isCorrect;
+        }
+      }
+
+      function setFeedback(message, type) {
+        feedback.textContent = message;
+        feedback.className = type ? `feedback ${type}` : "feedback";
+        answerInput.classList.toggle("is-correct", type === "correct");
+        answerInput.classList.toggle("is-incorrect", type === "incorrect");
+      }
+
+      function saveFeedback(message, type) {
+        state.messages[state.current] = message;
+        state.messageTypes[state.current] = type;
+        setFeedback(message, type);
+      }
+
+      function allCardsSolved() {
+        return state.solved.every(Boolean);
+      }
+
+      function showCompletion() {
+        stage.hidden = true;
+        completion.hidden = false;
+        progress.textContent = "Complete";
+
+        const score = calculateScore();
+        scoreNote.textContent =
+          score === 100
+            ? "Score: 100%. SCORM status: complete."
+            : `Score: ${score}%. SCORM status: incomplete because a perfect score was not achieved.`;
+        updateScormProgress();
+      }
+
+      function clearCheckState() {
+        state.solved[state.current] = false;
+        state.responses[state.current] = answerInput.value;
+        state.flipped[state.current] = false;
+        answerForm.classList.remove("is-unlocked");
+        flipButton.disabled = true;
+        flashcard.classList.remove("is-flipped");
+        saveFeedback("", "");
+      }
+
+      function unlockCurrentCard() {
+        state.solved[state.current] = true;
+        state.responses[state.current] = answerInput.value;
+        state.flipped[state.current] = false;
+        answerForm.classList.add("is-unlocked");
+        flipButton.disabled = false;
+        saveFeedback("", "");
+
+        if (allCardsSolved()) {
+          showCompletion();
+        } else {
+          updateScormProgress();
+        }
+      }
+
+      function lockFlipWithError() {
+        state.solved[state.current] = false;
+        state.responses[state.current] = answerInput.value;
+        state.flipped[state.current] = false;
+        answerForm.classList.remove("is-unlocked");
+        flipButton.disabled = true;
+        flashcard.classList.remove("is-flipped");
+        saveFeedback("Incorrect. Fix your answer to unlock the card.", "incorrect");
+        updateScormProgress();
+      }
+
+      function evaluateAnswer({ showEmpty = false } = {}) {
+        const value = answerInput.value;
+
+        if (!normalize(value)) {
+          if (showEmpty) {
+            recordFirstAttempt(false);
+            saveFeedback("Type an answer first.", "incorrect");
+          } else {
+            saveFeedback("", "");
+          }
+          state.solved[state.current] = false;
+          state.responses[state.current] = "";
+          state.flipped[state.current] = false;
+          answerForm.classList.remove("is-unlocked");
+          flipButton.disabled = true;
+          flashcard.classList.remove("is-flipped");
+          updateScormProgress();
+          return false;
+        }
+
+        if (isCorrectAnswer(value)) {
+          recordFirstAttempt(true);
+          unlockCurrentCard();
+          return true;
+        }
+
+        recordFirstAttempt(false);
+        lockFlipWithError();
+        return false;
+      }
+
+      function renderCard() {
+        const card = cards[state.current];
+        const solved = state.solved[state.current];
+        question.textContent = card.front;
+        answer.textContent = card.back;
+        progress.textContent = `${state.current + 1} / ${cards.length}`;
+        answerInput.value = state.responses[state.current];
+        answerForm.classList.toggle("is-unlocked", solved);
+        flashcard.classList.toggle("is-flipped", solved && state.flipped[state.current]);
+        flipButton.disabled = !solved;
+        previousButton.disabled = state.current === 0;
+        nextButton.disabled = state.current === cards.length - 1;
+        setFeedback(state.messages[state.current], state.messageTypes[state.current]);
+
+        if (!solved) {
+          requestAnimationFrame(() => answerInput.focus({ preventScroll: true }));
+        }
+      }
+
+      function resetPractice() {
+        state.current = 0;
+        state.solved.fill(false);
+        state.responses.fill("");
+        state.messages.fill("");
+        state.messageTypes.fill("");
+        state.flipped.fill(false);
+        state.firstAttemptResults.fill(null);
+        completion.hidden = true;
+        stage.hidden = false;
+        updateScormProgress();
+        renderCard();
+      }
+
+      answerForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        evaluateAnswer({ showEmpty: true });
+      });
+
+      answerInput.addEventListener("input", () => {
+        clearCheckState();
+      });
+
+      flipButton.addEventListener("click", () => {
+        if (!state.solved[state.current]) {
+          lockFlipWithError();
+          return;
+        }
+        state.flipped[state.current] = !state.flipped[state.current];
+        flashcard.classList.toggle("is-flipped", state.flipped[state.current]);
+      });
+
+      showQuestionButton.addEventListener("click", () => {
+        state.flipped[state.current] = false;
+        flashcard.classList.remove("is-flipped");
+      });
+
+      previousButton.addEventListener("click", () => {
+        state.current = Math.max(0, state.current - 1);
+        renderCard();
+      });
+
+      nextButton.addEventListener("click", () => {
+        state.current = Math.min(cards.length - 1, state.current + 1);
+        renderCard();
+      });
+
+      retryButton.addEventListener("click", () => {
+        resetPractice();
+      });
+
+      window.addEventListener("beforeunload", () => {
+        finishScorm();
+      });
+
+      initializeScorm();
+      renderCard();
+    </script>
+  </body>
+</html>

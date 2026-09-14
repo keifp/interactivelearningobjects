@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Find the Corgi Hotspot Activity</title>
+    <style>
+      :root {
+        --audley-green: #202d3c;
+        --audley-gold: #1dafa3;
+        --surface: #ffffff;
+        --soft-surface: #f7f7f2;
+        --ink: #1a2430;
+        --error: #c62828;
+        --shadow: 0 18px 48px rgba(32, 45, 60, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(29, 175, 163, 0.18), rgba(32, 45, 60, 0.08)),
+          var(--soft-surface);
+        font-family: "Proxima Nova", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: 18px;
+        line-height: 1.5;
+      }
+
+      main {
+        width: min(100%, 860px);
+        margin: 0 auto;
+        padding: clamp(18px, 4vw, 40px);
+      }
+
+      .activity {
+        display: grid;
+        gap: clamp(16px, 3vw, 24px);
+      }
+
+      .instructions {
+        color: #ffffff;
+        background: var(--audley-green);
+        border-top: 8px solid var(--audley-gold);
+        border-radius: 8px;
+        padding: clamp(18px, 4vw, 28px);
+        box-shadow: var(--shadow);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(1.7rem, 4vw, 2.45rem);
+        line-height: 1.1;
+      }
+
+      .instructions p {
+        max-width: 62ch;
+        margin: 0;
+        font-size: clamp(1rem, 2.4vw, 1.25rem);
+      }
+
+      .game {
+        display: grid;
+        gap: 18px;
+      }
+
+      .image-frame {
+        position: relative;
+        overflow: hidden;
+        width: min(100%, 680px);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        border: 5px solid var(--audley-green);
+        border-radius: 8px;
+        background: var(--audley-green);
+        box-shadow: var(--shadow);
+        cursor: crosshair;
+        touch-action: manipulation;
+        --selection-x: 50%;
+        --selection-y: 50%;
+      }
+
+      .image-frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        opacity: 0;
+        background:
+          radial-gradient(
+            circle at var(--selection-x) var(--selection-y),
+            rgba(255, 255, 255, 0) 0 8%,
+            rgba(29, 175, 163, 0.34) 8.4% 9.1%,
+            rgba(0, 0, 0, 0.62) 9.8% 100%
+          );
+        pointer-events: none;
+        transition: opacity 180ms ease;
+      }
+
+      .image-frame.has-selection::after {
+        opacity: 1;
+      }
+
+      .image-frame:focus-visible {
+        outline: 6px solid var(--audley-gold);
+        outline-offset: 5px;
+      }
+
+      .image-frame.is-locked {
+        cursor: default;
+      }
+
+      .image-frame img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .marker {
+        position: absolute;
+        left: calc(var(--marker-x) * 1%);
+        top: calc(var(--marker-y) * 1%);
+        width: clamp(34px, 8vw, 52px);
+        height: clamp(34px, 8vw, 52px);
+        border: 5px solid var(--audley-gold);
+        border-radius: 50%;
+        background: rgba(29, 175, 163, 0.16);
+        box-shadow: 0 0 0 4px rgba(32, 45, 60, 0.9), 0 8px 24px rgba(0, 0, 0, 0.22);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .marker::before,
+      .marker::after {
+        content: "";
+        position: absolute;
+        background: var(--audley-green);
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .marker::before {
+        width: 4px;
+        height: 72%;
+      }
+
+      .marker::after {
+        width: 72%;
+        height: 4px;
+      }
+
+      .controls {
+        display: grid;
+        gap: 14px;
+        justify-items: center;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        width: min(100%, 520px);
+      }
+
+      .action-button {
+        width: 100%;
+        min-height: 58px;
+        border: 3px solid transparent;
+        border-radius: 8px;
+        font: 700 clamp(1rem, 2.6vw, 1.25rem) / 1 "Proxima Nova", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        letter-spacing: 0;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(32, 45, 60, 0.18);
+        transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+      }
+
+      .action-button:disabled {
+        opacity: 0.54;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .action-button:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 26px rgba(32, 45, 60, 0.24);
+      }
+
+      .action-button:focus-visible {
+        outline: 5px solid var(--audley-green);
+        outline-offset: 4px;
+      }
+
+      .check-button {
+        color: var(--audley-green);
+        background: var(--audley-gold);
+      }
+
+      .check-button:not(:disabled):hover {
+        background: #1dafa3;
+        border-color: var(--audley-green);
+      }
+
+      .retry-button {
+        color: #ffffff;
+        background: var(--audley-green);
+        border-color: var(--audley-green);
+      }
+
+      .retry-button:not(:disabled):hover {
+        color: var(--audley-green);
+        background: #ffffff;
+      }
+
+      .feedback {
+        width: min(100%, 680px);
+        min-height: 64px;
+        margin: 0 auto;
+        border-radius: 8px;
+        padding: 16px 18px;
+        font-size: clamp(1rem, 2.4vw, 1.2rem);
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .feedback:empty {
+        display: none;
+      }
+
+      .feedback.correct {
+        color: #ffffff;
+        background: var(--audley-green);
+      }
+
+      .feedback.incorrect {
+        color: #ffffff;
+        background: var(--error);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 520px) {
+        main {
+          padding: 14px;
+        }
+
+        .instructions {
+          padding: 18px;
+        }
+
+        .image-frame {
+          border-width: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="activity" aria-labelledby="activity-title">
+        <div class="instructions">
+          <h1 id="activity-title">Find the Corgi</h1>
+          <p>Look closely at the picture. Click or tap once where you think the corgi is hiding, then press Check answer.</p>
+        </div>
+
+        <div class="game">
+          <div
+            class="image-frame"
+            id="hotspotImage"
+            role="button"
+            tabindex="0"
+            aria-label="Find the corgi picture. Click or tap once to place your marker."
+          >
+            <img
+              src="assets/find-the-corgi.png"
+              width="680"
+              height="680"
+              alt="Illustrated garden scene with flowers, planters, leaves, and small hidden animals."
+              draggable="false"
+            >
+            <span class="sr-only" id="selectionStatus">No marker placed yet.</span>
+          </div>
+
+          <div class="controls">
+            <div class="button-row">
+              <button class="action-button check-button" id="checkAnswer" type="button" disabled>Check answer</button>
+              <button class="action-button retry-button" id="retrySelection" type="button" disabled>Retry</button>
+            </div>
+            <div class="feedback" id="feedback" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const imageFrame = document.querySelector("#hotspotImage");
+      const checkButton = document.querySelector("#checkAnswer");
+      const retryButton = document.querySelector("#retrySelection");
+      const feedback = document.querySelector("#feedback");
+      const selectionStatus = document.querySelector("#selectionStatus");
+
+      const scorm = {
+        api: null,
+        initialized: false,
+        completed: false,
+
+        findApi(win) {
+          let attempts = 0;
+          let currentWindow = win;
+
+          while (currentWindow && attempts < 500) {
+            if (currentWindow.API) {
+              return currentWindow.API;
+            }
+
+            attempts += 1;
+
+            if (currentWindow.parent && currentWindow.parent !== currentWindow) {
+              currentWindow = currentWindow.parent;
+            } else {
+              break;
+            }
+          }
+
+          return null;
+        },
+
+        initialize() {
+          this.api = this.findApi(window) || (window.opener ? this.findApi(window.opener) : null);
+
+          if (!this.api) {
+            return;
+          }
+
+          const result = this.api.LMSInitialize("");
+          this.initialized = result === "true" || result === true;
+
+          if (this.initialized) {
+            const currentStatus = this.getValue("cmi.core.lesson_status");
+            this.completed = currentStatus === "completed" || currentStatus === "passed";
+
+            this.setValue("cmi.core.score.min", "0");
+            this.setValue("cmi.core.score.max", "100");
+
+            if (!this.completed) {
+              this.setValue("cmi.core.lesson_status", "incomplete");
+              this.setValue("cmi.core.score.raw", "0");
+            }
+
+            this.commit();
+          }
+        },
+
+        getValue(key) {
+          if (this.initialized && this.api) {
+            return this.api.LMSGetValue(key);
+          }
+
+          return "";
+        },
+
+        setValue(key, value) {
+          if (this.initialized && this.api) {
+            this.api.LMSSetValue(key, value);
+          }
+        },
+
+        commit() {
+          if (this.initialized && this.api) {
+            this.api.LMSCommit("");
+          }
+        },
+
+        markIncomplete() {
+          if (this.completed) {
+            return;
+          }
+
+          this.setValue("cmi.core.lesson_status", "incomplete");
+          this.setValue("cmi.core.score.raw", "0");
+          this.commit();
+        },
+
+        markComplete() {
+          this.completed = true;
+          this.setValue("cmi.core.lesson_status", "completed");
+          this.setValue("cmi.core.score.raw", "100");
+          this.commit();
+        },
+
+        finish() {
+          if (this.initialized && this.api) {
+            this.commit();
+            this.api.LMSFinish("");
+            this.initialized = false;
+          }
+        }
+      };
+
+      const hotspot = {
+        x: 89.1,
+        y: 52.8,
+        radius: 8.2
+      };
+
+      let selection = null;
+      let marker = null;
+      let checked = false;
+
+      function placeMarker(event) {
+        if (selection) {
+          return;
+        }
+
+        const rect = imageFrame.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+        selection = {
+          x: Math.max(0, Math.min(100, x)),
+          y: Math.max(0, Math.min(100, y))
+        };
+
+        marker = document.createElement("span");
+        marker.className = "marker";
+        marker.setAttribute("aria-hidden", "true");
+        marker.style.setProperty("--marker-x", selection.x.toFixed(3));
+        marker.style.setProperty("--marker-y", selection.y.toFixed(3));
+        imageFrame.style.setProperty("--selection-x", `${selection.x.toFixed(3)}%`);
+        imageFrame.style.setProperty("--selection-y", `${selection.y.toFixed(3)}%`);
+        imageFrame.append(marker);
+
+        imageFrame.classList.add("is-locked", "has-selection");
+        imageFrame.setAttribute("aria-label", "Marker placed. Press Check answer to see whether you found the corgi.");
+        selectionStatus.textContent = `Marker placed at ${Math.round(selection.x)} percent across and ${Math.round(selection.y)} percent down.`;
+        checkButton.disabled = false;
+        retryButton.disabled = false;
+        feedback.className = "feedback";
+        feedback.textContent = "";
+      }
+
+      function checkSelection() {
+        if (!selection || checked) {
+          return;
+        }
+
+        const dx = selection.x - hotspot.x;
+        const dy = selection.y - hotspot.y;
+        const distance = Math.sqrt((dx * dx) + (dy * dy));
+        const isCorrect = distance <= hotspot.radius;
+
+        checked = true;
+        checkButton.disabled = true;
+        feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
+        feedback.textContent = isCorrect
+          ? "Correct. You found the hidden corgi."
+          : "Incorrect. Your marker is not on the hidden corgi.";
+
+        if (isCorrect) {
+          scorm.markComplete();
+        } else {
+          scorm.markIncomplete();
+        }
+      }
+
+      function resetSelection() {
+        selection = null;
+        checked = false;
+        marker?.remove();
+        marker = null;
+        imageFrame.classList.remove("is-locked", "has-selection");
+        imageFrame.setAttribute("aria-label", "Find the corgi picture. Click or tap once to place your marker.");
+        selectionStatus.textContent = "No marker placed yet.";
+        checkButton.disabled = true;
+        retryButton.disabled = true;
+        feedback.className = "feedback";
+        feedback.textContent = "";
+        scorm.markIncomplete();
+      }
+
+      scorm.initialize();
+      imageFrame.addEventListener("click", placeMarker);
+      checkButton.addEventListener("click", checkSelection);
+      retryButton.addEventListener("click", resetSelection);
+      window.addEventListener("beforeunload", () => scorm.finish());
+    </script>
+  </body>
+</html>

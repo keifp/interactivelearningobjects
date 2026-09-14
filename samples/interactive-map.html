@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waco Homelessness Policy Ecosystem</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2230;
+    --panel-2: #232d3f;
+    --ink: #e8edf2;
+    /* Bumped from #8a96a8 to #a8b3c4 so secondary text clears 4.5:1 on panel/topbar backgrounds */
+    --muted: #a8b3c4;
+    --accent: #1dafa3;
+    --accent-2: #5ec3c9;
+    --gov: #6b8cff;
+    --service: #6989ae;
+    --funder: #c98ae0;
+    --community: #f48b6e;
+    --leverage: #1dafa3;
+    --land: #2a3243;
+    --water: #3a6c8c;
+    --road: #5a6478;
+    /* Bumped to #6e7d9c so UI borders/separators clear 3:1 against panels (WCAG 1.4.11) */
+    --border: #6e7d9c;
+    --focus: #1dafa3;
+    --shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+
+  /* ===== Accessibility primitives ===== */
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+    white-space: nowrap; border: 0;
+  }
+  .skip-link {
+    position: absolute;
+    top: -100px; left: 8px;
+    background: var(--accent);
+    color: #1a1a1a;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus {
+    top: 8px;
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* High-contrast keyboard focus ring across all interactive elements.
+     Uses a 2-tone ring so it stays visible on both dark and accent backgrounds:
+       - 3px gold outline (visible against dark backgrounds, > 13:1)
+       - 2px dark box-shadow inside it (visible against gold/accent backgrounds, > 9:1) */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(0,0,0,0.85);
+    border-radius: 4px;
+  }
+  .toggle:focus-visible,
+  .btn:focus-visible,
+  .btn-edit:focus-visible,
+  .panel-close:focus-visible,
+  .synth-btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.85);
+  }
+  /* Focus styles for SVG interactive elements */
+  .node-group:focus-visible .node-circle,
+  .relationship:focus-visible .rel-line,
+  .feedback:focus-visible .loop-line {
+    stroke: var(--focus) !important;
+    stroke-width: 4 !important;
+    filter: drop-shadow(0 0 8px var(--focus));
+  }
+  .node-group:focus-visible .node-circle { stroke-width: 4 !important; }
+  .relationship:focus-visible .rel-line,
+  .feedback:focus-visible .feedback.visible .loop-line { opacity: 1 !important; }
+
+  /* Respect users who prefer reduced motion (WCAG 2.3.3) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .leverage-pulse { animation: none !important; opacity: 0.65 !important; }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  /* ===== Top Bar ===== */
+  .topbar {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: linear-gradient(180deg, #1a2230 0%, #151b27 100%);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    position: relative;
+  }
+  .title-block {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .title {
+    font-size: 17px; font-weight: 600; letter-spacing: 0.2px;
+    margin: 0; color: var(--ink);
+  }
+  /* Bumped from 11px to 12px so subtitle stays >= 4.5:1 readable */
+  .subtitle {
+    font-size: 12px; color: var(--muted); letter-spacing: 0.4px; text-transform: uppercase;
+  }
+  .toggles {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .toggle {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .toggle:hover { border-color: var(--accent-2); color: var(--ink); }
+  .toggle.active {
+    background: var(--accent);
+    color: #1a1a1a;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .toggle .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+  }
+  .toggle.active .dot { background: #1a1a1a; }
+
+  .progress {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+  .progress-dots { display: flex; gap: 4px; }
+  .progress-dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border);
+  }
+  .progress-dots span.on { background: var(--accent); }
+
+  /* ===== Layout ===== */
+  .stage {
+    position: relative;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, #182030 0%, #0f1419 100%);
+  }
+
+  /* ===== Map SVG ===== */
+  #mapSvg {
+    width: 100%; height: 100%;
+    display: block;
+  }
+  /* Map labels — these are decorative neighborhood/road markers, not actionable text.
+     Setting role/aria so screen readers don't dwell on them, but contrast is still
+     bumped to >= 4.5:1 in case sighted users with low vision use them. */
+  .map-feature-label {
+    fill: #b8c2d6;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .road-label { fill: #b8c2d6; font-size: 11px; font-weight: 500; }
+  /* Brightened from #95c4dd (3.7:1) to #c8e4f3 (>= 4.5:1 on river color) */
+  .water-label { fill: #c8e4f3; font-size: 12px; font-style: italic; font-weight: 600; }
+
+  .node-group { cursor: pointer; }
+  .node-circle {
+    stroke: rgba(255,255,255,0.6);
+    stroke-width: 2;
+    transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+  }
+  .node-group:hover .node-circle {
+    stroke-width: 4;
+    stroke: #fff;
+    filter: drop-shadow(0 0 10px currentColor);
+  }
+  .node-group:hover .node-label {
+    fill: #fff;
+  }
+  .node-label {
+    transition: fill 0.2s ease;
+  }
+  .node-label {
+    fill: var(--ink);
+    font-size: 11px;
+    font-weight: 500;
+    pointer-events: none;
+    text-anchor: middle;
+  }
+  .node-label-bg {
+    fill: rgba(15,20,25,0.85);
+    pointer-events: none;
+    rx: 3;
+  }
+
+  /* Category color hints */
+  .cat-gov .node-circle { fill: var(--gov); color: var(--gov); }
+  .cat-service .node-circle { fill: var(--service); color: var(--service); }
+  .cat-funder .node-circle { fill: var(--funder); color: var(--funder); }
+  .cat-community .node-circle { fill: var(--community); color: var(--community); }
+
+  /* Leverage pulse */
+  .leverage-pulse {
+    fill: var(--leverage);
+    opacity: 0.4;
+    animation: pulse 2.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulse {
+    0%, 100% { r: 14; opacity: 0.5; }
+    50% { r: 28; opacity: 0; }
+  }
+
+  /* Relationship lines */
+  .relationship .rel-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 18;
+    pointer-events: none;
+  }
+  .relationship .rel-line {
+    stroke: var(--accent-2);
+    stroke-width: 1.8;
+    fill: none;
+    opacity: 0;
+    transition: opacity 0.3s ease, stroke-width 0.2s ease;
+    pointer-events: none;
+  }
+  .relationship.visible .rel-line { opacity: 0.55; }
+  .relationship.visible .rel-hit {
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+  .relationship.visible:hover .rel-line {
+    opacity: 1;
+    stroke-width: 3;
+  }
+
+  /* Feedback loop indicators */
+  .feedback .loop-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 22;
+    pointer-events: none;
+  }
+  .feedback .loop-line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    opacity: 0;
+    transition: opacity 0.3s ease, stroke-width 0.2s ease;
+    pointer-events: none;
+  }
+  .feedback.visible .loop-line { opacity: 0.7; }
+  .feedback.visible .loop-hit {
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+  .feedback.visible:hover .loop-line {
+    opacity: 1;
+    stroke-width: 3.5;
+  }
+
+  /* Ethics overlay state */
+  .stage.ethics-on .cat-gov:not(.lived) .node-circle {
+    fill: #3a4862; opacity: 0.55;
+  }
+  .stage.ethics-on .enforcement-zone {
+    opacity: 0.25;
+  }
+  .stage.ethics-on .lived-experience .node-circle {
+    stroke: var(--accent);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 12px var(--accent));
+  }
+  .stage.ethics-on .lived-experience .node-label {
+    font-weight: 700;
+  }
+
+  /* Stakeholder hidden state */
+  .stage.stakeholders-off .node-group { opacity: 0.15; pointer-events: none; }
+
+  /* ===== Legend ===== */
+  .legend {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    background: rgba(26, 34, 48, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow);
+    z-index: 10;
+    max-width: 240px;
+  }
+  .legend h4, .legend .legend-title {
+    margin: 0 0 10px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted);
+    font-weight: 600;
+  }
+  .legend-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--ink);
+  }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ===== Side Panel (Popup) ===== */
+  .panel {
+    position: fixed;
+    top: 64px; right: 0; bottom: 0;
+    width: 380px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    overflow-y: auto;
+    box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+  }
+  .panel.open { transform: translateX(0); }
+  .panel-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--panel);
+    z-index: 1;
+  }
+  .panel-cat {
+    display: inline-block;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 3px 8px; border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .panel-cat.gov { background: rgba(107,140,255,0.18); color: #9eb4ff; }
+  .panel-cat.service { background: rgba(105, 137, 174,0.18); color: #7ed6b8; }
+  .panel-cat.funder { background: rgba(201,138,224,0.18); color: #d4a8e8; }
+  .panel-cat.community { background: rgba(244,139,110,0.18); color: #f6a890; }
+  .panel-cat.relation { background: rgba(94,195,201,0.18); color: #8ad4d9; }
+  .panel-cat.loop { background: rgba(29, 175, 163,0.18); color: #1dafa3; }
+  .panel-cat.leverage { background: rgba(29, 175, 163,0.2); color: #1dafa3; }
+  .panel-cat.ethics { background: rgba(244,139,110,0.18); color: #f6a890; }
+
+  .panel-title {
+    margin: 0; font-size: 22px; font-weight: 600; line-height: 1.25;
+  }
+  .panel-close {
+    position: absolute; top: 18px; right: 18px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px; height: 32px; border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+    transition: all 0.2s;
+  }
+  .panel-close:hover { background: var(--panel-2); color: var(--ink); }
+  .panel-body { padding: 20px 24px 32px; }
+  .panel-section { margin-bottom: 20px; }
+  .panel-section h3,
+  .panel-section h5 {
+    margin: 0 0 6px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.7px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .panel-section p {
+    margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink);
+  }
+  .reflection {
+    margin-top: 24px;
+    background: linear-gradient(135deg, rgba(29, 175, 163,0.08), rgba(94,195,201,0.08));
+    border: 1px solid rgba(29, 175, 163,0.25);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .reflection h3,
+  .reflection h5 {
+    margin: 0 0 8px; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--accent); font-weight: 700;
+  }
+  .reflection p {
+    margin: 0; font-size: 15px; line-height: 1.55; font-style: italic; color: #cdf1ee;
+  }
+  .ethics-addon {
+    margin-top: 20px;
+    background: rgba(244,139,110,0.08);
+    border: 1px solid rgba(244,139,110,0.3);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: none;
+  }
+  .stage.ethics-on ~ .panel .ethics-addon { display: block; }
+  body.ethics-on .ethics-addon { display: block; }
+  .ethics-addon h3,
+  .ethics-addon h5 {
+    margin: 0 0 10px; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.7px; color: #ffb89e; font-weight: 700;
+  }
+  .ethics-addon ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.6; }
+  .ethics-addon li { margin-bottom: 4px; }
+
+  /* ===== Synthesis Modal ===== */
+  .synth-btn {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    background: var(--accent);
+    color: #1a1a1a;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(29, 175, 163,0.3);
+    z-index: 10;
+    transition: transform 0.15s ease;
+  }
+  .synth-btn:hover { transform: translateY(-2px); }
+
+  /* ===== Finish Activity Bar (counter + button at bottom center) ===== */
+  .finish-bar {
+    position: absolute;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: rgba(26, 34, 48, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow);
+    z-index: 10;
+  }
+  .finish-counter {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--ink); font-weight: 500;
+  }
+  .finish-counter .count-num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 15px;
+  }
+  .finish-counter .count-bar {
+    width: 140px; height: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .finish-counter .count-bar-fill {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    width: 0%;
+    transition: width 0.35s ease;
+    border-radius: 999px;
+  }
+  .finish-btn {
+    background: var(--accent);
+    color: #1a1a1a;
+    border: 1px solid var(--accent);
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(29, 175, 163,0.35);
+    transition: transform 0.15s ease, opacity 0.2s ease, background 0.2s ease;
+    min-width: 220px;
+  }
+  .finish-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .finish-btn:disabled,
+  .finish-btn[aria-disabled="true"] {
+    background: var(--panel-2);
+    color: var(--muted);
+    border-color: var(--border);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.85;
+  }
+  .finish-btn.completed {
+    background: var(--service);
+    color: #0d1319;
+    border-color: var(--service);
+    box-shadow: 0 6px 20px rgba(105, 137, 174,0.4);
+    cursor: default;
+  }
+  .finish-btn.completed:hover { transform: none; }
+  .finish-btn.closing {
+    background: var(--panel-2);
+    color: var(--ink);
+    border-color: var(--border);
+    box-shadow: none;
+    cursor: default;
+    font-weight: 600;
+  }
+  .finish-btn.closing:hover { transform: none; }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,14,20,0.75);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 200;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .modal h2 {
+    margin: 0 0 18px;
+    font-size: 24px;
+    color: var(--accent);
+  }
+  .modal p { font-size: 15px; line-height: 1.65; color: var(--ink); }
+  .modal-reflect {
+    margin-top: 24px;
+    padding: 18px;
+    border-left: 3px solid var(--accent-2);
+    text-align: left;
+    background: rgba(94,195,201,0.06);
+    border-radius: 6px;
+    font-style: italic;
+  }
+  .modal-actions {
+    margin-top: 28px;
+    display: flex; gap: 12px; justify-content: center;
+  }
+  .btn {
+    padding: 11px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--ink);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn.primary {
+    background: var(--accent); color: #1a1a1a; border-color: var(--accent); font-weight: 600;
+  }
+  .btn:hover { transform: translateY(-1px); }
+
+  /* ===== Hint ===== */
+  .hint {
+    position: absolute;
+    top: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26,34,48,0.95);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .hint.fade { opacity: 0; }
+
+
+  /* ===== Edit Mode ===== */
+  .edit-toggle {
+    margin-left: 8px;
+    border-color: rgba(29, 175, 163,0.45) !important;
+    color: var(--accent) !important;
+    background: rgba(29, 175, 163,0.08) !important;
+  }
+  .edit-toggle.active {
+    background: var(--accent) !important;
+    color: #1a1a1a !important;
+    border-color: var(--accent) !important;
+  }
+  .edit-banner {
+    position: fixed;
+    top: 64px; left: 0; right: 0;
+    background: linear-gradient(90deg, var(--accent) 0%, #1dafa3 100%);
+    color: #1a1a1a;
+    padding: 10px 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 99;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  body.edit-mode .edit-banner { display: flex; }
+  body.edit-mode .stage { top: 44px; height: calc(100vh - 64px - 44px); position: relative; }
+  body.edit-mode .panel { top: 108px; }
+  .edit-banner-text {
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .btn-edit {
+    background: rgba(0,0,0,0.85);
+    color: var(--accent);
+    border: 1px solid rgba(0,0,0,0.4);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .btn-edit:hover { transform: translateY(-1px); }
+  .btn-edit.secondary {
+    background: transparent;
+    color: #1a1a1a;
+    border-color: rgba(0,0,0,0.5);
+  }
+
+  /* Drag affordance */
+  body.edit-mode .node-group { cursor: grab; }
+  body.edit-mode .node-group.dragging { cursor: grabbing; }
+  body.edit-mode .node-group .node-circle {
+    stroke: var(--accent) !important;
+    stroke-width: 3 !important;
+  }
+  body.edit-mode .node-group:hover .node-circle {
+    filter: drop-shadow(0 0 12px var(--accent)) !important;
+  }
+  /* Disable some interactions during edit; loops remain editable when visible */
+  body.edit-mode .relationship,
+  body.edit-mode .synth-btn { pointer-events: none; opacity: 0.4; }
+  body.edit-mode .feedback:not(.visible) { pointer-events: none; opacity: 0.3; }
+  body.edit-mode .feedback.visible .loop-line { stroke: var(--accent) !important; }
+  body.edit-mode .feedback.visible .loop-hit { cursor: grab; }
+  body.edit-mode .feedback.visible.dragging .loop-hit { cursor: grabbing; }
+
+  /* Edit banner controls */
+  .edit-snap {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; user-select: none;
+  }
+  .edit-snap input { accent-color: #1a1a1a; cursor: pointer; }
+  .btn-edit:disabled {
+    opacity: 0.4; cursor: not-allowed;
+  }
+  .btn-edit:disabled:hover { transform: none; }
+
+  @media (max-width: 900px) {
+    .toggles { flex-wrap: wrap; gap: 6px; }
+    .toggle { padding: 6px 10px; font-size: 12px; }
+    .panel { width: 100%; top: 140px; }
+    .topbar { height: auto; flex-direction: column; padding: 12px; gap: 10px; }
+    .stage { height: calc(100vh - 140px); }
+  }
+</style>
+</head>
+<body class="">
+
+<!-- Skip-to-content link (WCAG 2.4.1 Bypass Blocks) -->
+<a href="#mainContent" class="skip-link">Skip to map</a>
+
+<!-- ARIA live region for status messages (save status, progress changes) -->
+<div id="ariaStatus" role="status" aria-live="polite" aria-atomic="true" class="visually-hidden">Edit mode enabled. Drag stakeholders or feedback loops with the mouse to reposition.</div>
+
+<!-- ==================== TOP BAR ==================== -->
+<header class="topbar" role="banner">
+  <div class="title-block">
+    <h1 class="title">Waco Homelessness Policy Ecosystem</h1>
+    <p class="subtitle">Interactive Policy System Mapper · McLennan County</p>
+  </div>
+  <div class="progress" aria-label="Exploration progress">
+    <span id="progressLabel">Conceptual Exploration</span>
+    <div class="progress-dots" id="progressDots" role="progressbar" aria-labelledby="progressLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5">
+      <span class="on" aria-hidden="true"></span><span aria-hidden="true" class=""></span><span aria-hidden="true" class=""></span><span aria-hidden="true" class=""></span><span aria-hidden="true" class=""></span>
+    </div>
+  </div>
+  <nav class="toggles" aria-label="Map layers">
+    <button class="toggle active" data-layer="stakeholders" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Stakeholders</button>
+    <button class="toggle" data-layer="relationships" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Relationships</button>
+    <button class="toggle" data-layer="loops" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Feedback Loops</button>
+    <button class="toggle" data-layer="ethics" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Ethics &amp; Equity Lens</button>
+    <button class="toggle edit-toggle" id="editToggle" aria-pressed="true" title="Edit stakeholder positions (password protected)">Edit</button>
+  </nav>
+</header>
+
+<!-- Edit Mode Banner -->
+<div class="edit-banner" id="editBanner">
+  <span class="edit-banner-text">Edit mode — drag stakeholders &amp; feedback loops</span>
+  <label class="edit-snap"><input type="checkbox" id="snapToggle"> Snap 10px</label>
+  <button class="btn-edit secondary" id="undoBtn" title="Undo (Ctrl/Cmd+Z)" disabled="">Undo</button>
+  <button class="btn-edit secondary" id="redoBtn" disabled="" title="Redo (Ctrl/Cmd+Shift+Z)">Redo</button>
+  <button class="btn-edit" id="saveEditBtn" title="Save (Ctrl/Cmd+S)">Save</button>
+  <button class="btn-edit secondary" id="saveAsBtn" title="Save As…">Save As…</button>
+  <button class="btn-edit secondary" id="exitEditBtn">Exit</button>
+</div>
+
+<!-- Password Modal -->
+<div class="modal-backdrop" id="pwModal" role="dialog" aria-modal="true" aria-labelledby="pwTitle" aria-describedby="pwDesc" hidden="">
+  <div class="modal" style="max-width: 360px;">
+    <h2 id="pwTitle" style="font-size: 18px; margin: 0 0 6px; color: var(--ink);">Edit Mode</h2>
+    <p id="pwDesc" style="font-size: 13px; color: var(--muted); margin: 0 0 16px;">Enter the password to enable position editing.</p>
+    <label for="pwInput" class="visually-hidden">Edit mode password</label>
+    <input type="password" id="pwInput" autocomplete="off" aria-describedby="pwError" style="width: 100%; padding: 10px 14px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; color: var(--ink); font-size: 14px; outline: none;">
+    <div id="pwError" role="alert" style="display:none; color:#ffb3b3; font-size:13px; margin-top: 8px; text-align:left;">Incorrect password. Please try again.</div>
+    <div class="modal-actions">
+      <button class="btn" id="pwCancel" type="button">Cancel</button>
+      <button class="btn primary" id="pwSubmit" type="button">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STAGE ==================== -->
+<main class="stage" id="stage" tabindex="-1">
+  <h2 id="mainContent" class="visually-hidden">Interactive policy ecosystem map of Waco</h2>
+  <div class="hint fade" id="hint" aria-hidden="true">Click any stakeholder node to explore their role in the system. Press Tab to move through stakeholders with the keyboard.</div>
+
+  <svg id="mapSvg" viewBox="0 0 1750 900" preserveAspectRatio="xMidYMid meet" role="application" aria-labelledby="svgTitle" aria-describedby="svgDesc">
+    <title id="svgTitle">Waco Homelessness Policy Ecosystem Map</title>
+    <desc id="svgDesc">A spatial map showing local government, service provider, funder, and community stakeholders involved in Waco homelessness policy, with optional layers for relationships, feedback loops, and an ethics and equity lens. Use Tab to move between stakeholders and press Enter to open details.</desc>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#5ec3c9"></path>
+      </marker>
+      <marker id="arrowAccent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1dafa3"></path>
+      </marker>
+      <radialGradient id="riverGrad">
+        <stop offset="0%" stop-color="#3a6c8c"></stop>
+        <stop offset="100%" stop-color="#264a63"></stop>
+      </radialGradient>
+    </defs>
+
+    <!-- Land base -->
+    <rect x="0" y="0" width="1750" height="900" fill="var(--land)"></rect>
+
+    <!-- Neighborhood shading -->
+    <g opacity="0.5">
+      <!-- North Waco -->
+      <path d="M 200 80 Q 380 60 580 100 L 620 280 L 280 300 Z" fill="#34405a" opacity="0.5"></path>
+      <text x="380" y="180" class="map-feature-label" text-anchor="middle">North Waco</text>
+
+      <!-- East Waco (across river) -->
+      <path d="M 870 280 L 1520 240 L 1560 580 L 920 560 Z" fill="#3d3a4a" opacity="0.5" class="enforcement-zone"></path>
+      <text x="1180" y="420" class="map-feature-label" text-anchor="middle">East Waco</text>
+
+      <!-- Downtown / Civic -->
+      <path d="M 580 320 L 870 300 L 880 480 L 600 500 Z" fill="#3f4860" opacity="0.6"></path>
+      <text x="730" y="395" class="map-feature-label" text-anchor="middle" style="font-size:13px; fill:#a3b3cf;">Downtown Waco</text>
+
+      <!-- Urban core southward -->
+      <path d="M 380 520 L 880 510 L 880 720 L 360 730 Z" fill="#363f55" opacity="0.5" class="enforcement-zone"></path>
+      <text x="620" y="650" class="map-feature-label" text-anchor="middle">Urban Core</text>
+    </g>
+
+    <!-- IH-35 corridor -->
+    <line x1="80" y1="60" x2="1730" y2="880" stroke="var(--road)" stroke-width="6" opacity="0.55"></line>
+    <line x1="80" y1="60" x2="1730" y2="880" stroke="#9aa6bc" stroke-width="1" stroke-dasharray="8 8" opacity="0.6"></line>
+    <text x="1480" y="780" class="road-label" transform="rotate(28 1480 780)">I-35 Corridor</text>
+
+    <!-- Highway 6 / smaller road -->
+    <line x1="0" y1="320" x2="1750" y2="400" stroke="var(--road)" stroke-width="3" opacity="0.4"></line>
+
+    <!-- Brazos River -->
+    <path d="M 0 380 Q 220 360 380 400 Q 540 460 700 420 Q 860 380 1020 440 Q 1180 500 1400 460 Q 1560 440 1750 470" fill="none" stroke="url(#riverGrad)" stroke-width="32" stroke-linecap="round" opacity="0.85"></path>
+    <path d="M 0 380 Q 220 360 380 400 Q 540 460 700 420 Q 860 380 1020 440 Q 1180 500 1400 460 Q 1560 440 1750 470" fill="none" stroke="#5fa0c0" stroke-width="2" opacity="0.5"></path>
+    <text x="180" y="370" class="water-label">Brazos River</text>
+
+    <!-- ===== RELATIONSHIP LINES (toggle) ===== -->
+    <g id="relationshipsGroup" role="list" aria-label="Stakeholder relationships"></g>
+
+    <!-- ===== FEEDBACK LOOPS (toggle) ===== -->
+    <g id="loopsGroup" role="list" aria-label="System feedback loops"></g>
+
+    <!-- ===== STAKEHOLDER NODES ===== -->
+    <g id="nodesGroup" role="list" aria-label="Stakeholders"></g>
+  </svg>
+
+  <!-- Legend -->
+  <section class="legend" aria-labelledby="legendTitle">
+    <h2 class="legend-title" id="legendTitle">Categories</h2>
+    <div class="legend-row"><span class="legend-dot" style="background: var(--gov);" aria-hidden="true"></span>Local Government</div>
+    <div class="legend-row"><span class="legend-dot" style="background: var(--service);" aria-hidden="true"></span>Service Providers &amp; Nonprofits</div>
+    <div class="legend-row"><span class="legend-dot" style="background: var(--funder);" aria-hidden="true"></span>Funders &amp; External Systems</div>
+    <div class="legend-row"><span class="legend-dot" style="background: var(--community);" aria-hidden="true"></span>Community &amp; Lived Experience</div>
+    <div class="legend-row" style="margin-top:8px;"><span class="legend-dot" style="background: var(--leverage); box-shadow: 0 0 8px var(--leverage);" aria-hidden="true"></span>Pulsing = Leverage Point</div>
+  </section>
+
+  <button class="synth-btn" id="synthBtn">View System Synthesis →</button>
+
+  <!-- Finish Activity Bar (counter + finish button) -->
+  <div class="finish-bar" role="group" aria-labelledby="finishCounterLabel">
+    <div class="finish-counter" id="finishCounterLabel">
+      <span class="visually-hidden">Stakeholders explored:</span>
+      <span aria-hidden="true"><span class="count-num" id="visitedCountText">17</span> / 17 explored</span>
+      <span class="count-bar" aria-hidden="true">
+        <span class="count-bar-fill" id="visitedBarFill" style="width: 100%;"></span>
+      </span>
+    </div>
+    <button id="finishBtn" class="finish-btn closing" type="button" aria-describedby="finishCounterLabel" data-enabled-announced="1" aria-disabled="true">Feel free to close activity</button>
+  </div>
+</main>
+
+<!-- ==================== SIDE PANEL ==================== -->
+<aside class="panel" id="panel" role="region" aria-labelledby="panelTitle" aria-hidden="true" tabindex="-1">
+  <div class="panel-header">
+    <button class="panel-close" id="panelClose" aria-label="Close details panel" type="button">
+      <span aria-hidden="true">×</span>
+    </button>
+    <span class="panel-cat funder" id="panelCat">Funders &amp; External</span>
+    <h2 class="panel-title" id="panelTitle">State Housing &amp; Health Agencies</h2>
+  </div>
+  <div class="panel-body" id="panelBody">
+    <div class="panel-section">
+      <h3>Role in the System</h3>
+      <p>Texas-level agencies (TDHCA, HHSC) administering housing tax credits, behavioral-health funding, and health-coverage decisions that shape local capacity.</p>
+    </div>
+    <div class="panel-section">
+      <h3>What They Control</h3>
+      <p>Low-Income Housing Tax Credit allocations, state mental-health block grants, Medicaid policy, and emergency funding releases.</p>
+    </div>
+    <div class="panel-section">
+      <h3>Primary Incentives</h3>
+      <p>Legislative priorities, federal pass-through compliance, gubernatorial direction, and budget cycles.</p>
+    </div>
+    <div class="panel-section">
+      <h3>Equity Considerations</h3>
+      <p>State decisions about Medicaid expansion and behavioral-health coverage have outsized effects on which communities can sustain services.</p>
+    </div>
+    <div class="reflection">
+      <h3>Leadership Reflection Prompt</h3>
+      <p>How much of a local crisis is actually a state policy choice expressed downstream?</p>
+    </div>
+    
+    <div class="ethics-addon" style="display:none;">
+      <h3>Ethical &amp; Equity Lens</h3>
+      <ul>
+        <li>Whose voices are missing in this neighborhood?</li>
+        <li>How do policies shift burdens from one area to another?</li>
+        <li>Where does safety conflict with dignity?</li>
+      </ul>
+      <p style="margin: 12px 0 0; font-style: italic; color: #ffd0a8; font-size: 14px; line-height: 1.5;">
+        How should ethical or faith-informed leadership respond when visible homelessness moves — not resolves?
+      </p>
+    </div>
+  
+  </div>
+</aside>
+
+<!-- ==================== SYNTHESIS MODAL ==================== -->
+<div class="modal-backdrop" id="synthModal" role="dialog" aria-modal="true" aria-labelledby="synthTitle" hidden="">
+  <div class="modal">
+    <h2 id="synthTitle">Understanding Homelessness as a Local System</h2>
+    <p>In Waco, homelessness is shaped by interactions across housing markets, healthcare systems, public safety, and community priorities — often unevenly across neighborhoods. Leaders act most responsibly when they understand how choices in one place reverberate across the whole system.</p>
+    <div class="modal-reflect">
+      <strong style="color: var(--accent-2); display:block; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px;">Reflection Prompt</strong>
+      How does seeing homelessness as a place-based system change what effective leadership requires?
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="reExplore" type="button">Re-Explore the System</button>
+      <button class="btn primary" id="markComplete" type="button">Mark Complete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== STAKEHOLDER DATA ==================== */
+const STAKEHOLDERS = [
+  // ===== Local Government (City Core / Civic District) =====
+  { id: "city-waco", name: "City of Waco", cat: "gov", catLabel: "Local Government",
+    x: 725, y: 442, r: 16, leverage: false,
+    role: "Sets municipal policy, allocates city funds, and shapes the regulatory environment in which homelessness response unfolds. Operates from City Hall in the civic core but its decisions ripple across every neighborhood.",
+    controls: "Zoning ordinances, public-space regulations, budget for homelessness initiatives, contracts with service providers, code enforcement, and downtown development priorities.",
+    incentives: "Political pressure from voters and businesses, downtown revitalization goals, public safety optics, state and federal funding compliance, and constituent complaints about visibility of homelessness.",
+    equity: "City decisions often concentrate services downtown while displacing visible homelessness toward peripheral neighborhoods, which absorb impacts without commensurate resources.",
+    reflection: "When the city's economic vision and the realities of unsheltered residents pull in opposite directions, whose interests should set the priority?"
+  },
+  { id: "police", name: "Waco Police Department", cat: "gov", catLabel: "Local Government",
+    x: 816, y: 490, r: 14, leverage: false, enforcement: true,
+    role: "Enforces municipal code, responds to calls about encampments and public-space use, and is often the de facto first responder to homelessness-related crises across the city.",
+    controls: "Citation authority, encampment clearings, arrests for camping or trespassing, discretion on warnings vs. enforcement, and visibility-driven response patterns.",
+    incentives: "Complaint volume from businesses and residents, command priorities, officer safety, downtown ambiance pressure, and crime statistics.",
+    equity: "Enforcement displaces — it does not resolve. Sweeps along the river or downtown push people into more isolated, less safe locations, often worsening health and visibility downstream.",
+    reflection: "What is the difference between safety and order, and which one is enforcement actually delivering in any given neighborhood?"
+  },
+  { id: "housing-auth", name: "Waco Housing Authority", cat: "gov", catLabel: "Local Government",
+    x: 607, y: 323, r: 14, leverage: true,
+    role: "Administers federal housing subsidies (Section 8 / Housing Choice Vouchers) and operates public housing. A primary pipeline from homelessness to stable housing — when supply and landlord cooperation align.",
+    controls: "Voucher distribution, waitlist policies, public housing units, landlord recruitment, and HUD compliance reporting.",
+    incentives: "HUD performance metrics, funding stability tied to utilization rates, audit risk, and mission to serve very-low-income households.",
+    equity: "Voucher holders often face landlord refusals and source-of-income discrimination, concentrating subsidized housing in already under-invested neighborhoods.",
+    reflection: "If a voucher cannot find a home, whose responsibility is the gap between subsidy and shelter?"
+  },
+  { id: "mclennan-county", name: "McLennan County", cat: "gov", catLabel: "Local Government",
+    x: 940, y: 220, r: 14, leverage: false,
+    role: "Provides countywide services including the jail, indigent health care, and rural/peripheral coordination. Shapes the broader catchment beyond city limits.",
+    controls: "Jail population (a frequent intersection with chronic homelessness), county health funding, indigent care defaults, and rural service coverage.",
+    incentives: "Cost containment, state mandates, jail capacity, and elected-official priorities across diverse constituencies.",
+    equity: "Rural and unincorporated residents face longer service distances; jail discharge without housing routinely returns people directly to the street.",
+    reflection: "What does a discharge plan look like if the destination is a sidewalk?"
+  },
+
+  // ===== Service Providers & Nonprofits =====
+  { id: "shelter-emergency", name: "Emergency Shelters", cat: "service", catLabel: "Service Providers",
+    x: 712, y: 526, r: 15, leverage: false,
+    role: "Provide immediate, short-stay shelter for individuals and families in crisis, concentrated in the urban core near transportation and services.",
+    controls: "Bed capacity, intake criteria, length-of-stay rules, sobriety or behavioral requirements, and partnerships with outreach.",
+    incentives: "Funder reporting requirements, bed-night utilization targets, donor expectations, and risk management.",
+    equity: "Rules designed for safety and order can screen out the people most in need — those with active substance use, mental health crises, or pets.",
+    reflection: "When a shelter's threshold for entry excludes the most vulnerable, has it solved a problem or moved one?"
+  },
+  { id: "transitional", name: "Transitional Housing", cat: "service", catLabel: "Service Providers",
+    x: 480, y: 580, r: 13, leverage: false,
+    role: "Time-limited housing paired with services, intended as a bridge from shelter to permanent housing.",
+    controls: "Program length, service requirements, exit criteria, and partnerships with permanent housing pipelines.",
+    incentives: "HUD Continuum of Care funding, outcome metrics on permanent housing exits, and program completion rates.",
+    equity: "Program rigidity can favor participants who already have stability, leaving the most chronically homeless under-served.",
+    reflection: "Are we measuring success by who finishes the program or by who needed it most?"
+  },
+  { id: "outreach", name: "Street Outreach Teams", cat: "service", catLabel: "Service Providers",
+    x: 540, y: 440, r: 14, leverage: true,
+    role: "Mobile teams meeting people where they are — riverbanks, underpasses, downtown — building trust over time and connecting individuals to services.",
+    controls: "Time and geography of outreach, harm-reduction supplies, referral pathways, and trust capital with individuals.",
+    incentives: "Funder contact metrics, relationship-driven mission, and pressure to demonstrate engagement counts.",
+    equity: "Outreach is the most consistent contact for people who refuse or are screened out of shelters — its capacity directly shapes who is reached.",
+    reflection: "When trust is the most important resource, what does it mean to fund it like a transaction?"
+  },
+  { id: "behavioral", name: "Mental Health & Substance Use Providers", cat: "service", catLabel: "Service Providers",
+    x: 871, y: 576, r: 13, leverage: true,
+    role: "Provide clinical care, medication-assisted treatment, and crisis response for behavioral health needs that overlap heavily with chronic homelessness.",
+    controls: "Clinical capacity, eligibility criteria, hours of operation, and ER/jail diversion partnerships.",
+    incentives: "Medicaid reimbursement structures, state funding cycles, workforce shortages, and clinical risk thresholds.",
+    equity: "Hours, transportation, and intake processes built for stable patients exclude those whose lives are not stable enough to keep an appointment.",
+    reflection: "How do systems built for compliance serve people whose lives make compliance impossible?"
+  },
+  { id: "faith", name: "Faith-Based Shelters & Ministries", cat: "service", catLabel: "Service Providers",
+    x: 360, y: 380, r: 13, leverage: false,
+    role: "Church-anchored shelters, meal programs, and ministries distributed across the city — often the most accessible front door for many.",
+    controls: "Volunteer capacity, donated facilities, denominational policies, and informal referral networks.",
+    incentives: "Mission and calling, congregational priorities, donor relationships, and theological framing of service.",
+    equity: "Faith-based service is irreplaceable in scale but uneven in standards; mission alignment can sometimes condition help on participation.",
+    reflection: "How do you honor the gift of faith-based service while ensuring no one is required to receive a sermon to receive a meal?"
+  },
+
+  // ===== Funders & External Systems =====
+  { id: "hud", name: "Federal HUD", cat: "funder", catLabel: "Funders & External",
+    x: 312, y: 215, r: 14, leverage: false,
+    role: "Federal Department of Housing and Urban Development. Sets the rules and the dollars for most local homelessness response.",
+    controls: "Continuum of Care funding, voucher program rules, performance metrics, data standards (HMIS), and policy priorities (e.g., Housing First).",
+    incentives: "Congressional appropriations, administration priorities, audit accountability, and national outcomes data.",
+    equity: "National rules apply unevenly across local housing markets; what works in dense cities may not fit Waco's geography.",
+    reflection: "When funding rules are written far from the people they serve, who translates — and who is left out of the translation?"
+  },
+  { id: "state", name: "State Housing & Health Agencies", cat: "funder", catLabel: "Funders & External",
+    x: 1180, y: 90, r: 13, leverage: false,
+    role: "Texas-level agencies (TDHCA, HHSC) administering housing tax credits, behavioral-health funding, and health-coverage decisions that shape local capacity.",
+    controls: "Low-Income Housing Tax Credit allocations, state mental-health block grants, Medicaid policy, and emergency funding releases.",
+    incentives: "Legislative priorities, federal pass-through compliance, gubernatorial direction, and budget cycles.",
+    equity: "State decisions about Medicaid expansion and behavioral-health coverage have outsized effects on which communities can sustain services.",
+    reflection: "How much of a local crisis is actually a state policy choice expressed downstream?"
+  },
+  { id: "philanthropy", name: "Local Philanthropy", cat: "funder", catLabel: "Funders & External",
+    x: 774, y: 329, r: 12, leverage: false,
+    role: "Foundations, family offices, and donor networks that fund pilots, gaps, and capacity that government dollars do not reach.",
+    controls: "Grant priorities, capacity-building investments, convening power, and risk tolerance for innovation.",
+    incentives: "Donor intent, board priorities, visible impact stories, and trustee relationships.",
+    equity: "Philanthropy can subsidize what should be public obligation — masking systemic gaps with charity.",
+    reflection: "Where does philanthropy underwrite innovation, and where does it relieve government of accountability?"
+  },
+  { id: "healthcare", name: "Healthcare Systems", cat: "funder", catLabel: "Funders & External",
+    x: 920, y: 460, r: 14, leverage: true,
+    role: "Hospitals (Baylor Scott & White, Ascension Providence) and clinics whose ERs and discharges intersect heavily with chronic homelessness.",
+    controls: "ER admission and discharge protocols, charity care, community-benefit spending, and partnerships with shelters.",
+    incentives: "Reimbursement structures, readmission penalties, community-benefit reporting, and bed-day costs.",
+    equity: "Chronic homelessness drives high ER utilization at high cost — yet healthcare-funded housing remains rare, even when economically rational.",
+    reflection: "If permanent housing costs less than the ER visits it prevents, what is stopping the alignment?"
+  },
+
+  // ===== Community & Lived Experience =====
+  { id: "lived", name: "Individuals Experiencing Homelessness", cat: "community", catLabel: "Community & Lived Experience",
+    x: 600, y: 580, r: 18, leverage: true, lived: true,
+    role: "The people whose lives are at the center of every decision in this map. Living in encampments, shelters, vehicles, on streets, and in the precarious edges of the housing market.",
+    controls: "Daily survival decisions, where to sleep, who to trust, and whether to engage with any system at all.",
+    incentives: "Safety, autonomy, dignity, connection, basic needs, and avoidance of harm from systems that have often failed them.",
+    equity: "Voice and agency are systematically eroded; people are spoken for, counted, surveyed, and policed — but rarely treated as the first authors of solutions.",
+    reflection: "What would change if the people closest to the problem were resourced as the people closest to the solution?"
+  },
+  { id: "encampments", name: "Encampment Areas", cat: "community", catLabel: "Community & Lived Experience",
+    x: 377, y: 462, r: 13, leverage: false, lived: true,
+    role: "Self-organized communities along the Brazos riverbanks, in wooded edges, and under highway underpasses — often the most stable shelter people have.",
+    controls: "Mutual aid networks, location knowledge, internal social order, and gatekeeping for outreach access.",
+    incentives: "Safety in numbers, proximity to water and services, avoidance of enforcement zones, and continuity of belongings.",
+    equity: "Sweeps treat encampments as nuisances rather than communities, destroying the social capital that makes street survival possible.",
+    reflection: "What does it mean that the most consistent housing some residents have is one a sweep can erase overnight?"
+  },
+  { id: "neighborhoods", name: "Neighborhood Associations", cat: "community", catLabel: "Community & Lived Experience",
+    x: 463, y: 244, r: 12, leverage: false,
+    role: "Organized residents in established neighborhoods who shape the political space for siting shelters, services, and supportive housing.",
+    controls: "Local political pressure, attendance at council meetings, opposition or support for zoning changes, and informal social influence.",
+    incentives: "Property values, perceived safety, neighborhood character, and concerns (real and imagined) about service-density impacts.",
+    equity: "NIMBY dynamics consistently push services into lower-income or less-organized neighborhoods, deepening existing inequities.",
+    reflection: "How should leadership weigh the voices of residents who are organized against the needs of residents who are unhoused?"
+  },
+  { id: "landlords", name: "Landlords & Employers", cat: "community", catLabel: "Community & Lived Experience",
+    x: 1050, y: 620, r: 13, leverage: true,
+    role: "Private-market actors whose discretion at the door determines whether vouchers, second chances, and re-entry actually translate into housing or work.",
+    controls: "Application screening, source-of-income acceptance, background-check policies, hiring practices, and pricing decisions.",
+    incentives: "Risk management, rental income stability, market competition, liability concerns, and personal beliefs.",
+    equity: "Aggregate private decisions create structural exclusion that no public program alone can override.",
+    reflection: "When the door to housing is held by thousands of private hands, what is the public's role in the lock?"
+  },
+];
+
+/* ==================== RELATIONSHIPS ==================== */
+const RELATIONSHIPS = [
+  { from: "city-waco", to: "shelter-emergency",
+    name: "Contracts & Capacity",
+    type: "Funding / Regulation",
+    effect: "City contracts with shelters set bed capacity downtown; underfunding pushes overflow to street and faith-based providers.",
+    question: "How might a contract decision in City Hall change who sleeps where tonight?"
+  },
+  { from: "police", to: "encampments",
+    name: "Enforcement & Displacement",
+    type: "Enforcement",
+    effect: "Sweeps along the river corridor displace encampments toward more peripheral, less-served zones — visibility decreases, vulnerability increases.",
+    question: "How might this relationship shift conditions from one part of Waco to another?"
+  },
+  { from: "hud", to: "housing-auth",
+    name: "Compliance & Vouchers",
+    type: "Funding / Data Compliance",
+    effect: "Federal rules and reporting requirements determine voucher availability and how the Housing Authority can operate citywide.",
+    question: "When local flexibility runs into federal compliance, who absorbs the friction?"
+  },
+  { from: "housing-auth", to: "landlords",
+    name: "Subsidy & Acceptance",
+    type: "Referral / Market",
+    effect: "Vouchers are only as useful as landlords who accept them — refusals concentrate subsidized housing in fewer neighborhoods.",
+    question: "What would it take to turn a voucher into a key in any neighborhood?"
+  },
+  { from: "outreach", to: "lived",
+    name: "Trust & Engagement",
+    type: "Referral",
+    effect: "Outreach builds the trust capital that allows people to enter services on their own terms — relationships do what mandates cannot.",
+    question: "How might an investment in trust outperform an investment in beds?"
+  },
+  { from: "healthcare", to: "behavioral",
+    name: "Care Coordination",
+    type: "Referral / Funding",
+    effect: "ER utilization patterns push healthcare systems to coordinate with behavioral-health providers, but reimbursement structures lag.",
+    question: "Where does coordination break down between a hospital bed and a clinic appointment?"
+  },
+  { from: "philanthropy", to: "outreach",
+    name: "Gap Funding",
+    type: "Funding",
+    effect: "Local philanthropy underwrites outreach capacity that government funding does not fully cover — but at the price of year-to-year uncertainty.",
+    question: "What does it mean when essential services live on grants that must be re-won annually?"
+  },
+  { from: "city-waco", to: "neighborhoods",
+    name: "Political Pressure",
+    type: "Regulation",
+    effect: "Neighborhood associations shape council decisions on shelter siting and service zoning, often determining where services can and cannot exist.",
+    question: "How does process give voice to one neighborhood while silencing another?"
+  },
+  { from: "mclennan-county", to: "behavioral",
+    name: "Indigent Care",
+    type: "Funding",
+    effect: "County funding for indigent behavioral-health care backstops the system — and is the first place strained when budgets tighten.",
+    question: "What happens to people on the street when the county budget closes?"
+  },
+  { from: "state", to: "healthcare",
+    name: "Medicaid & Coverage",
+    type: "Funding / Regulation",
+    effect: "State coverage decisions ripple through healthcare capacity, especially for behavioral health and uninsured patients.",
+    question: "How much of a Waco healthcare gap is actually an Austin policy choice?"
+  },
+  { from: "faith", to: "lived",
+    name: "Direct Aid",
+    type: "Referral",
+    effect: "Faith-based shelters and ministries are often the most accessible immediate help — meals, beds, prayer — distributed across the city.",
+    question: "How do informal networks of care complement and sometimes substitute for formal systems?"
+  },
+  { from: "shelter-emergency", to: "transitional",
+    name: "Pipeline",
+    type: "Referral",
+    effect: "Emergency shelters refer to transitional housing — but capacity mismatches mean many never make the transition.",
+    question: "What happens at the gap between an emergency bed and a transitional unit?"
+  },
+];
+
+/* ==================== FEEDBACK LOOPS ==================== */
+const LOOPS = [
+  { id: "loop-shelter-encamp", name: "Shelter Capacity ↔ Encampment Displacement",
+    nodes: ["shelter-emergency", "encampments"],
+    cx: 540, cy: 510, rx: 220, ry: 90,
+    description: "When downtown shelter capacity is full or screens out high-need individuals, encampment populations grow along the river. Sweeps then push people back toward shelters — which are still full. The loop reinforces itself unless capacity, low-barrier entry, or permanent housing pipelines change.",
+    leverage: "Low-barrier shelter expansion + permanent supportive housing breaks the loop."
+  },
+  { id: "loop-er-chronic", name: "Hospital ER Utilization ↔ Chronic Homelessness",
+    nodes: ["healthcare", "behavioral", "lived"],
+    cx: 820, cy: 530, rx: 180, ry: 90,
+    description: "Without housing, chronic conditions worsen — driving repeated, costly ER visits. Without behavioral-health and housing coordination, patients are discharged back to the street, where the cycle resumes.",
+    leverage: "Hospital-funded housing + medical respite + warm handoffs to behavioral-health break the cycle."
+  },
+  { id: "loop-reporting", name: "Reporting Requirements ↔ Provider Stability",
+    nodes: ["hud", "outreach", "philanthropy"],
+    cx: 320, cy: 280, rx: 230, ry: 110,
+    description: "Funding compliance and data reporting consume nonprofit staff time, reducing direct service capacity. When metrics drive funding renewal, providers chase what is countable rather than what is needed.",
+    leverage: "Multi-year, outcomes-flexible funding aligned across funders restores capacity."
+  },
+];
+
+/* ==================== RENDER ==================== */
+const svg = document.getElementById("mapSvg");
+const nodesGroup = document.getElementById("nodesGroup");
+const relGroup = document.getElementById("relationshipsGroup");
+const loopsGroup = document.getElementById("loopsGroup");
+const SVGNS = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs = {}, children = []) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  for (const c of children) e.appendChild(c);
+  return e;
+}
+
+// Render stakeholder nodes
+STAKEHOLDERS.forEach(s => {
+  const leverageNote = s.leverage ? ", leverage point" : "";
+  const livedNote = s.lived ? ", lived-experience perspective" : "";
+  const g = el("g", {
+    class: `node-group cat-${s.cat}${s.lived ? " lived-experience" : ""}${s.enforcement ? " enforcement-actor" : ""}`,
+    "data-id": s.id,
+    transform: `translate(${s.x}, ${s.y})`,
+    role: "listitem",
+    tabindex: "0",
+    "aria-label": `${s.name}, ${s.catLabel}${leverageNote}${livedNote}. Press Enter for details.`
+  });
+  // Provide a SVG <title> as a tooltip + screen-reader fallback
+  const svgTitle = el("title");
+  svgTitle.textContent = `${s.name} — ${s.catLabel}`;
+  g.appendChild(svgTitle);
+
+  if (s.leverage) {
+    g.appendChild(el("circle", { class: "leverage-pulse", r: 14, "aria-hidden": "true" }));
+  }
+
+  g.appendChild(el("circle", { class: "node-circle", r: s.r, "aria-hidden": "true" }));
+
+  // Label background + text
+  const labelLines = wrapLabel(s.name, 22);
+  const lineHeight = 13;
+  const totalHeight = labelLines.length * lineHeight + 8;
+  const maxWidth = Math.max(...labelLines.map(l => l.length)) * 6.2 + 12;
+
+  const labelY = s.r + 8;
+  const bg = el("rect", {
+    class: "node-label-bg",
+    x: -maxWidth / 2,
+    y: labelY,
+    width: maxWidth,
+    height: totalHeight,
+    rx: 4,
+    "aria-hidden": "true"
+  });
+  g.appendChild(bg);
+
+  labelLines.forEach((line, i) => {
+    const t = el("text", {
+      class: "node-label",
+      x: 0,
+      y: labelY + 14 + i * lineHeight,
+      "aria-hidden": "true"
+    });
+    t.textContent = line;
+    g.appendChild(t);
+  });
+
+  const activate = () => {
+    if (document.body.classList.contains("edit-mode")) return;
+    openStakeholder(s, g);
+  };
+  g.addEventListener("click", activate);
+  g.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      activate();
+    }
+  });
+  nodesGroup.appendChild(g);
+});
+
+function wrapLabel(text, max) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    if ((line + " " + w).trim().length > max && line) {
+      lines.push(line);
+      line = w;
+    } else {
+      line = (line + " " + w).trim();
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Render relationships
+RELATIONSHIPS.forEach((r, i) => {
+  const from = STAKEHOLDERS.find(s => s.id === r.from);
+  const to = STAKEHOLDERS.find(s => s.id === r.to);
+  if (!from || !to) return;
+
+  // Curved path
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const mx = (from.x + to.x) / 2;
+  const my = (from.y + to.y) / 2;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const offset = Math.min(60, len * 0.12);
+  const px = mx - (dy/len) * offset;
+  const py = my + (dx/len) * offset;
+  const d = `M ${from.x} ${from.y} Q ${px} ${py} ${to.x} ${to.y}`;
+
+  const g = el("g", {
+    class: "relationship",
+    "data-id": "rel-" + i,
+    role: "listitem",
+    tabindex: "-1", // becomes 0 only when relationships layer is visible (handled in applyState)
+    "aria-label": `Relationship: ${r.name}, from ${from.name} to ${to.name}, type ${r.type}. Press Enter for details.`
+  });
+  const relTitle = el("title");
+  relTitle.textContent = `${from.name} → ${to.name} (${r.name})`;
+  g.appendChild(relTitle);
+  // Wide invisible hit target — easy to click anywhere along the line
+  const hit = el("path", { class: "rel-hit", d: d, "aria-hidden": "true" });
+  // Visible thin line on top
+  const line = el("path", { class: "rel-line", d: d, "marker-end": "url(#arrow)", "aria-hidden": "true" });
+  g.appendChild(hit);
+  g.appendChild(line);
+  const activate = (e) => {
+    if (document.body.classList.contains("edit-mode")) return;
+    if (e) e.stopPropagation();
+    openRelationship(r, g);
+  };
+  g.addEventListener("click", activate);
+  g.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      activate(e);
+    }
+  });
+  relGroup.appendChild(g);
+});
+
+// Render feedback loops
+LOOPS.forEach(loop => {
+  const g = el("g", {
+    class: "feedback",
+    "data-id": loop.id,
+    role: "listitem",
+    tabindex: "-1", // becomes 0 only when loops layer is visible
+    "aria-label": `Feedback loop: ${loop.name}. Press Enter for details.`
+  });
+  const loopTitle = el("title");
+  loopTitle.textContent = loop.name;
+  g.appendChild(loopTitle);
+  // Wide invisible hit ring
+  const hit = el("ellipse", {
+    class: "loop-hit",
+    cx: loop.cx, cy: loop.cy,
+    rx: loop.rx, ry: loop.ry,
+    "aria-hidden": "true"
+  });
+  // Visible dashed ring
+  const ring = el("ellipse", {
+    class: "loop-line",
+    cx: loop.cx, cy: loop.cy,
+    rx: loop.rx, ry: loop.ry,
+    "aria-hidden": "true"
+  });
+  g.appendChild(hit);
+  g.appendChild(ring);
+  const activate = (e) => {
+    if (document.body.classList.contains("edit-mode")) return;
+    if (e) e.stopPropagation();
+    openLoop(loop, g);
+  };
+  g.addEventListener("click", activate);
+  g.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      activate(e);
+    }
+  });
+  loopsGroup.appendChild(g);
+});
+
+/* ==================== TOGGLE LAYERS ==================== */
+const stage = document.getElementById("stage");
+const toggles = document.querySelectorAll(".toggle:not(.edit-toggle)");
+const state = { stakeholders: true, relationships: false, loops: false, ethics: false };
+
+const ariaStatus = document.getElementById("ariaStatus");
+function announce(msg) {
+  if (!ariaStatus) return;
+  // Reset to ensure assistive tech announces even if same string
+  ariaStatus.textContent = "";
+  setTimeout(() => { ariaStatus.textContent = msg; }, 30);
+}
+
+function applyState() {
+  stage.classList.toggle("stakeholders-off", !state.stakeholders);
+  stage.classList.toggle("ethics-on", state.ethics);
+  document.body.classList.toggle("ethics-on", state.ethics);
+
+  // Stakeholders take Tab focus only when their layer is on
+  document.querySelectorAll(".node-group").forEach(g => {
+    g.setAttribute("tabindex", state.stakeholders ? "0" : "-1");
+  });
+  document.querySelectorAll(".relationship").forEach(l => {
+    l.classList.toggle("visible", state.relationships);
+    l.setAttribute("tabindex", state.relationships ? "0" : "-1");
+    l.setAttribute("aria-hidden", state.relationships ? "false" : "true");
+  });
+  document.querySelectorAll(".feedback").forEach(l => {
+    l.classList.toggle("visible", state.loops);
+    l.setAttribute("tabindex", state.loops ? "0" : "-1");
+    l.setAttribute("aria-hidden", state.loops ? "false" : "true");
+  });
+
+  // Update progress + aria-valuenow
+  const layers = ["stakeholders", "relationships", "loops", "ethics"].filter(k => state[k]).length;
+  const dots = document.querySelectorAll("#progressDots span");
+  const lit = Math.max(1, layers + (visitedCount > 3 ? 1 : 0));
+  dots.forEach((d, i) => d.classList.toggle("on", i < lit));
+  const pb = document.getElementById("progressDots");
+  if (pb) pb.setAttribute("aria-valuenow", String(lit));
+}
+
+toggles.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.layer;
+    state[key] = !state[key];
+    btn.classList.toggle("active", state[key]);
+    btn.setAttribute("aria-pressed", state[key] ? "true" : "false");
+    applyState();
+    announce(`${btn.textContent.trim()} layer ${state[key] ? "on" : "off"}`);
+    fadeHint();
+  });
+});
+
+/* ==================== PANEL ==================== */
+const panel = document.getElementById("panel");
+const panelTitle = document.getElementById("panelTitle");
+const panelCat = document.getElementById("panelCat");
+const panelBody = document.getElementById("panelBody");
+const panelClose = document.getElementById("panelClose");
+let visitedCount = 0;
+const visited = new Set();
+let panelOpener = null; // element to return focus to on close
+
+function openPanel(opener) {
+  panelOpener = opener || document.activeElement;
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden", "false");
+  // Move focus to the panel heading region for screen-reader users
+  setTimeout(() => {
+    panelClose.focus();
+  }, 50);
+}
+function closePanel() {
+  panel.classList.remove("open");
+  panel.setAttribute("aria-hidden", "true");
+  if (panelOpener && typeof panelOpener.focus === "function") {
+    try { panelOpener.focus(); } catch (e) { /* element gone */ }
+  }
+  panelOpener = null;
+}
+panelClose.addEventListener("click", closePanel);
+
+// Escape closes the panel when it's open and no modal is in front
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (document.getElementById("pwModal").classList.contains("open")) return;
+  if (document.getElementById("synthModal").classList.contains("open")) return;
+  if (panel.classList.contains("open")) {
+    e.stopPropagation();
+    closePanel();
+  }
+});
+
+function ethicsAddon() {
+  return `
+    <div class="ethics-addon" style="${state.ethics ? '' : 'display:none;'}">
+      <h3>Ethical &amp; Equity Lens</h3>
+      <ul>
+        <li>Whose voices are missing in this neighborhood?</li>
+        <li>How do policies shift burdens from one area to another?</li>
+        <li>Where does safety conflict with dignity?</li>
+      </ul>
+      <p style="margin: 12px 0 0; font-style: italic; color: #ffd0a8; font-size: 14px; line-height: 1.5;">
+        How should ethical or faith-informed leadership respond when visible homelessness moves — not resolves?
+      </p>
+    </div>
+  `;
+}
+
+function openStakeholder(s, opener) {
+  panelTitle.textContent = s.name;
+  panelCat.textContent = s.catLabel;
+  panelCat.className = `panel-cat ${s.cat}`;
+  panelBody.innerHTML = `
+    <div class="panel-section">
+      <h3>Role in the System</h3>
+      <p>${s.role}</p>
+    </div>
+    <div class="panel-section">
+      <h3>What They Control</h3>
+      <p>${s.controls}</p>
+    </div>
+    <div class="panel-section">
+      <h3>Primary Incentives</h3>
+      <p>${s.incentives}</p>
+    </div>
+    <div class="panel-section">
+      <h3>Equity Considerations</h3>
+      <p>${s.equity}</p>
+    </div>
+    <div class="reflection">
+      <h3>Leadership Reflection Prompt</h3>
+      <p>${s.reflection}</p>
+    </div>
+    ${ethicsAddon()}
+  `;
+  openPanel(opener);
+  announce(`${s.name} details opened`);
+
+  if (!visited.has(s.id)) {
+    visited.add(s.id);
+    visitedCount++;
+    updateProgress();
+  }
+  fadeHint();
+}
+
+function openRelationship(r, opener) {
+  panelTitle.textContent = r.name;
+  panelCat.textContent = "Relationship";
+  panelCat.className = "panel-cat relation";
+  panelBody.innerHTML = `
+    <div class="panel-section">
+      <h3>Relationship Type</h3>
+      <p>${r.type}</p>
+    </div>
+    <div class="panel-section">
+      <h3>System Effect</h3>
+      <p>${r.effect}</p>
+    </div>
+    <div class="reflection">
+      <h3>Guiding Question</h3>
+      <p>${r.question}</p>
+    </div>
+    ${ethicsAddon()}
+  `;
+  openPanel(opener);
+  announce(`${r.name} relationship details opened`);
+}
+
+function openLoop(loop, opener) {
+  panelTitle.textContent = loop.name;
+  panelCat.textContent = "Feedback Loop";
+  panelCat.className = "panel-cat loop";
+  panelBody.innerHTML = `
+    <div class="panel-section">
+      <h3>How the Loop Works</h3>
+      <p>${loop.description}</p>
+    </div>
+    <div class="panel-section">
+      <h3>Potential Leverage Point</h3>
+      <p>${loop.leverage}</p>
+    </div>
+    <div class="reflection">
+      <h3>Why This Matters</h3>
+      <p>Loops are where good intentions can produce stuck outcomes. Naming the loop is the first step in finding the leverage to change it.</p>
+    </div>
+    ${ethicsAddon()}
+  `;
+  openPanel(opener);
+  announce(`${loop.name} feedback loop details opened`);
+}
+
+function updateProgress() {
+  const dots = document.querySelectorAll("#progressDots span");
+  // Progression: visited 1 → first dot, every 4 nodes adds a dot
+  const stages = Math.min(5, 1 + Math.floor(visitedCount / 3));
+  dots.forEach((d, i) => d.classList.toggle("on", i < stages));
+  updateFinishBar();
+}
+
+/* ==================== FINISH BAR / COMPLETION COUNTER ==================== */
+const TOTAL_STAKEHOLDERS = STAKEHOLDERS.length; // 17
+const finishBtn = document.getElementById("finishBtn");
+const visitedCountText = document.getElementById("visitedCountText");
+const visitedBarFill = document.getElementById("visitedBarFill");
+let finishCompleted = false;
+
+function updateFinishBar() {
+  const n = visited.size;
+  if (visitedCountText) visitedCountText.textContent = String(n);
+  if (visitedBarFill) {
+    const pct = Math.min(100, (n / TOTAL_STAKEHOLDERS) * 100);
+    visitedBarFill.style.width = pct + "%";
+  }
+  if (finishCompleted) return; // never re-disable after completion
+  if (n >= TOTAL_STAKEHOLDERS) {
+    finishBtn.removeAttribute("aria-disabled");
+    finishBtn.textContent = "Finish Activity";
+    finishBtn.classList.add("ready");
+    if (!finishBtn.dataset.enabledAnnounced) {
+      announce("All seventeen stakeholders explored. The Finish Activity button is now available.");
+      finishBtn.dataset.enabledAnnounced = "1";
+    }
+  } else {
+    finishBtn.setAttribute("aria-disabled", "true");
+    finishBtn.textContent = `Finish Activity (${n} / ${TOTAL_STAKEHOLDERS})`;
+  }
+}
+
+finishBtn.addEventListener("click", () => {
+  if (finishBtn.getAttribute("aria-disabled") === "true") return;
+  if (finishCompleted) return;
+  finishCompleted = true;
+
+  // Step 1: report out as completed
+  finishBtn.classList.remove("ready");
+  finishBtn.classList.add("completed");
+  finishBtn.textContent = "✓ Activity Completed";
+  finishBtn.setAttribute("aria-disabled", "true");
+  announce("Activity completed. All seventeen stakeholders explored.");
+
+  // Mark all progress dots filled
+  document.querySelectorAll("#progressDots span").forEach(d => d.classList.add("on"));
+  const pb = document.getElementById("progressDots");
+  if (pb) pb.setAttribute("aria-valuenow", "5");
+
+  // Step 2: after a brief moment, switch text to closing message
+  setTimeout(() => {
+    finishBtn.classList.remove("completed");
+    finishBtn.classList.add("closing");
+    finishBtn.textContent = "Feel free to close activity";
+    finishBtn.setAttribute("aria-disabled", "true");
+    announce("You may now close the activity.");
+  }, 1800);
+});
+
+// Initial render so the button shows "0 / 17" on load
+updateFinishBar();
+
+/* ==================== HINT ==================== */
+const hint = document.getElementById("hint");
+let hintTimer = setTimeout(fadeHint, 7000);
+function fadeHint() {
+  hint.classList.add("fade");
+  clearTimeout(hintTimer);
+}
+
+/* ==================== SYNTHESIS ==================== */
+const synthBtn = document.getElementById("synthBtn");
+const synthModal = document.getElementById("synthModal");
+const reExplore = document.getElementById("reExplore");
+const markComplete = document.getElementById("markComplete");
+
+/* Generic accessible-modal helper (focus trap + Escape + opener restore) */
+function openModal(modalEl, openerEl) {
+  modalEl.classList.add("open");
+  modalEl.removeAttribute("hidden");
+  modalEl._opener = openerEl || document.activeElement;
+  // Focus the first focusable inside
+  setTimeout(() => {
+    const focusables = getFocusable(modalEl);
+    if (focusables.length) focusables[0].focus();
+  }, 30);
+}
+function closeModal(modalEl) {
+  modalEl.classList.remove("open");
+  modalEl.setAttribute("hidden", "");
+  const opener = modalEl._opener;
+  modalEl._opener = null;
+  if (opener && typeof opener.focus === "function") {
+    try { opener.focus(); } catch (e) { /* gone */ }
+  }
+}
+function getFocusable(root) {
+  return Array.from(root.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetParent !== null || el === document.activeElement);
+}
+function trapTab(modalEl, e) {
+  if (e.key !== "Tab") return;
+  const focusables = getFocusable(modalEl);
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault(); last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault(); first.focus();
+  }
+}
+
+synthBtn.addEventListener("click", () => openModal(synthModal, synthBtn));
+synthModal.addEventListener("click", (e) => {
+  if (e.target === synthModal) closeModal(synthModal);
+});
+synthModal.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { e.preventDefault(); closeModal(synthModal); return; }
+  trapTab(synthModal, e);
+});
+reExplore.addEventListener("click", () => closeModal(synthModal));
+markComplete.addEventListener("click", () => {
+  synthBtn.textContent = "✓ Marked Complete";
+  synthBtn.style.background = "var(--service)";
+  synthBtn.style.color = "#0e141b";
+  document.querySelectorAll("#progressDots span").forEach(d => d.classList.add("on"));
+  const pb = document.getElementById("progressDots");
+  if (pb) pb.setAttribute("aria-valuenow", "5");
+  announce("Module marked complete. All exploration stages reached.");
+  closeModal(synthModal);
+});
+
+// Click-out on panel
+document.addEventListener("click", (e) => {
+  if (!panel.contains(e.target) &&
+      !e.target.closest(".node-group") &&
+      !e.target.closest(".relationship") &&
+      !e.target.closest(".feedback") &&
+      panel.classList.contains("open")) {
+    // Optional: keep open. Comment out to auto-close.
+  }
+});
+
+applyState();
+
+/* ==================== EDIT MODE ==================== */
+const EDIT_PASSWORD = "5305a";
+const SUPPORTS_FSA = "showSaveFilePicker" in window;
+const SNAP_SIZE = 10;
+let editMode = false;
+let dragging = null;
+let fileHandle = null;
+let snapEnabled = false;
+
+const editToggle = document.getElementById("editToggle");
+const editBanner = document.getElementById("editBanner");
+const pwModal = document.getElementById("pwModal");
+const pwInput = document.getElementById("pwInput");
+const pwSubmit = document.getElementById("pwSubmit");
+const pwCancel = document.getElementById("pwCancel");
+const pwError = document.getElementById("pwError");
+const saveEditBtn = document.getElementById("saveEditBtn");
+const saveAsBtn = document.getElementById("saveAsBtn");
+const exitEditBtn = document.getElementById("exitEditBtn");
+const undoBtn = document.getElementById("undoBtn");
+const redoBtn = document.getElementById("redoBtn");
+const snapToggle = document.getElementById("snapToggle");
+
+snapToggle.addEventListener("change", () => { snapEnabled = snapToggle.checked; });
+function maybeSnap(v) {
+  return snapEnabled ? Math.round(v / SNAP_SIZE) * SNAP_SIZE : Math.round(v);
+}
+
+editToggle.addEventListener("click", () => {
+  if (editMode) exitEditMode();
+  else showPasswordModal();
+});
+
+function showPasswordModal() {
+  pwInput.value = "";
+  pwError.style.display = "none";
+  openModal(pwModal, editToggle);
+  setTimeout(() => pwInput.focus(), 60);
+}
+
+pwCancel.addEventListener("click", () => closeModal(pwModal));
+pwSubmit.addEventListener("click", checkPassword);
+pwInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); checkPassword(); }
+});
+pwModal.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { e.preventDefault(); closeModal(pwModal); return; }
+  trapTab(pwModal, e);
+});
+pwModal.addEventListener("click", (e) => {
+  if (e.target === pwModal) closeModal(pwModal);
+});
+
+function checkPassword() {
+  if (pwInput.value === EDIT_PASSWORD) {
+    closeModal(pwModal);
+    enterEditMode();
+  } else {
+    pwError.style.display = "block";
+    pwInput.value = "";
+    pwInput.focus();
+    announce("Incorrect password. Please try again.");
+  }
+}
+
+function enterEditMode() {
+  editMode = true;
+  document.body.classList.add("edit-mode");
+  editToggle.classList.add("active");
+  editToggle.setAttribute("aria-pressed", "true");
+  editToggle.textContent = "Editing…";
+  panel.classList.remove("open");
+  panel.setAttribute("aria-hidden", "true");
+  announce("Edit mode enabled. Drag stakeholders or feedback loops with the mouse to reposition.");
+  // Focus the snap toggle so keyboard users land in the banner
+  setTimeout(() => snapToggle.focus(), 50);
+}
+
+function exitEditMode() {
+  editMode = false;
+  document.body.classList.remove("edit-mode");
+  editToggle.classList.remove("active");
+  editToggle.setAttribute("aria-pressed", "false");
+  editToggle.textContent = "Edit";
+  announce("Edit mode disabled.");
+  editToggle.focus();
+}
+exitEditBtn.addEventListener("click", exitEditMode);
+
+/* --- Drag handlers (work in SVG coordinate space) --- */
+function getMousePosInSvg(clientX, clientY) {
+  const pt = svg.createSVGPoint();
+  pt.x = clientX;
+  pt.y = clientY;
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return { x: 0, y: 0 };
+  return pt.matrixTransform(ctm.inverse());
+}
+
+document.addEventListener("mousedown", (e) => {
+  if (!editMode) return;
+
+  // Try a stakeholder node first
+  const nodeGroup = e.target.closest(".node-group");
+  if (nodeGroup) {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = nodeGroup.dataset.id;
+    const stakeholder = STAKEHOLDERS.find(s => s.id === id);
+    if (!stakeholder) return;
+    pushUndo();
+    const m = getMousePosInSvg(e.clientX, e.clientY);
+    dragging = {
+      type: "node",
+      node: nodeGroup,
+      stakeholder,
+      offsetX: m.x - stakeholder.x,
+      offsetY: m.y - stakeholder.y,
+      moved: false
+    };
+    nodeGroup.classList.add("dragging");
+    return;
+  }
+
+  // Then a feedback loop (only if loops layer is on)
+  const loopGroup = e.target.closest(".feedback");
+  if (loopGroup && loopGroup.classList.contains("visible")) {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = loopGroup.dataset.id;
+    const loop = LOOPS.find(l => l.id === id);
+    if (!loop) return;
+    pushUndo();
+    const m = getMousePosInSvg(e.clientX, e.clientY);
+    dragging = {
+      type: "loop",
+      group: loopGroup,
+      loop,
+      offsetX: m.x - loop.cx,
+      offsetY: m.y - loop.cy,
+      moved: false
+    };
+    loopGroup.classList.add("dragging");
+  }
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (!dragging) return;
+  e.preventDefault();
+  const m = getMousePosInSvg(e.clientX, e.clientY);
+
+  if (dragging.type === "node") {
+    const newX = maybeSnap(m.x - dragging.offsetX);
+    const newY = maybeSnap(m.y - dragging.offsetY);
+    dragging.stakeholder.x = newX;
+    dragging.stakeholder.y = newY;
+    dragging.node.setAttribute("transform", `translate(${newX}, ${newY})`);
+    updateRelationshipsForNode(dragging.stakeholder.id);
+  } else if (dragging.type === "loop") {
+    const newX = maybeSnap(m.x - dragging.offsetX);
+    const newY = maybeSnap(m.y - dragging.offsetY);
+    dragging.loop.cx = newX;
+    dragging.loop.cy = newY;
+    const hit = dragging.group.querySelector(".loop-hit");
+    const line = dragging.group.querySelector(".loop-line");
+    if (hit) { hit.setAttribute("cx", newX); hit.setAttribute("cy", newY); }
+    if (line) { line.setAttribute("cx", newX); line.setAttribute("cy", newY); }
+  }
+  dragging.moved = true;
+});
+
+document.addEventListener("mouseup", () => {
+  if (!dragging) return;
+  if (dragging.type === "node") dragging.node.classList.remove("dragging");
+  else if (dragging.type === "loop") dragging.group.classList.remove("dragging");
+  if (!dragging.moved) {
+    // No actual movement — discard the undo entry we eagerly pushed
+    undoStack.pop();
+    updateUndoButtons();
+  }
+  dragging = null;
+});
+
+/* Recompute relationship line geometry for any line touching the moved node */
+function relPath(from, to) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const mx = (from.x + to.x) / 2;
+  const my = (from.y + to.y) / 2;
+  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+  const offset = Math.min(60, len * 0.12);
+  const px = mx - (dy/len) * offset;
+  const py = my + (dx/len) * offset;
+  return `M ${from.x} ${from.y} Q ${px} ${py} ${to.x} ${to.y}`;
+}
+
+function updateRelationshipsForNode(nodeId) {
+  document.querySelectorAll(".relationship").forEach((g, i) => {
+    const r = RELATIONSHIPS[i];
+    if (r.from !== nodeId && r.to !== nodeId) return;
+    const from = STAKEHOLDERS.find(s => s.id === r.from);
+    const to = STAKEHOLDERS.find(s => s.id === r.to);
+    const d = relPath(from, to);
+    const hit = g.querySelector(".rel-hit");
+    const line = g.querySelector(".rel-line");
+    if (hit) hit.setAttribute("d", d);
+    if (line) line.setAttribute("d", d);
+  });
+}
+
+/* --- Undo / Redo --- */
+const undoStack = [];
+const redoStack = [];
+const UNDO_LIMIT = 100;
+
+function snapshot() {
+  return {
+    nodes: STAKEHOLDERS.map(s => ({ id: s.id, x: s.x, y: s.y })),
+    loops: LOOPS.map(l => ({ id: l.id, cx: l.cx, cy: l.cy }))
+  };
+}
+
+function pushUndo() {
+  undoStack.push(snapshot());
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  redoStack.length = 0;
+  updateUndoButtons();
+}
+
+function applySnapshot(snap) {
+  snap.nodes.forEach(n => {
+    const s = STAKEHOLDERS.find(x => x.id === n.id);
+    if (!s) return;
+    s.x = n.x; s.y = n.y;
+    const g = document.querySelector(`.node-group[data-id="${s.id}"]`);
+    if (g) g.setAttribute("transform", `translate(${s.x}, ${s.y})`);
+    updateRelationshipsForNode(s.id);
+  });
+  snap.loops.forEach(n => {
+    const l = LOOPS.find(x => x.id === n.id);
+    if (!l) return;
+    l.cx = n.cx; l.cy = n.cy;
+    const g = document.querySelector(`.feedback[data-id="${l.id}"]`);
+    if (!g) return;
+    const hit = g.querySelector(".loop-hit");
+    const line = g.querySelector(".loop-line");
+    if (hit) { hit.setAttribute("cx", l.cx); hit.setAttribute("cy", l.cy); }
+    if (line) { line.setAttribute("cx", l.cx); line.setAttribute("cy", l.cy); }
+  });
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  const current = snapshot();
+  const prev = undoStack.pop();
+  redoStack.push(current);
+  applySnapshot(prev);
+  updateUndoButtons();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  const current = snapshot();
+  const next = redoStack.pop();
+  undoStack.push(current);
+  applySnapshot(next);
+  updateUndoButtons();
+}
+
+function updateUndoButtons() {
+  undoBtn.disabled = undoStack.length === 0;
+  redoBtn.disabled = redoStack.length === 0;
+}
+
+undoBtn.addEventListener("click", undo);
+redoBtn.addEventListener("click", redo);
+
+document.addEventListener("keydown", (e) => {
+  if (!editMode) return;
+  const meta = e.ctrlKey || e.metaKey;
+  if (!meta) return;
+  const k = e.key.toLowerCase();
+  if (k === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+  else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); redo(); }
+  else if (k === "s") { e.preventDefault(); saveDirectly(); }
+});
+
+/* --- Save: bake current positions into a fresh HTML, write back to disk if possible --- */
+saveEditBtn.addEventListener("click", saveDirectly);
+saveAsBtn.addEventListener("click", saveAs);
+
+function buildUpdatedHTML() {
+  // Clone the live document
+  const docClone = document.cloneNode(true);
+
+  // Clear runtime-generated SVG content so the JS can rebuild cleanly on reload
+  const ng = docClone.getElementById("nodesGroup");
+  const rg = docClone.getElementById("relationshipsGroup");
+  const lg = docClone.getElementById("loopsGroup");
+  if (ng) ng.innerHTML = "";
+  if (rg) rg.innerHTML = "";
+  if (lg) lg.innerHTML = "";
+
+  // Reset transient state classes
+  docClone.body.classList.remove("edit-mode", "panel-open", "ethics-on");
+  const cloneStage = docClone.getElementById("stage");
+  if (cloneStage) cloneStage.className = "stage";
+  const clonePanel = docClone.getElementById("panel");
+  if (clonePanel) clonePanel.classList.remove("open");
+  const clonePw = docClone.getElementById("pwModal");
+  if (clonePw) clonePw.classList.remove("open");
+  const cloneSynth = docClone.getElementById("synthModal");
+  if (cloneSynth) cloneSynth.classList.remove("open");
+
+  // Reset toggle button states to defaults (Stakeholders ON, others OFF)
+  docClone.querySelectorAll(".toggle").forEach(btn => {
+    if (btn.dataset.layer === "stakeholders") btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+  const cloneEditToggle = docClone.getElementById("editToggle");
+  if (cloneEditToggle) {
+    cloneEditToggle.classList.remove("active");
+    cloneEditToggle.textContent = "Edit";
+  }
+  const cloneSnap = docClone.getElementById("snapToggle");
+  if (cloneSnap) cloneSnap.checked = false;
+  const cloneUndo = docClone.getElementById("undoBtn");
+  if (cloneUndo) cloneUndo.disabled = true;
+  const cloneRedo = docClone.getElementById("redoBtn");
+  if (cloneRedo) cloneRedo.disabled = true;
+
+  // Reset Mark Complete button
+  const cloneSynthBtn = docClone.getElementById("synthBtn");
+  if (cloneSynthBtn) {
+    cloneSynthBtn.textContent = "View System Synthesis →";
+    cloneSynthBtn.style.background = "";
+    cloneSynthBtn.style.color = "";
+  }
+
+  // Reset progress dots (only first one ON)
+  const cloneDots = docClone.querySelectorAll("#progressDots span");
+  cloneDots.forEach((d, i) => {
+    if (i === 0) d.classList.add("on");
+    else d.classList.remove("on");
+  });
+
+  // Patch the inline script: rewrite stakeholder x/y and loop cx/cy
+  const scripts = docClone.querySelectorAll("script");
+  let mainScript = null;
+  for (const s of scripts) {
+    if (s.textContent && s.textContent.includes("STAKEHOLDERS = [")) {
+      mainScript = s;
+      break;
+    }
+  }
+  if (!mainScript) {
+    alert("Could not locate STAKEHOLDERS array in source.");
+    return null;
+  }
+
+  let txt = mainScript.textContent;
+  let updatedCount = 0;
+  STAKEHOLDERS.forEach(s => {
+    const escId = s.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      `(id:\\s*"${escId}"[^{}]*?x:\\s*)(-?\\d+(?:\\.\\d+)?)(\\s*,\\s*y:\\s*)(-?\\d+(?:\\.\\d+)?)`
+    );
+    const before = txt;
+    txt = txt.replace(pattern, `$1${s.x}$3${s.y}`);
+    if (txt !== before) updatedCount++;
+  });
+  LOOPS.forEach(l => {
+    const escId = l.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      `(id:\\s*"${escId}"[^{}]*?cx:\\s*)(-?\\d+(?:\\.\\d+)?)(\\s*,\\s*cy:\\s*)(-?\\d+(?:\\.\\d+)?)`
+    );
+    const before = txt;
+    txt = txt.replace(pattern, `$1${l.cx}$3${l.cy}`);
+    if (txt !== before) updatedCount++;
+  });
+  mainScript.textContent = txt;
+
+  const html = "<!DOCTYPE html>\n" + docClone.documentElement.outerHTML;
+  return { html, updatedCount };
+}
+
+async function ensurePermission(handle, mode = "readwrite") {
+  if (!handle.queryPermission) return true;
+  let perm = await handle.queryPermission({ mode });
+  if (perm === "granted") return true;
+  perm = await handle.requestPermission({ mode });
+  return perm === "granted";
+}
+
+async function writeToHandle(handle, html) {
+  const ok = await ensurePermission(handle, "readwrite");
+  if (!ok) throw new Error("Write permission denied");
+  const writable = await handle.createWritable();
+  await writable.write(html);
+  await writable.close();
+}
+
+async function saveDirectly() {
+  const built = buildUpdatedHTML();
+  if (!built) return;
+  const { html, updatedCount } = built;
+
+  if (!SUPPORTS_FSA) {
+    triggerDownload(html, updatedCount);
+    return;
+  }
+
+  try {
+    if (!fileHandle) {
+      fileHandle = await window.showSaveFilePicker({
+        suggestedName: "waco-homelessness-policy-mapper.html",
+        types: [{ description: "HTML file", accept: { "text/html": [".html", ".htm"] } }]
+      });
+    }
+    await writeToHandle(fileHandle, html);
+    flashSaveButton(`Saved (${updatedCount} positions)`);
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    console.error(err);
+    // Fall back to download
+    triggerDownload(html, updatedCount);
+  }
+}
+
+async function saveAs() {
+  const built = buildUpdatedHTML();
+  if (!built) return;
+  const { html, updatedCount } = built;
+
+  if (!SUPPORTS_FSA) {
+    triggerDownload(html, updatedCount);
+    return;
+  }
+
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: "waco-homelessness-policy-mapper.html",
+      types: [{ description: "HTML file", accept: { "text/html": [".html", ".htm"] } }]
+    });
+    await writeToHandle(handle, html);
+    fileHandle = handle;
+    flashSaveButton(`Saved (${updatedCount} positions)`);
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    console.error(err);
+    triggerDownload(html, updatedCount);
+  }
+}
+
+function triggerDownload(html, updatedCount) {
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "waco-homelessness-policy-mapper.html";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  flashSaveButton(`Downloaded (${updatedCount} positions)`);
+}
+
+function flashSaveButton(msg) {
+  const original = saveEditBtn.dataset.label || saveEditBtn.textContent;
+  saveEditBtn.dataset.label = original;
+  saveEditBtn.textContent = msg;
+  announce(msg);
+  setTimeout(() => {
+    saveEditBtn.textContent = saveEditBtn.dataset.label || "Save";
+  }, 2200);
+}
+
+// Feature detection: hide Save As if FSA isn't available, and relabel Save
+if (!SUPPORTS_FSA) {
+  saveEditBtn.textContent = "Download";
+  saveEditBtn.title = "Download updated HTML (your browser doesn't support direct file writes)";
+  saveAsBtn.style.display = "none";
+}
+</script>
+
+
+</body></html>

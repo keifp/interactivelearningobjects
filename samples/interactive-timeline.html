@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Timeline | Special Education Process</title>
+  <style>
+    :root {
+      --bg: #e1f2f0;
+      --surface: rgba(244, 254, 253, 0.9);
+      --surface-strong: #f6fefd;
+      --ink: #19232e;
+      --muted: #4f6158;
+      --line: #87cec8;
+      --accent: #202d3c;
+      --accent-dark: #161e28;
+      --accent-soft: #1dafa3;
+      --success: #202d3c;
+      --shadow: 0 22px 50px rgba(32, 45, 60, 0.14);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --transition: 220ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(29, 175, 163, 0.34), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(32, 45, 60, 0.18), transparent 24%),
+        linear-gradient(180deg, #eaf6f5 0%, #c4eae7 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.26;
+      pointer-events: none;
+    }
+
+    .page-shell {
+      position: relative;
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3.25rem 0 6rem;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(246, 254, 253, 0.97), rgba(193, 240, 236, 0.88));
+      border: 1px solid rgba(32, 45, 60, 0.14);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: clamp(1.75rem, 4vw, 3rem);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -3rem;
+      bottom: -3rem;
+      width: 14rem;
+      height: 14rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29, 175, 163, 0.28), transparent 68%);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p, li {
+      transition: background-color var(--transition), outline-color var(--transition), box-shadow var(--transition);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 4.5rem);
+      line-height: 0.95;
+      margin: 0;
+      max-width: 10ch;
+    }
+
+    .hero-copy {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.75;
+      margin-top: 1rem;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1.4rem;
+    }
+
+    .hero-badges span {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(32, 45, 60, 0.14);
+      padding: 0.65rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 1.5rem;
+      align-items: center;
+    }
+
+    .ghost-btn {
+      color: var(--accent-dark);
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(32, 45, 60, 0.16);
+      font-weight: 700;
+    }
+
+    .hero-helper {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .timeline-section {
+      margin-top: 2rem;
+      background: rgba(246, 254, 253, 0.76);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: clamp(1.4rem, 2vw, 2rem);
+      backdrop-filter: blur(8px);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header p {
+      margin: 0.4rem 0 0;
+      max-width: 50ch;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .pathway {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      position: relative;
+    }
+
+    .pathway::before {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 2.2rem;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent) 0%, #344961 45%, var(--accent-soft) 100%);
+      transform-origin: left center;
+      animation: drawLine 1.8s ease forwards;
+      z-index: 0;
+    }
+
+    .step-card {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      min-height: 100%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(234, 247, 246, 0.92));
+      border: 1px solid rgba(32, 45, 60, 0.14);
+      border-radius: calc(var(--radius-md) + 4px);
+      padding: 1.2rem;
+      transform: translateY(24px);
+      opacity: 0;
+      animation: riseIn 0.65s ease forwards;
+    }
+
+    .step-card:nth-child(2) { animation-delay: 0.2s; }
+    .step-card:nth-child(3) { animation-delay: 0.4s; }
+    .step-card:nth-child(4) { animation-delay: 0.6s; }
+
+    .step-marker {
+      width: 4.4rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color: #effdfc;
+      box-shadow: 0 12px 20px rgba(32, 45, 60, 0.24);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .step-card h3 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .step-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .step-card ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    .journey-panel {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 1.2rem;
+      margin-top: 1.75rem;
+    }
+
+    .journey-sidebar,
+    .journey-detail,
+    .activity-card,
+    .progress-card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(234, 247, 246, 0.92));
+      border: 1px solid rgba(32, 45, 60, 0.14);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 24px rgba(76, 57, 37, 0.08);
+    }
+
+    .journey-sidebar {
+      padding: 1rem;
+      display: grid;
+      gap: 0.75rem;
+      align-content: start;
+    }
+
+    .step-nav-btn {
+      width: 100%;
+      text-align: left;
+      border-radius: 16px;
+      padding: 1rem;
+      background: rgba(241, 253, 252, 0.88);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      box-shadow: none;
+    }
+
+    .step-nav-btn strong,
+    .step-nav-btn span {
+      display: block;
+    }
+
+    .step-nav-btn strong {
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .step-nav-btn span {
+      color: var(--ink);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .step-nav-btn.is-active {
+      background: linear-gradient(180deg, rgba(29, 175, 163, 0.45), rgba(32, 45, 60, 0.18));
+      border-color: rgba(32, 45, 60, 0.28);
+      transform: translateX(6px);
+    }
+
+    .journey-detail {
+      padding: 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .journey-detail::after {
+      content: "";
+      position: absolute;
+      right: -2rem;
+      top: -2rem;
+      width: 10rem;
+      height: 10rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29, 175, 163, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .journey-kicker {
+      margin: 0 0 0.4rem;
+      font-size: 0.84rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .journey-title {
+      margin: 0;
+      font-size: clamp(1.6rem, 2vw, 2.2rem);
+    }
+
+    .journey-description {
+      margin: 0.9rem 0 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 60ch;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1.1rem 0;
+    }
+
+    .detail-pill {
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      background: rgba(248, 254, 254, 0.82);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      line-height: 1.65;
+    }
+
+    .micro-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 1rem 0 0;
+    }
+
+    .progress-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.7rem;
+      margin-top: 1.2rem;
+    }
+
+    .progress-chip {
+      padding: 0.8rem 0.85rem;
+      border-radius: 14px;
+      background: rgba(244, 254, 253, 0.76);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .progress-chip.is-active {
+      background: rgba(29, 175, 163, 0.22);
+      color: var(--accent-dark);
+      border-color: rgba(32, 45, 60, 0.26);
+    }
+
+    .progress-chip.is-done {
+      background: rgba(143, 191, 158, 0.24);
+      color: var(--success);
+      border-color: rgba(58, 81, 108, 0.28);
+    }
+
+    .interactive-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+    }
+
+    .activity-card,
+    .progress-card {
+      padding: 1.25rem;
+    }
+
+    .activity-card h3,
+    .progress-card h3 {
+      margin-top: 0;
+      margin-bottom: 0.45rem;
+      font-size: 1.25rem;
+    }
+
+    .activity-card p,
+    .progress-card p {
+      margin-top: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .scenario-options {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .scenario-btn {
+      width: 100%;
+      text-align: left;
+      border-radius: 16px;
+      padding: 1rem 1rem 1rem 1.1rem;
+      background: rgba(244, 254, 253, 0.86);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      box-shadow: none;
+    }
+
+    .scenario-btn:hover {
+      transform: translateX(4px);
+    }
+
+    .scenario-btn.is-correct {
+      background: rgba(143, 191, 158, 0.22);
+      border-color: rgba(58, 81, 108, 0.28);
+      color: var(--success);
+    }
+
+    .scenario-btn.is-wrong {
+      background: rgba(29, 175, 163, 0.18);
+      border-color: rgba(32, 45, 60, 0.24);
+      color: var(--accent-dark);
+    }
+
+    .scenario-feedback {
+      min-height: 1.6rem;
+      margin-top: 0.95rem;
+      font-weight: 700;
+    }
+
+    .reflection-list {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .reflection-item {
+      display: flex;
+      align-items: start;
+      gap: 0.7rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: 14px;
+      background: rgba(248, 254, 254, 0.8);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+    }
+
+    .reflection-item input {
+      margin-top: 0.2rem;
+      accent-color: var(--accent);
+    }
+
+    .reflection-count {
+      margin-top: 1rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .knowledge-check {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    .question-card {
+      background: var(--surface-strong);
+      border: 1px solid rgba(32, 45, 60, 0.12);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .question-card p {
+      margin: 0 0 0.95rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .question-card label {
+      display: flex;
+      align-items: start;
+      gap: 0.7rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition), transform var(--transition);
+    }
+
+    .question-card label:hover {
+      background: rgba(29, 175, 163, 0.18);
+      transform: translateX(4px);
+    }
+
+    .question-card input {
+      margin-top: 0.25rem;
+      accent-color: var(--accent);
+    }
+
+    .quiz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.25rem;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-btn {
+      color: #f7fefd;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      box-shadow: 0 12px 24px rgba(32, 45, 60, 0.24);
+    }
+
+    .secondary-btn {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(32, 45, 60, 0.14);
+    }
+
+    .results {
+      min-height: 1.5rem;
+      font-weight: 700;
+    }
+
+    .results[data-state="correct"] {
+      color: var(--success);
+    }
+
+    .results[data-state="retry"] {
+      color: var(--accent-dark);
+    }
+
+    .editable [data-editable="true"] {
+      cursor: text;
+      border-radius: 10px;
+      outline: 2px dashed rgba(29, 175, 163, 0.65);
+      outline-offset: 4px;
+      background: rgba(239, 253, 252, 0.75);
+    }
+
+    .edit-dock {
+      position: fixed;
+      right: 1.2rem;
+      bottom: 1.2rem;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(31, 42, 46, 0.9);
+      color: #f8fefe;
+      border-radius: 999px;
+      padding: 0.5rem 0.55rem 0.5rem 0.8rem;
+      box-shadow: 0 20px 45px rgba(26, 25, 22, 0.24);
+      backdrop-filter: blur(10px);
+    }
+
+    .edit-dock .status {
+      font-size: 0.78rem;
+      color: rgba(248, 254, 254, 0.75);
+      white-space: nowrap;
+    }
+
+    .edit-dock button {
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .edit-toggle {
+      background: linear-gradient(180deg, #1dafa3, #1dafa3);
+      color: #18222d;
+      font-weight: 700;
+    }
+
+    .save-btn {
+      background: linear-gradient(180deg, #2b3d51, #202d3c);
+      color: white;
+      font-weight: 700;
+    }
+
+    .save-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .icon-btn-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .footer-note {
+      margin-top: 1.25rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    @keyframes drawLine {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes riseIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .pathway {
+        grid-template-columns: 1fr;
+      }
+
+      .journey-panel,
+      .interactive-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pathway::before {
+        left: 2.15rem;
+        right: auto;
+        top: 2rem;
+        bottom: 2rem;
+        width: 6px;
+        height: auto;
+        animation: none;
+      }
+
+      .step-card {
+        padding-left: 5.25rem;
+      }
+
+      .step-marker {
+        position: absolute;
+        left: 1.15rem;
+        top: 1.15rem;
+        width: 3.25rem;
+      }
+
+      .progress-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100% - 1rem, 1120px);
+        padding-top: 1rem;
+        padding-bottom: 6.5rem;
+      }
+
+      .hero,
+      .timeline-section {
+        border-radius: 22px;
+      }
+
+      .section-header {
+        align-items: start;
+      }
+
+      .edit-dock {
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        border-radius: 24px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .progress-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell" id="timelineRoot">
+    <section class="hero">
+      <p class="eyebrow" data-editable="true">Interactive Timeline Outline</p>
+      <h1 data-editable="true">The Special Education Process</h1>
+      <p class="hero-copy" data-editable="true">
+        Follow the timeline from referral through placement, then finish with a short
+        knowledge check. Every main text block on this page can be edited once editing is enabled.
+      </p>
+      <div class="hero-badges">
+        <span data-editable="true">Referral</span>
+        <span data-editable="true">Assessment</span>
+        <span data-editable="true">IEP Development</span>
+        <span data-editable="true">Least Restrictive Environment</span>
+      </div>
+      <div class="hero-actions">
+        <button class="primary-btn" id="startJourneyBtn" type="button">Start Guided Journey</button>
+        <button class="ghost-btn" id="jumpQuizBtn" type="button">Jump To Knowledge Check</button>
+        <p class="hero-helper" data-editable="true">Use the guided journey to unlock each step and track progress as you go.</p>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-editable="true">Animated Step Pathway</p>
+          <h2 data-editable="true">Progression From Referral To Placement</h2>
+          <p data-editable="true">
+            The pathway below visually moves through the four major stages of the special education process.
+          </p>
+        </div>
+      </div>
+
+      <div class="pathway">
+        <article class="step-card">
+          <div class="step-marker">Step 1</div>
+          <h3 data-editable="true">Referral</h3>
+          <p data-editable="true">
+            Concern raised by a parent or school staff member.
+          </p>
+          <p data-editable="true">
+            The team first attempts instructional modifications before formal evaluation.
+          </p>
+        </article>
+
+        <article class="step-card">
+          <div class="step-marker">Step 2</div>
+          <h3 data-editable="true">Assessment</h3>
+          <p data-editable="true">
+            A multidisciplinary team evaluates the student using multiple data sources:
+          </p>
+          <ul>
+            <li data-editable="true">Cognitive testing</li>
+            <li data-editable="true">Academic assessments</li>
+            <li data-editable="true">Behavioral observations</li>
+            <li data-editable="true">Interviews and records review</li>
+          </ul>
+        </article>
+
+        <article class="step-card">
+          <div class="step-marker">Step 3</div>
+          <h3 data-editable="true">Development of an IEP</h3>
+          <p data-editable="true">
+            The Individualized Education Program includes:
+          </p>
+          <ul>
+            <li data-editable="true">Present performance levels</li>
+            <li data-editable="true">Measurable goals</li>
+            <li data-editable="true">Accommodations and services</li>
+          </ul>
+        </article>
+
+        <article class="step-card">
+          <div class="step-marker">Step 4</div>
+          <h3 data-editable="true">Placement in the Least Restrictive Environment</h3>
+          <p data-editable="true">
+            Students should be educated with peers without disabilities whenever appropriate.
+          </p>
+        </article>
+      </div>
+
+      <div class="journey-panel">
+        <aside class="journey-sidebar">
+          <button class="step-nav-btn is-active" type="button" data-step-target="0">
+            <strong>Step 1</strong>
+            <span data-editable="true">Referral</span>
+          </button>
+          <button class="step-nav-btn" type="button" data-step-target="1">
+            <strong>Step 2</strong>
+            <span data-editable="true">Assessment</span>
+          </button>
+          <button class="step-nav-btn" type="button" data-step-target="2">
+            <strong>Step 3</strong>
+            <span data-editable="true">IEP Development</span>
+          </button>
+          <button class="step-nav-btn" type="button" data-step-target="3">
+            <strong>Step 4</strong>
+            <span data-editable="true">Placement</span>
+          </button>
+        </aside>
+
+        <section class="journey-detail" aria-live="polite">
+          <p class="journey-kicker" id="journeyKicker">Guided Step 1</p>
+          <h3 class="journey-title" id="journeyTitle">Referral</h3>
+          <p class="journey-description" id="journeyDescription">
+            Start with the first concern and see how the process begins before any formal evaluation happens.
+          </p>
+          <div class="detail-list" id="journeyDetails"></div>
+          <p class="micro-note" id="journeyNote" data-editable="true">Move through the steps by selecting any stage from the left.</p>
+          <div class="progress-strip" id="progressStrip">
+            <div class="progress-chip">Step 1</div>
+            <div class="progress-chip">Step 2</div>
+            <div class="progress-chip">Step 3</div>
+            <div class="progress-chip">Step 4</div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-editable="true">Interactive Practice</p>
+          <h2 data-editable="true">Apply The Process</h2>
+          <p data-editable="true">
+            Try a quick scenario and keep track of what actions you have already explored.
+          </p>
+        </div>
+      </div>
+
+      <div class="interactive-grid">
+        <section class="activity-card">
+          <h3 data-editable="true">Which Step Comes First?</h3>
+          <p data-editable="true">
+            A parent shares concerns about a student's learning progress. Which step best fits that moment?
+          </p>
+          <div class="scenario-options">
+            <button class="scenario-btn" type="button" data-scenario-choice="wrong"><span data-editable="true">Assessment happens first because testing should begin immediately.</span></button>
+            <button class="scenario-btn" type="button" data-scenario-choice="correct"><span data-editable="true">Referral is the best fit because a concern has just been raised.</span></button>
+            <button class="scenario-btn" type="button" data-scenario-choice="wrong"><span data-editable="true">Placement happens first so the student can be moved right away.</span></button>
+          </div>
+          <div class="scenario-feedback" id="scenarioFeedback" aria-live="polite"></div>
+        </section>
+
+        <aside class="progress-card">
+          <h3 data-editable="true">Reflection Checklist</h3>
+          <p data-editable="true">
+            Check off each idea after you have explored it in the journey above.
+          </p>
+          <div class="reflection-list">
+            <label class="reflection-item"><input type="checkbox" class="reflection-check"> <span data-editable="true">I can describe what happens during referral.</span></label>
+            <label class="reflection-item"><input type="checkbox" class="reflection-check"> <span data-editable="true">I can name data sources used during assessment.</span></label>
+            <label class="reflection-item"><input type="checkbox" class="reflection-check"> <span data-editable="true">I can identify what belongs in an IEP.</span></label>
+            <label class="reflection-item"><input type="checkbox" class="reflection-check"> <span data-editable="true">I understand the idea of the least restrictive environment.</span></label>
+          </div>
+          <div class="reflection-count" id="reflectionCount">0 of 4 completed</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-editable="true">Knowledge Check</p>
+          <h2 data-editable="true">Quick Multiple-Choice Review</h2>
+          <p data-editable="true">
+            Answer these questions to check understanding before you finish the timeline.
+          </p>
+        </div>
+      </div>
+
+      <div class="knowledge-check">
+        <div class="question-card">
+          <p data-editable="true">1. What should the team attempt before formal evaluation begins?</p>
+          <label><input type="radio" name="q1" value="a"> <span data-editable="true">Instructional modifications</span></label>
+          <label><input type="radio" name="q1" value="b"> <span data-editable="true">Immediate placement change</span></label>
+          <label><input type="radio" name="q1" value="c"> <span data-editable="true">Graduation planning</span></label>
+        </div>
+
+        <div class="question-card">
+          <p data-editable="true">2. Which group usually carries out the assessment?</p>
+          <label><input type="radio" name="q2" value="a"> <span data-editable="true">A multidisciplinary team</span></label>
+          <label><input type="radio" name="q2" value="b"> <span data-editable="true">Only the school principal</span></label>
+          <label><input type="radio" name="q2" value="c"> <span data-editable="true">Only the classroom teacher</span></label>
+        </div>
+
+        <div class="question-card">
+          <p data-editable="true">3. What is one goal of placement in the least restrictive environment?</p>
+          <label><input type="radio" name="q3" value="a"> <span data-editable="true">To separate students whenever possible</span></label>
+          <label><input type="radio" name="q3" value="b"> <span data-editable="true">To educate students with peers without disabilities when appropriate</span></label>
+          <label><input type="radio" name="q3" value="c"> <span data-editable="true">To skip the IEP process</span></label>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="primary-btn" id="checkAnswersBtn" type="button">Check Answers</button>
+          <button class="secondary-btn" id="resetQuizBtn" type="button">Reset Quiz</button>
+          <div class="results" id="quizResults" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <p class="footer-note" data-editable="true">
+        Tip: Enable editing to customize the wording, quiz items, or supporting notes for your audience.
+      </p>
+    </section>
+  </main>
+
+  <div class="edit-dock">
+    <span class="status" id="editStatus">Editing is off</span>
+    <button class="edit-toggle" id="editToggleBtn" type="button" aria-label="Enable editing" title="Enable editing">
+      <span aria-hidden="true" id="editToggleIcon">✎</span>
+      <span class="icon-btn-label">Enable editing</span>
+    </button>
+    <button class="save-btn" id="saveBtn" type="button" disabled aria-label="Save new version" title="Save new version">
+      <span aria-hidden="true" id="saveBtnIcon">↻</span>
+      <span class="icon-btn-label">Save new version</span>
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      const PASSWORD = "5366a";
+      const body = document.body;
+      const editToggleBtn = document.getElementById("editToggleBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const editToggleIcon = document.getElementById("editToggleIcon");
+      const saveBtnIcon = document.getElementById("saveBtnIcon");
+      const editStatus = document.getElementById("editStatus");
+      const editableNodes = Array.from(document.querySelectorAll("[data-editable='true']"));
+      const quizResults = document.getElementById("quizResults");
+      const checkAnswersBtn = document.getElementById("checkAnswersBtn");
+      const resetQuizBtn = document.getElementById("resetQuizBtn");
+      const startJourneyBtn = document.getElementById("startJourneyBtn");
+      const jumpQuizBtn = document.getElementById("jumpQuizBtn");
+      const stepNavButtons = Array.from(document.querySelectorAll("[data-step-target]"));
+      const journeyKicker = document.getElementById("journeyKicker");
+      const journeyTitle = document.getElementById("journeyTitle");
+      const journeyDescription = document.getElementById("journeyDescription");
+      const journeyDetails = document.getElementById("journeyDetails");
+      const progressChips = Array.from(document.querySelectorAll(".progress-chip"));
+      const scenarioButtons = Array.from(document.querySelectorAll(".scenario-btn"));
+      const scenarioFeedback = document.getElementById("scenarioFeedback");
+      const reflectionChecks = Array.from(document.querySelectorAll(".reflection-check"));
+      const reflectionCount = document.getElementById("reflectionCount");
+      const correctAnswers = { q1: "a", q2: "a", q3: "b" };
+      const journeySteps = [
+        {
+          kicker: "Guided Step 1",
+          title: "Referral",
+          description: "This stage begins when a parent or school staff member raises a concern about a student's needs or progress.",
+          details: [
+            "A concern is raised by a parent or school staff member.",
+            "The team starts by looking at supports already in place.",
+            "Instructional modifications are typically attempted before a formal evaluation."
+          ]
+        },
+        {
+          kicker: "Guided Step 2",
+          title: "Assessment",
+          description: "A multidisciplinary team gathers information from several sources so the student's needs are understood from more than one angle.",
+          details: [
+            "Cognitive testing helps the team understand learning-related strengths and needs.",
+            "Academic assessments show current performance in school-based skill areas.",
+            "Behavioral observations, interviews, and records review add context."
+          ]
+        },
+        {
+          kicker: "Guided Step 3",
+          title: "Development of an IEP",
+          description: "The Individualized Education Program turns evaluation findings into a concrete support plan for the student.",
+          details: [
+            "The IEP includes present performance levels.",
+            "It includes measurable goals that can be monitored over time.",
+            "It also includes accommodations and services."
+          ]
+        },
+        {
+          kicker: "Guided Step 4",
+          title: "Placement in the Least Restrictive Environment",
+          description: "Placement decisions should support access to peers without disabilities whenever that setting is appropriate for the student.",
+          details: [
+            "The goal is not automatic separation.",
+            "Teams consider where the student can learn with peers without disabilities whenever appropriate.",
+            "Placement follows the planning process rather than replacing it."
+          ]
+        }
+      ];
+      let currentJourneyStep = 0;
+      let editingEnabled = false;
+      let hasUnsavedChanges = false;
+
+      function setEditingState(enabled) {
+        editingEnabled = enabled;
+        body.classList.toggle("editable", enabled);
+        editableNodes.forEach((node) => {
+          node.contentEditable = enabled ? "true" : "false";
+          node.spellcheck = enabled;
+        });
+        editStatus.textContent = enabled ? "Editing is on" : "Editing is off";
+        editToggleIcon.textContent = enabled ? "✓" : "✎";
+        editToggleBtn.setAttribute("aria-label", enabled ? "Disable editing" : "Enable editing");
+        editToggleBtn.setAttribute("title", enabled ? "Disable editing" : "Enable editing");
+        saveBtn.disabled = !enabled || !hasUnsavedChanges;
+      }
+
+      function markDirty() {
+        if (!editingEnabled) {
+          return;
+        }
+        hasUnsavedChanges = true;
+        editStatus.textContent = "Unsaved changes";
+        saveBtn.disabled = false;
+      }
+
+      editableNodes.forEach((node) => {
+        node.addEventListener("input", markDirty);
+      });
+
+      function renderJourneyStep(index) {
+        currentJourneyStep = index;
+        const step = journeySteps[index];
+        journeyKicker.textContent = step.kicker;
+        journeyTitle.textContent = step.title;
+        journeyDescription.textContent = step.description;
+        journeyDetails.innerHTML = "";
+        step.details.forEach(function (detail) {
+          const item = document.createElement("div");
+          item.className = "detail-pill";
+          item.textContent = detail;
+          journeyDetails.appendChild(item);
+        });
+
+        stepNavButtons.forEach(function (button, buttonIndex) {
+          button.classList.toggle("is-active", buttonIndex === index);
+        });
+
+        progressChips.forEach(function (chip, chipIndex) {
+          chip.classList.toggle("is-active", chipIndex === index);
+          chip.classList.remove("is-done");
+        });
+      }
+
+      function updateReflectionCount() {
+        const completed = reflectionChecks.filter(function (check) {
+          return check.checked;
+        }).length;
+        reflectionCount.textContent = completed + " of " + reflectionChecks.length + " completed";
+      }
+
+      stepNavButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          renderJourneyStep(Number(button.dataset.stepTarget));
+        });
+      });
+
+      startJourneyBtn.addEventListener("click", function () {
+        document.querySelector(".journey-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+        renderJourneyStep(0);
+      });
+
+      jumpQuizBtn.addEventListener("click", function () {
+        document.querySelector(".knowledge-check").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      scenarioButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          scenarioButtons.forEach(function (item) {
+            item.classList.remove("is-correct", "is-wrong");
+          });
+
+          const isCorrect = button.dataset.scenarioChoice === "correct";
+          button.classList.add(isCorrect ? "is-correct" : "is-wrong");
+          scenarioFeedback.textContent = isCorrect
+            ? "Correct. A newly raised concern fits the referral step."
+            : "Not quite. A newly raised concern points first to referral.";
+        });
+      });
+
+      reflectionChecks.forEach(function (check) {
+        check.addEventListener("change", updateReflectionCount);
+      });
+
+      editToggleBtn.addEventListener("click", function () {
+        if (!editingEnabled) {
+          const entry = window.prompt("Enter the editing password:");
+          if (entry !== PASSWORD) {
+            window.alert("Password incorrect. Editing stays off.");
+            return;
+          }
+          setEditingState(true);
+          return;
+        }
+
+        setEditingState(false);
+      });
+
+      saveBtn.addEventListener("click", async function () {
+        if (!editingEnabled) {
+          window.alert("Enable editing first.");
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtnIcon.textContent = "…";
+        saveBtn.setAttribute("aria-label", "Saving");
+        saveBtn.setAttribute("title", "Saving");
+
+        try {
+          const response = await fetch("/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              html: "<!DOCTYPE html>\n" + document.documentElement.outerHTML
+            })
+          });
+
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "Save failed.");
+          }
+
+          hasUnsavedChanges = false;
+          editStatus.textContent = "Saved " + payload.versionFile;
+          saveBtnIcon.textContent = "✓";
+          saveBtn.setAttribute("aria-label", "Saved");
+          saveBtn.setAttribute("title", "Saved");
+          window.setTimeout(function () {
+            saveBtnIcon.textContent = "↻";
+            saveBtn.setAttribute("aria-label", "Save new version");
+            saveBtn.setAttribute("title", "Save new version");
+            saveBtn.disabled = !editingEnabled || !hasUnsavedChanges;
+          }, 1200);
+        } catch (error) {
+          editStatus.textContent = "Save failed";
+          saveBtnIcon.textContent = "!";
+          saveBtn.setAttribute("aria-label", "Save failed");
+          saveBtn.setAttribute("title", "Save failed");
+          window.setTimeout(function () {
+            saveBtnIcon.textContent = "↻";
+            saveBtn.setAttribute("aria-label", "Save new version");
+            saveBtn.setAttribute("title", "Save new version");
+            saveBtn.disabled = !editingEnabled || !hasUnsavedChanges;
+          }, 1200);
+          window.alert(error.message);
+        }
+      });
+
+      checkAnswersBtn.addEventListener("click", function () {
+        let score = 0;
+        Object.entries(correctAnswers).forEach(function ([question, answer]) {
+          const selected = document.querySelector('input[name="' + question + '"]:checked');
+          if (selected && selected.value === answer) {
+            score += 1;
+          }
+        });
+
+        const total = Object.keys(correctAnswers).length;
+        if (score === total) {
+          quizResults.dataset.state = "correct";
+          quizResults.textContent = "Great work. You got " + score + " out of " + total + " correct.";
+          return;
+        }
+
+        quizResults.dataset.state = "retry";
+        quizResults.textContent = "You got " + score + " out of " + total + ". Review the timeline and try again.";
+      });
+
+      resetQuizBtn.addEventListener("click", function () {
+        document.querySelectorAll('input[type="radio"]').forEach(function (input) {
+          input.checked = false;
+        });
+        quizResults.textContent = "";
+        delete quizResults.dataset.state;
+      });
+
+      renderJourneyStep(0);
+      updateReflectionCount();
+      setEditingState(false);
+    }());
+  </script>
+</body>
+</html>
