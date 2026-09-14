@@ -26,7 +26,7 @@
   nav a.cta:hover{background:var(--teal-dark);text-decoration:none}
   .hero{padding:72px 0 48px;background:linear-gradient(180deg,var(--teal-tint),#fff 70%)}
   .kicker{color:var(--teal);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;margin:0 0 12px}
-  h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 18px;max-width:14ch}
+  h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 18px;max-width:16ch}
   .lede{font-size:1.15rem;color:var(--ink-2);max-width:62ch;margin:0 0 28px}
   .btns{display:flex;flex-wrap:wrap;gap:12px}
   .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;border:1px solid var(--teal);color:var(--teal)}
@@ -76,6 +76,15 @@
   button:hover{background:var(--teal-dark)}
   .note{font-size:.88rem;color:var(--muted)}
   .err{color:#b42318;font-size:.9rem;display:none;margin-top:10px}
+  .feature{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  @media (max-width:860px){.feature{grid-template-columns:1fr}}
+  .feature article{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .feature img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}
+  .feature .body{padding:22px 24px 24px}
+  .feature h3{margin:0 0 8px;font-size:1.25rem}
+  .feature p{margin:0 0 12px;color:var(--ink-2)}
+  .feature ul{margin:0 0 16px;padding-left:18px;color:var(--ink-2)}
+  .feature li{margin:4px 0}
   footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem}
   footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 </style>
@@ -86,6 +95,7 @@
     <a class="brand" href="#top"><i></i>interactivelearningobjects.com</a>
     <nav aria-label="Primary">
       <a href="#work">Types of work</a>
+      <a href="#fieldtrips">Field trips &amp; scenarios</a>
       <a href="#process">Process</a>
       <a class="cta" href="#consult">Schedule a consultation</a>
     </nav>
@@ -97,7 +107,7 @@
     <div class="wrap">
       <div>
       <p class="kicker">Interactive learning objects, built to order</p>
-      <h1>Learning that learners can touch.</h1>
+      <h1>Course content learners explore, not just read.</h1>
       <p class="lede">Custom HTML interactives for online and blended courses: walkable 3D spaces, 3D object explorers, branching scenarios, timelines, maps, and practice activities. Every piece is self-contained, accessible, and ready to drop into Canvas, Blackboard, Moodle, D2L, or any LMS as an embed, a link, or a SCORM package.</p>
       <div class="btns">
         <a class="btn primary" href="#consult">Schedule a free consultation</a>
@@ -137,8 +147,8 @@
         <h3>Scenarios &amp; storytelling <span>Decide</span></h3>
         <p>For judgment-heavy topics where the right answer depends on context: ethics, communication, policy, and professional practice.</p>
         <div class="grid">
-          <div class="card"><a class="shot" href="samples/branching-scenario.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/branching-scenario.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Branching scenario</strong><small>A multi-path decision story with consequences, reflection prompts, and a debrief at the end.</small><a href="samples/branching-scenario.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/interactive-infographic.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-infographic.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive infographic</strong><small>Profile cards and expandable stories that turn a static handout into something explorable.</small><a href="samples/interactive-infographic.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><a class="shot" href="samples/branching-scenario.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/branching-scenario.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Branching scenario</strong><small>A multi-path decision story with consequences, reflection prompts, and a debrief at the end.</small><a href="samples/branching-scenario.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/dialog-cards.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/dialog-cards.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Dialog cards</strong><small>Flip-to-reveal cards for roles, terms, or conversation practice.</small><a href="samples/dialog-cards.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
@@ -149,7 +159,6 @@
         <div class="grid">
           <div class="card"><a class="shot" href="samples/interactive-timeline.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-timeline.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive timeline</strong><small>A stage-by-stage process with expandable detail, key terms, and a progress indicator.</small><a href="samples/interactive-timeline.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/interactive-map.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/interactive-map.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Interactive map / system diagram</strong><small>A policy ecosystem map with clickable nodes, relationships, and filters.</small><a href="samples/interactive-map.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><a class="shot" href="samples/movement-slider.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/movement-slider.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Movement slider</strong><small>Scrub through an image sequence to observe motion and answer objective-exam questions.</small><a href="samples/movement-slider.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
@@ -160,17 +169,51 @@
           <div class="card"><a class="shot" href="samples/quiz-set.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/quiz-set.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Quiz set</strong><small>Mixed question types with feedback, retry, and a summary score.</small><a href="samples/quiz-set.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/flashcards.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/flashcards.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Flashcards</strong><small>Flip, shuffle, and self-rate cards for terminology and recall.</small><a href="samples/flashcards.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/drag-the-words.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/drag-the-words.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Drag the words</strong><small>Fill-in-the-blank by dragging terms into a passage.</small><a href="samples/drag-the-words.html" target="_blank" rel="noopener">Open sample</a></div>
-          <div class="card"><a class="shot" href="samples/find-the-hotspot.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/find-the-hotspot.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Find the hotspot</strong><small>Click the right region of an image; great for anatomy, interfaces, and safety checks.</small><a href="samples/find-the-hotspot.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/crossword.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/crossword.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Crossword</strong><small>A vocabulary crossword with hints and checking.</small><a href="samples/crossword.html" target="_blank" rel="noopener">Open sample</a></div>
           <div class="card"><a class="shot" href="samples/documentation-tool.html" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="samples/thumbs/documentation-tool.jpg" alt="" loading="lazy" width="960" height="600"></a><strong>Documentation tool</strong><small>Guided reflection with a printable / submittable summary at the end.</small><a href="samples/documentation-tool.html" target="_blank" rel="noopener">Open sample</a></div>
         </div>
       </div>
 
-      <p class="note">Also available: drag-and-drop sorting, dropdown cloze, mark-the-words, image sliders, term and picture matching, puzzles, and Unity-built WebGL simulations. If you can describe the interaction, it can probably be built.</p>
+      <p class="note">Also available: drag-and-drop sorting, dropdown cloze, mark-the-words, find-the-hotspot, image and movement sliders, term and picture matching, puzzles, and Unity-built WebGL simulations. If you can describe the interaction, it can probably be built.</p>
     </div>
   </section>
 
-  <section id="process" class="alt">
+  <section id="fieldtrips" class="alt">
+    <div class="wrap">
+      <h2>Virtual field trips &amp; branching scenarios</h2>
+      <p class="sub">Two formats that do the most work in online courses: putting learners somewhere they can't easily go, and putting them in a decision they have to own.</p>
+      <div class="feature">
+        <article>
+          <img src="samples/thumbs/walkable-space.jpg" alt="First-person view walking through a furnished apartment with numbered hotspots" width="960" height="600" loading="lazy">
+          <div class="body">
+            <h3>Virtual field trips</h3>
+            <p>A real place, rebuilt in the browser, that learners walk through at their own pace. Hotspots hold the expert commentary you'd give on a site visit, a checklist tracks what they've inspected, and it all runs without an app or a headset.</p>
+            <ul>
+              <li>Clinical and home-care environments, labs, worksites, historic sites, and facilities</li>
+              <li>Built from photogrammetry, 3D models, or 360° photo captures</li>
+              <li>Optional notes panel and completion tracking for graded use</li>
+            </ul>
+            <a href="samples/walkable-space.html" target="_blank" rel="noopener">Walk through the sample ↗</a>
+          </div>
+        </article>
+        <article>
+          <img src="samples/thumbs/branching-scenario.jpg" alt="Branching scenario screen presenting a decision with three options" width="960" height="600" loading="lazy">
+          <div class="body">
+            <h3>Branching scenarios</h3>
+            <p>A story that changes based on what the learner decides. Each choice leads somewhere plausible, consequences accumulate, and a debrief at the end connects the path they took back to the concepts in the course.</p>
+            <ul>
+              <li>Ethics, communication, policy, safety, and professional-judgment topics</li>
+              <li>Written with you from real cases; multiple endings and a "your path" summary</li>
+              <li>Reports completion or a score to the LMS when packaged as SCORM</li>
+            </ul>
+            <a href="samples/branching-scenario.html" target="_blank" rel="noopener">Play the sample ↗</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="process">
     <div class="wrap">
       <h2>How a project works</h2>
       <p class="sub">Most objects go from first call to delivery in one to three weeks, depending on scope.</p>
@@ -206,7 +249,7 @@
               <option>Interactive timeline</option>
               <option>Interactive map / diagram</option>
               <option>Interactive infographic</option>
-              <option>Practice activity (quiz, flashcards, drag-the-words, hotspot…)</option>
+              <option>Practice activity (quiz, flashcards, drag-the-words…)</option>
               <option>Simulation or game</option>
               <option>Not sure yet — let's talk</option>
             </select></div>
