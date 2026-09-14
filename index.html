@@ -3,38 +3,256 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Interactive Learning Objects</title>
-<meta name="description" content="Interactive learning objects by Dr. Keith Pace — HTML activities, 3D explorers, simulations, and games built for online courses.">
+<title>interactivelearningobjects.com — Custom interactive learning objects for online courses</title>
+<meta name="description" content="Custom-built interactive learning objects for online and blended courses: walkable 3D spaces, 3D explorers, branching scenarios, timelines, maps, and practice activities that drop into any LMS.">
 <style>
-  :root{--bg:#0f1a2b;--bg2:#16243a;--fg:#eef3fa;--muted:#a9b7cc;--accent:#5ec4ff;--accent2:#ffb457}
+  :root{
+    --ink:#1f2a37; --ink-2:#3b4756; --muted:#66727f; --line:#dfe4e8;
+    --bg:#ffffff; --bg-2:#f4f6f7; --bg-3:#e9eef0;
+    --teal:#0f766e; --teal-dark:#0b5c56; --teal-soft:#d9efec; --teal-tint:#eef7f6;
+    --radius:14px; --shadow:0 10px 30px rgba(31,42,55,.08);
+  }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
-  main{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 24px;max-width:860px;margin:0 auto}
-  .kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:.8rem;font-weight:600;margin:0 0 14px}
-  h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1.05;margin:0 0 20px;letter-spacing:-.02em}
-  p.lead{font-size:1.2rem;color:var(--muted);max-width:600px;margin:0 0 36px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:0 0 44px}
-  .card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px}
-  .card strong{display:block;margin-bottom:6px}
-  .card span{color:var(--muted);font-size:.95rem}
-  .badge{display:inline-block;background:rgba(255,180,87,.14);color:var(--accent2);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600;margin-bottom:28px}
-  footer{color:var(--muted);font-size:.9rem;border-top:1px solid rgba(255,255,255,.08);padding-top:22px}
-  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+  header{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+  .brand{font-weight:700;letter-spacing:-.01em;color:var(--ink);font-size:1.05rem;display:flex;align-items:center;gap:10px}
+  .brand i{width:12px;height:12px;border-radius:3px;background:var(--teal);display:inline-block}
+  nav a{color:var(--ink-2);margin-left:22px;font-size:.95rem}
+  nav a.cta{background:var(--teal);color:#fff;padding:9px 16px;border-radius:999px}
+  nav a.cta:hover{background:var(--teal-dark);text-decoration:none}
+  .hero{padding:72px 0 48px;background:linear-gradient(180deg,var(--teal-tint),#fff 70%)}
+  .kicker{color:var(--teal);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;margin:0 0 12px}
+  h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 18px;max-width:14ch}
+  .lede{font-size:1.15rem;color:var(--ink-2);max-width:62ch;margin:0 0 28px}
+  .btns{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;border:1px solid var(--teal);color:var(--teal)}
+  .btn.primary{background:var(--teal);color:#fff}
+  .btn:hover{text-decoration:none;filter:brightness(.95)}
+  .strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:40px 0 0}
+  .strip div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.92rem;color:var(--ink-2)}
+  .strip strong{display:block;color:var(--ink);margin-bottom:2px}
+  section{padding:56px 0}
+  section.alt{background:var(--bg-2)}
+  h2{font-size:1.75rem;letter-spacing:-.015em;margin:0 0 8px}
+  .sub{color:var(--muted);margin:0 0 28px;max-width:70ch}
+  .cat{margin:0 0 40px}
+  .cat h3{font-size:1.15rem;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  .cat h3 span{background:var(--teal-soft);color:var(--teal-dark);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;font-weight:700}
+  .cat p{margin:0 0 16px;color:var(--ink-2);max-width:70ch}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:8px;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .card strong{font-size:1.02rem}
+  .card small{color:var(--muted);line-height:1.45}
+  .card a{margin-top:auto;font-weight:600;font-size:.93rem}
+  .card a::after{content:" ↗"}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .steps div{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .steps b{display:block;color:var(--teal);font-size:.8rem;letter-spacing:.1em;margin-bottom:6px}
+  form{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);max-width:760px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:640px){.row{grid-template-columns:1fr}}
+  label{display:block;font-weight:600;font-size:.9rem;margin:14px 0 6px}
+  label:first-child{margin-top:0}
+  input,select,textarea{width:100%;padding:11px 12px;border:1px solid #c9d1d8;border-radius:9px;font:inherit;color:var(--ink);background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal)}
+  textarea{min-height:120px;resize:vertical}
+  .req{color:var(--teal)}
+  .form-foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:22px}
+  button{background:var(--teal);color:#fff;border:0;padding:13px 22px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer}
+  button:hover{background:var(--teal-dark)}
+  .note{font-size:.88rem;color:var(--muted)}
+  .err{color:#b42318;font-size:.9rem;display:none;margin-top:10px}
+  footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 </style>
 </head>
 <body>
-<main>
-  <p class="kicker">Interactive Learning Objects</p>
-  <h1>Learning that learners can touch.</h1>
-  <p class="lead">Custom HTML activities, 3D explorers, simulations, and games designed for online and blended courses — built to drop into Canvas, Blackboard, Moodle, or any LMS.</p>
-  <span class="badge">Site launching soon — sample objects on the way</span>
-  <div class="grid">
-    <div class="card"><strong>Knowledge checks</strong><span>Quizzes, drag-the-words, dialog cards, and hotspots with instant feedback.</span></div>
-    <div class="card"><strong>3D explorers</strong><span>Rotate, inspect, and label equipment and spaces in the browser.</span></div>
-    <div class="card"><strong>Simulations &amp; games</strong><span>Scenario walkthroughs and Unity-built practice environments.</span></div>
-    <div class="card"><strong>LMS-ready</strong><span>Delivered as SCORM, embeddable HTML, or a hosted link.</span></div>
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top"><i></i>interactivelearningobjects.com</a>
+    <nav aria-label="Primary">
+      <a href="#work">Types of work</a>
+      <a href="#process">Process</a>
+      <a class="cta" href="#consult">Schedule a consultation</a>
+    </nav>
   </div>
-  <footer>Designed by Dr. Keith Pace &middot; <a href="https://keithpace.com">KeithPace.com</a></footer>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <p class="kicker">Interactive learning objects, built to order</p>
+      <h1>Learning that learners can touch.</h1>
+      <p class="lede">Custom HTML interactives for online and blended courses: walkable 3D spaces, 3D object explorers, branching scenarios, timelines, maps, and practice activities. Every piece is self-contained, accessible, and ready to drop into Canvas, Blackboard, Moodle, D2L, or any LMS as an embed, a link, or a SCORM package.</p>
+      <div class="btns">
+        <a class="btn primary" href="#consult">Schedule a free consultation</a>
+        <a class="btn" href="#work">Browse live samples</a>
+      </div>
+      <div class="strip">
+        <div><strong>No plugins, no logins</strong>Single-file HTML that runs anywhere a browser does.</div>
+        <div><strong>LMS-ready delivery</strong>Embed code, hosted link, or SCORM 1.2 / 2004 export.</div>
+        <div><strong>Accessible by design</strong>Keyboard navigation, screen-reader labels, sensible contrast.</div>
+        <div><strong>Yours to keep</strong>You receive the source files; edit or rehost them any time.</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="work">
+    <div class="wrap">
+      <h2>Types of work</h2>
+      <p class="sub">Every sample below is a live, working object. Open one, click around, and imagine it with your content.</p>
+
+      <div class="cat">
+        <h3>Immersive &amp; 3D <span>Explore</span></h3>
+        <p>For skills that depend on spatial understanding: assessing an environment, recognizing equipment, or practicing a setup before doing it for real.</p>
+        <div class="grid">
+          <div class="card"><strong>Walkable 3D space</strong><small>First-person walkthrough of a furnished home with guided assessment tasks and a checklist.</small><a href="samples/walkable-space.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>3D object explorer</strong><small>Rotate, inspect, and label real equipment models with step-by-step setup guidance.</small><a href="samples/3d-equipment-explorer.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Instruments &amp; simulators</strong><small>A playable one-octave piano with synthesis, note labels, and keyboard control.</small><a href="samples/piano-synthesizer.html" target="_blank" rel="noopener">Open sample</a></div>
+        </div>
+      </div>
+
+      <div class="cat">
+        <h3>Scenarios &amp; storytelling <span>Decide</span></h3>
+        <p>For judgment-heavy topics where the right answer depends on context: ethics, communication, policy, and professional practice.</p>
+        <div class="grid">
+          <div class="card"><strong>Branching scenario</strong><small>A multi-path decision story with consequences, reflection prompts, and a debrief at the end.</small><a href="samples/branching-scenario.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Interactive infographic</strong><small>Profile cards and expandable stories that turn a static handout into something explorable.</small><a href="samples/interactive-infographic.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Dialog cards</strong><small>Flip-to-reveal cards for roles, terms, or conversation practice.</small><a href="samples/dialog-cards.html" target="_blank" rel="noopener">Open sample</a></div>
+        </div>
+      </div>
+
+      <div class="cat">
+        <h3>Visual explainers <span>Understand</span></h3>
+        <p>For sequences, systems, and relationships that are hard to hold in your head from a paragraph of text.</p>
+        <div class="grid">
+          <div class="card"><strong>Interactive timeline</strong><small>A stage-by-stage process with expandable detail, key terms, and a progress indicator.</small><a href="samples/interactive-timeline.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Interactive map / system diagram</strong><small>A policy ecosystem map with clickable nodes, relationships, and filters.</small><a href="samples/interactive-map.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Movement slider</strong><small>Scrub through an image sequence to observe motion and answer objective-exam questions.</small><a href="samples/movement-slider.html" target="_blank" rel="noopener">Open sample</a></div>
+        </div>
+      </div>
+
+      <div class="cat">
+        <h3>Practice &amp; assessment <span>Check</span></h3>
+        <p>Low-stakes practice with instant feedback. Each one can report a score to your LMS gradebook when packaged as SCORM.</p>
+        <div class="grid">
+          <div class="card"><strong>Quiz set</strong><small>Mixed question types with feedback, retry, and a summary score.</small><a href="samples/quiz-set.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Flashcards</strong><small>Flip, shuffle, and self-rate cards for terminology and recall.</small><a href="samples/flashcards.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Drag the words</strong><small>Fill-in-the-blank by dragging terms into a passage.</small><a href="samples/drag-the-words.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Find the hotspot</strong><small>Click the right region of an image; great for anatomy, interfaces, and safety checks.</small><a href="samples/find-the-hotspot.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Crossword</strong><small>A vocabulary crossword with hints and checking.</small><a href="samples/crossword.html" target="_blank" rel="noopener">Open sample</a></div>
+          <div class="card"><strong>Documentation tool</strong><small>Guided reflection with a printable / submittable summary at the end.</small><a href="samples/documentation-tool.html" target="_blank" rel="noopener">Open sample</a></div>
+        </div>
+      </div>
+
+      <p class="note">Also available: drag-and-drop sorting, dropdown cloze, mark-the-words, image sliders, term and picture matching, puzzles, and Unity-built WebGL simulations. If you can describe the interaction, it can probably be built.</p>
+    </div>
+  </section>
+
+  <section id="process" class="alt">
+    <div class="wrap">
+      <h2>How a project works</h2>
+      <p class="sub">Most objects go from first call to delivery in one to three weeks, depending on scope.</p>
+      <div class="steps">
+        <div><b>01 — CONSULT</b>A free 30-minute call to understand the learning goal, your content, and where the object will live.</div>
+        <div><b>02 — PROTOTYPE</b>A working draft with placeholder content so you can react to the interaction before the details are locked.</div>
+        <div><b>03 — BUILD</b>Your content, media, and feedback go in. Accessibility and mobile behavior are checked along the way.</div>
+        <div><b>04 — DELIVER</b>Final files as embed code, a hosted link, or a SCORM package, plus a short guide for updating it later.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="consult">
+    <div class="wrap">
+      <h2>Schedule a consultation</h2>
+      <p class="sub">Tell me a little about the project. When you submit, you'll be taken straight to the booking calendar with your answers attached, so we can make the most of the call.</p>
+      <form id="intake" novalidate>
+        <div class="row">
+          <div><label for="name">Your name <span class="req">*</span></label><input id="name" name="name" autocomplete="name" required></div>
+          <div><label for="email">Email <span class="req">*</span></label><input id="email" name="email" type="email" autocomplete="email" required></div>
+        </div>
+        <div class="row">
+          <div><label for="org">Organization</label><input id="org" name="org" autocomplete="organization" placeholder="School, company, or team"></div>
+          <div><label for="role">Your role</label><input id="role" name="role" placeholder="Instructor, designer, program lead…"></div>
+        </div>
+        <div class="row">
+          <div><label for="type">Type of object <span class="req">*</span></label>
+            <select id="type" name="type" required>
+              <option value="">Select one…</option>
+              <option>Walkable 3D space</option>
+              <option>3D object explorer</option>
+              <option>Branching scenario</option>
+              <option>Interactive timeline</option>
+              <option>Interactive map / diagram</option>
+              <option>Interactive infographic</option>
+              <option>Practice activity (quiz, flashcards, drag-the-words, hotspot…)</option>
+              <option>Simulation or game</option>
+              <option>Not sure yet — let's talk</option>
+            </select></div>
+          <div><label for="lms">Where will it live?</label>
+            <select id="lms" name="lms">
+              <option value="">Select one…</option>
+              <option>Canvas</option><option>Blackboard</option><option>Moodle</option><option>D2L Brightspace</option>
+              <option>A website</option><option>Other / not sure</option>
+            </select></div>
+        </div>
+        <div class="row">
+          <div><label for="timeline">Timeline</label>
+            <select id="timeline" name="timeline">
+              <option value="">Select one…</option>
+              <option>Within 2 weeks</option><option>Within a month</option><option>1–3 months</option><option>Flexible</option>
+            </select></div>
+          <div><label for="budget">Budget range</label>
+            <select id="budget" name="budget">
+              <option value="">Select one…</option>
+              <option>Under $500</option><option>$500–$1,500</option><option>$1,500–$5,000</option><option>$5,000+</option><option>Not sure yet</option>
+            </select></div>
+        </div>
+        <label for="desc">Describe the project <span class="req">*</span></label>
+        <textarea id="desc" name="desc" required placeholder="What should learners be able to do afterward? What content or media do you already have?"></textarea>
+        <div class="form-foot">
+          <button type="submit">Continue to booking</button>
+          <span class="note">Opens the scheduling calendar in a new tab. No account needed.</span>
+        </div>
+        <p class="err" id="err">Please fill in the required fields (name, email, type of object, and description).</p>
+      </form>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr"></span> interactivelearningobjects.com</span>
+    <span>Designed by Dr. Keith Pace · <a href="https://keithpace.com">KeithPace.com</a></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  const BOOKING_URL = 'https://calendly.com/keithpace/project-consultation';
+  document.getElementById('intake').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const err = document.getElementById('err');
+    if (!v('name') || !v('email') || !v('type') || !v('desc')) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    const lines = [
+      'Organization: ' + (v('org') || '—'),
+      'Role: ' + (v('role') || '—'),
+      'Type of object: ' + v('type'),
+      'LMS / destination: ' + (v('lms') || '—'),
+      'Timeline: ' + (v('timeline') || '—'),
+      'Budget: ' + (v('budget') || '—'),
+      'Project: ' + v('desc')
+    ];
+    const p = new URLSearchParams({ name: v('name'), email: v('email'), a1: lines.join('\n') });
+    window.open(BOOKING_URL + '?' + p.toString(), '_blank', 'noopener');
+  });
+</script>
 </body>
 </html>
