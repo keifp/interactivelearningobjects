@@ -3,200 +3,200 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Interactive Quiz Set</title>
+  <title>Five-Part Check-In</title>
   <style>
     :root {
-      --green: #202d3c;
-      --accent2: #1dafa3;
-      --ink: #121921;
-      --muted: #5d6b66;
-      --line: #cfd8d4;
-      --soft: #f4f8f6;
-      --white: #ffffff;
-      --error: #b3261e;
-      --success: #176d3b;
-      --shadow: 0 10px 30px rgba(32, 45, 60, 0.12);
-      font-family: Arial, Helvetica, sans-serif;
+      --paper: #f7f3ec;
+      --surface: #fffdf9;
+      --ink: #23202b;
+      --muted: #5c5766;
+      --hair: #e4ddd0;
+      --indigo: #3b3f8f;
+      --indigo-soft: #ecedf7;
+      --coral: #e26d5c;
+      --coral-soft: #fbe9e5;
+      --success: #2e7d5b;
+      --error: #b3402f;
+      --shadow: 0 6px 20px rgba(35, 32, 43, 0.06);
+      --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: linear-gradient(180deg, #f8fbf9 0%, #eef5f2 100%);
+      background: var(--paper);
       color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 18px;
-      line-height: 1.5;
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.55;
       min-height: 100vh;
     }
 
-    button,
-    input,
-    textarea {
-      font: inherit;
-    }
+    button, input, textarea { font: inherit; }
 
     .app {
-      width: min(980px, 100%);
+      width: min(920px, 100%);
       margin: 0 auto;
-      padding: 20px;
+      padding: 28px 20px 40px;
     }
 
     header {
-      padding: 18px 0 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px 24px;
+      padding: 6px 0 18px;
     }
 
+    .title-block { max-width: 620px; }
+
     h1 {
-      color: var(--green);
-      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-family: var(--serif);
+      color: var(--ink);
+      font-size: clamp(2rem, 4.5vw, 3rem);
       line-height: 1.05;
+      letter-spacing: -0.02em;
       margin: 0 0 10px;
-      letter-spacing: 0;
     }
 
     .instructions {
       color: var(--muted);
-      font-size: clamp(1.05rem, 2vw, 1.2rem);
-      max-width: 760px;
+      font-size: clamp(1rem, 1.8vw, 1.1rem);
       margin: 0;
     }
 
-    .progress-wrap {
-      display: grid;
+    /* Distinctive touch: numbered item chip + coral progress bar */
+    .item-chip {
+      display: inline-flex;
+      align-items: center;
       gap: 10px;
-      margin: 18px 0;
+      background: var(--surface);
+      border: 1px solid var(--hair);
+      border-radius: 999px;
+      padding: 6px 16px 6px 6px;
+      color: var(--indigo);
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
     }
 
-    .progress-label {
-      color: var(--green);
+    .item-chip .num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--coral);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 1.05rem;
       font-weight: 700;
-      font-size: 1rem;
     }
 
     .progress {
-      background: #dfe8e4;
+      background: var(--hair);
       border-radius: 999px;
-      height: 12px;
+      height: 8px;
       overflow: hidden;
+      margin: 0 0 22px;
     }
 
     .progress span {
       display: block;
       width: 0;
       height: 100%;
-      background: var(--accent2);
-      transition: width 220ms ease;
+      border-radius: 999px;
+      background: var(--coral);
+      transition: width 260ms ease;
     }
 
     main {
-      background: var(--white);
-      border: 1px solid var(--line);
-      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--hair);
+      border-radius: 22px;
       box-shadow: var(--shadow);
-      padding: clamp(18px, 4vw, 36px);
-      min-height: 480px;
+      padding: clamp(20px, 4vw, 40px);
+      min-height: 440px;
     }
 
-    .screen {
-      display: none;
-    }
-
-    .screen.active {
-      display: block;
-    }
+    .screen { display: none; }
+    .screen.active { display: block; }
 
     .eyebrow {
-      color: var(--green);
-      font-weight: 800;
+      color: var(--indigo);
+      font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
-      margin: 0 0 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      margin: 0 0 6px;
     }
 
     h2 {
+      font-family: var(--serif);
       color: var(--ink);
-      font-size: clamp(1.55rem, 3vw, 2.15rem);
+      font-size: clamp(1.5rem, 3vw, 2rem);
       line-height: 1.15;
-      margin: 0 0 14px;
-      letter-spacing: 0;
+      letter-spacing: -0.015em;
+      margin: 0 0 12px;
     }
 
     .prompt {
       margin: 0 0 20px;
-      font-size: clamp(1.1rem, 2vw, 1.25rem);
+      font-size: clamp(1.05rem, 2vw, 1.2rem);
+      max-width: 680px;
     }
 
-    .choice-grid,
-    .word-bank,
-    .word-row {
+    .choice-grid, .word-bank, .word-row {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       margin: 18px 0;
     }
 
-    .choice,
-    .pill,
-    .nav-button,
-    .category,
-    .blank,
-    .truefalse,
-    .complete-button {
-      border-radius: 8px;
-      min-height: 48px;
+    .choice, .pill, .nav-button, .category, .blank, .truefalse, .complete-button {
+      min-height: 46px;
       transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
     }
 
-    .choice,
-    .pill,
-    .truefalse {
-      border: 2px solid var(--line);
-      background: var(--white);
+    .choice, .pill, .truefalse {
+      border: 1px solid var(--hair);
+      border-radius: 999px;
+      background: var(--surface);
       color: var(--ink);
       cursor: pointer;
-      font-weight: 700;
-      padding: 12px 16px;
+      font-weight: 600;
+      padding: 11px 20px;
     }
 
     .choice {
       width: 100%;
       text-align: left;
+      border-radius: 16px;
+      padding-left: 18px;
     }
 
-    .choice:hover,
-    .pill:hover,
-    .truefalse:hover,
-    .category:hover,
-    .blank:hover,
-    .nav-button:hover,
-    .complete-button:hover {
-      border-color: var(--green);
-      box-shadow: 0 0 0 4px rgba(29, 175, 163, 0.28);
+    .choice:hover, .pill:hover, .truefalse:hover, .category:hover, .blank:hover,
+    .nav-button:hover, .complete-button:hover, .mark-word:hover {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 4px rgba(59, 63, 143, 0.14);
       transform: translateY(-1px);
     }
 
-    .choice:focus-visible,
-    .pill:focus-visible,
-    .truefalse:focus-visible,
-    .category:focus-visible,
-    .blank:focus-visible,
-    .nav-button:focus-visible,
-    .complete-button:focus-visible,
-    textarea:focus-visible {
-      outline: 4px solid rgba(29, 175, 163, 0.75);
+    .choice:focus-visible, .pill:focus-visible, .truefalse:focus-visible, .category:focus-visible,
+    .blank:focus-visible, .nav-button:focus-visible, .complete-button:focus-visible,
+    .mark-word:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--coral);
       outline-offset: 3px;
     }
 
-    .selected,
-    .pill.selected,
-    .truefalse.selected {
-      background: var(--green);
-      border-color: var(--green);
-      color: var(--white);
+    .selected, .pill.selected, .truefalse.selected {
+      background: var(--indigo);
+      border-color: var(--indigo);
+      color: #fff;
     }
 
     .sorting-layout {
@@ -207,17 +207,20 @@
     }
 
     .category {
-      background: var(--soft);
-      border: 2px dashed var(--line);
+      background: var(--paper);
+      border: 1px dashed #cdc4b4;
+      border-radius: 18px;
       color: var(--ink);
       cursor: pointer;
       min-height: 150px;
-      padding: 16px;
+      padding: 16px 18px;
     }
 
     .category h3 {
-      color: var(--green);
+      font-family: var(--serif);
+      color: var(--indigo);
       font-size: 1.2rem;
+      letter-spacing: -0.01em;
       margin: 0 0 10px;
     }
 
@@ -228,22 +231,17 @@
       min-height: 52px;
     }
 
-    .pill {
-      touch-action: manipulation;
-    }
-
-    .pill[draggable="true"] {
-      cursor: grab;
-    }
+    .pill { touch-action: manipulation; }
+    .pill[draggable="true"] { cursor: grab; }
 
     .pill.placed {
-      background: #e3fbf9;
-      border-color: var(--accent2);
+      background: var(--coral-soft);
+      border-color: var(--coral);
     }
 
     .fill-grid {
       display: grid;
-      gap: 16px;
+      gap: 14px;
       margin-top: 18px;
     }
 
@@ -252,74 +250,67 @@
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
-      background: var(--soft);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
+      background: var(--paper);
+      border: 1px solid var(--hair);
+      border-left: 4px solid var(--indigo);
+      border-radius: 16px;
+      padding: 14px 16px;
     }
 
     .blank {
-      border: 2px dashed var(--line);
-      background: var(--white);
-      color: var(--green);
+      border: 1px dashed #cdc4b4;
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--indigo);
       cursor: pointer;
-      font-weight: 800;
+      font-weight: 700;
       min-width: 150px;
-      padding: 12px;
+      padding: 10px 16px;
       text-align: center;
     }
 
     .blank.filled {
       border-style: solid;
-      border-color: var(--accent2);
-      background: #e3fbf9;
+      border-color: var(--coral);
+      background: var(--coral-soft);
+      color: var(--ink);
     }
 
     .mark-word {
-      border: 2px solid transparent;
-      background: #edf3f0;
-      border-radius: 8px;
+      border: 1px solid var(--hair);
+      background: var(--paper);
+      border-radius: 999px;
       color: var(--ink);
       cursor: pointer;
-      font-weight: 700;
-      padding: 10px 12px;
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      padding: 8px 16px;
       transition: all 160ms ease;
     }
 
-    .mark-word:hover {
-      border-color: var(--green);
-      box-shadow: 0 0 0 4px rgba(29, 175, 163, 0.28);
-    }
-
     .mark-word.selected {
-      background: var(--green);
-      color: var(--white);
-    }
-
-    .note-area {
-      width: 100%;
-      min-height: 190px;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      resize: vertical;
+      background: var(--indigo);
+      border-color: var(--indigo);
+      color: #fff;
     }
 
     .nav {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      margin-top: 24px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--hair);
     }
 
-    .nav-button,
-    .complete-button {
-      border: 2px solid var(--green);
-      background: var(--green);
-      color: var(--white);
+    .nav-button, .complete-button {
+      border: 1px solid var(--coral);
+      border-radius: 999px;
+      background: var(--coral);
+      color: var(--ink);
       cursor: pointer;
-      font-weight: 800;
-      padding: 12px 20px;
+      font-weight: 700;
+      padding: 11px 24px;
     }
 
     .result-actions {
@@ -329,20 +320,16 @@
       margin-top: 18px;
     }
 
-    .complete-button.secondary {
-      background: var(--white);
-      color: var(--green);
-    }
-
-    .nav-button.secondary {
-      background: var(--white);
-      color: var(--green);
+    .complete-button.secondary, .nav-button.secondary {
+      background: var(--surface);
+      border-color: var(--indigo);
+      color: var(--indigo);
     }
 
     .nav-button:disabled {
-      background: #d6dfdb;
-      border-color: #d6dfdb;
-      color: #6b7772;
+      background: var(--paper);
+      border-color: var(--hair);
+      color: #8a8494;
       cursor: not-allowed;
       box-shadow: none;
       transform: none;
@@ -350,34 +337,28 @@
 
     .status-note {
       color: var(--muted);
-      font-size: 1rem;
+      font-size: 0.95rem;
       margin-top: 12px;
       min-height: 24px;
     }
 
     .results {
-      border-top: 1px solid var(--line);
+      border-top: 1px solid var(--hair);
       margin-top: 22px;
       padding-top: 22px;
     }
 
     .score {
-      color: var(--green);
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      font-weight: 900;
+      font-family: var(--serif);
+      color: var(--indigo);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: -0.02em;
       line-height: 1;
       margin: 0 0 10px;
     }
 
-    .pass {
-      color: var(--success);
-      font-weight: 900;
-    }
-
-    .fail {
-      color: var(--error);
-      font-weight: 900;
-    }
+    .pass { color: var(--success); font-weight: 700; }
+    .fail { color: var(--error); font-weight: 700; }
 
     .review-list {
       display: grid;
@@ -388,68 +369,49 @@
     }
 
     .review-list li {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
+      border: 1px solid var(--hair);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: var(--paper);
     }
 
-    .correct {
-      border-left: 6px solid var(--success) !important;
-    }
+    .correct { border-left: 5px solid var(--success) !important; }
+    .incorrect { border-left: 5px solid var(--error) !important; }
 
-    .incorrect {
-      border-left: 6px solid var(--error) !important;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     @media (max-width: 720px) {
-      .app {
-        padding: 14px;
-      }
-
-      main {
-        min-height: 0;
-      }
-
-      .sorting-layout {
-        grid-template-columns: 1fr;
-      }
-
+      .app { padding: 18px 16px 32px; }
+      main { min-height: 0; border-radius: 18px; }
+      .sorting-layout { grid-template-columns: 1fr; }
       .nav {
         position: sticky;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.96);
-        border-top: 1px solid var(--line);
-        margin: 24px -18px -18px;
-        padding: 12px 18px;
+        background: rgba(255, 253, 249, 0.96);
+        margin: 24px -20px -20px;
+        padding: 12px 20px;
       }
-
-      .nav-button {
-        flex: 1;
-        padding-inline: 12px;
-      }
+      .nav-button { flex: 1; padding-inline: 12px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Interactive Quiz Set</h1>
-      <div class="progress-wrap" aria-label="Quiz progress">
-        <div class="progress-label" id="progressLabel">Activity 1 of 5</div>
-        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+      <div class="title-block">
+        <h1>Five-Part Check-In</h1>
+        <p class="instructions">Work through five short tasks of different kinds, then hand in your answers to see how you did.</p>
       </div>
+      <div class="item-chip" id="progressLabel" aria-live="polite"><span class="num" aria-hidden="true">1</span><span class="chip-text">Item 1 of 5</span></div>
     </header>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
 
     <main>
       <section class="screen active" data-screen="0">
-        <p class="eyebrow">Scored Item 1</p>
-        <h2>Multiple Choice</h2>
-        <p class="prompt">Which planet is known as the Red Planet?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="Red Planet answer choices">
+        <p class="eyebrow">Task one</p>
+        <h2>Pick One Answer</h2>
+        <p class="prompt">Which planet in our solar system goes by the nickname "the Red Planet"?</p>
+        <div class="choice-grid" role="radiogroup" aria-label="Red Planet answer options">
           <button class="choice" role="radio" aria-checked="false" data-choice="mc" data-value="Earth">A. Earth</button>
           <button class="choice" role="radio" aria-checked="false" data-choice="mc" data-value="Mars">B. Mars</button>
           <button class="choice" role="radio" aria-checked="false" data-choice="mc" data-value="Venus">C. Venus</button>
@@ -458,16 +420,16 @@
       </section>
 
       <section class="screen" data-screen="1">
-        <p class="eyebrow">Scored Item 2</p>
-        <h2>Sorting Activity</h2>
-        <p class="prompt">Sort each item into the correct category. Select an item, then select a category, or drag the item into a category.</p>
-        <div class="word-bank" aria-label="Items to sort" id="sortBank"></div>
+        <p class="eyebrow">Task two</p>
+        <h2>Put Things in Their Place</h2>
+        <p class="prompt">Move each food into the group it belongs to. Tap a food and then tap a group, or drag it straight into the group.</p>
+        <div class="word-bank" aria-label="Foods to group" id="sortBank"></div>
         <div class="sorting-layout">
-          <div class="category" role="button" tabindex="0" data-category="Fruits" aria-label="Fruits category">
+          <div class="category" role="button" tabindex="0" data-category="Fruits" aria-label="Fruits group">
             <h3>Fruits</h3>
             <div class="drop-list" id="catFruits"></div>
           </div>
-          <div class="category" role="button" tabindex="0" data-category="Vegetables" aria-label="Vegetables category">
+          <div class="category" role="button" tabindex="0" data-category="Vegetables" aria-label="Vegetables group">
             <h3>Vegetables</h3>
             <div class="drop-list" id="catVegetables"></div>
           </div>
@@ -476,42 +438,42 @@
       </section>
 
       <section class="screen" data-screen="2">
-        <p class="eyebrow">Scored Item 3</p>
-        <h2>Drag and Drop (Fill in the Blank)</h2>
-        <p class="prompt">Use the word bank to fill each blank. Select a word, then select a blank, or drag a word to a blank.</p>
-        <div class="word-bank" aria-label="Word bank" id="fillBank"></div>
+        <p class="eyebrow">Task three</p>
+        <h2>Finish the Sentences</h2>
+        <p class="prompt">Each sentence is missing a word. Choose a word from the list and then choose the gap it belongs in, or drag the word onto the gap.</p>
+        <div class="word-bank" aria-label="Words to choose from" id="fillBank"></div>
         <div class="fill-grid">
-          <div class="fill-sentence"><span>The sun is very</span><button class="blank" data-blank="sun" type="button">Drop word</button><span>.</span></div>
-          <div class="fill-sentence"><span>Ice feels</span><button class="blank" data-blank="ice" type="button">Drop word</button><span>.</span></div>
-          <div class="fill-sentence"><span>Soup is usually</span><button class="blank" data-blank="soup" type="button">Drop word</button><span>.</span></div>
+          <div class="fill-sentence"><span>The sun is very</span><button class="blank" data-blank="sun" type="button">Place word</button><span>.</span></div>
+          <div class="fill-sentence"><span>Ice feels</span><button class="blank" data-blank="ice" type="button">Place word</button><span>.</span></div>
+          <div class="fill-sentence"><span>Soup is usually</span><button class="blank" data-blank="soup" type="button">Place word</button><span>.</span></div>
         </div>
         <p class="status-note" id="fillStatus" aria-live="polite"></p>
       </section>
 
       <section class="screen" data-screen="3">
-        <p class="eyebrow">Scored Item 4</p>
-        <h2>Mark the Words Activity</h2>
-        <p class="prompt">Click all the nouns in the sentence.</p>
-        <div class="word-row" aria-label="Sentence words">
-          <button class="mark-word" data-word="The">The</button>
-          <button class="mark-word" data-word="teacher">teacher</button>
-          <button class="mark-word" data-word="placed">placed</button>
-          <button class="mark-word" data-word="books">books</button>
-          <button class="mark-word" data-word="on">on</button>
-          <button class="mark-word" data-word="the">the</button>
-          <button class="mark-word" data-word="table">table.</button>
+        <p class="eyebrow">Task four</p>
+        <h2>Spot the Nouns</h2>
+        <p class="prompt">Tap every word in this sentence that is a noun.</p>
+        <div class="word-row" aria-label="Words in the sentence">
+          <button class="mark-word" data-word="The" aria-pressed="false">The</button>
+          <button class="mark-word" data-word="teacher" aria-pressed="false">teacher</button>
+          <button class="mark-word" data-word="placed" aria-pressed="false">placed</button>
+          <button class="mark-word" data-word="books" aria-pressed="false">books</button>
+          <button class="mark-word" data-word="on" aria-pressed="false">on</button>
+          <button class="mark-word" data-word="the" aria-pressed="false">the</button>
+          <button class="mark-word" data-word="table" aria-pressed="false">table.</button>
         </div>
         <p class="status-note" id="markStatus" aria-live="polite"></p>
       </section>
 
       <section class="screen" data-screen="4">
         <div id="finalItemContent">
-        <p class="eyebrow">Scored Item 5</p>
-        <h2>True or False</h2>
-        <p class="prompt">Water freezes at 0°C.</p>
-        <div class="choice-grid" role="radiogroup" aria-label="True or false answer choices">
-          <button class="truefalse" role="radio" aria-checked="false" data-tf="true">True</button>
-          <button class="truefalse" role="radio" aria-checked="false" data-tf="false">False</button>
+        <p class="eyebrow">Task five</p>
+        <h2>Fact or Fiction?</h2>
+        <p class="prompt">Water turns to ice at 0°C.</p>
+        <div class="choice-grid" role="radiogroup" aria-label="Fact or fiction answer options">
+          <button class="truefalse" role="radio" aria-checked="false" data-tf="true">Fact</button>
+          <button class="truefalse" role="radio" aria-checked="false" data-tf="false">Fiction</button>
         </div>
         <p class="status-note" id="tfStatus" aria-live="polite"></p>
         <p class="status-note" id="submitStatus" aria-live="polite"></p>
@@ -521,17 +483,17 @@
           <p id="passFailText"></p>
           <ul class="review-list" id="reviewList"></ul>
           <div class="result-actions">
-            <button class="complete-button secondary" id="retryBtn" type="button">Retry</button>
-            <button class="complete-button" id="completeBtn" type="button">Complete and Record Score</button>
+            <button class="complete-button secondary" id="retryBtn" type="button">Start over</button>
+            <button class="complete-button" id="completeBtn" type="button">Finish and save my score</button>
           </div>
           <p class="status-note" id="completeStatus" aria-live="polite"></p>
         </div>
       </section>
 
-      <nav class="nav" aria-label="Quiz navigation">
-        <button class="nav-button secondary" id="backBtn" type="button">Back</button>
-        <button class="nav-button" id="nextBtn" type="button">Next</button>
-        <button class="nav-button hidden" id="submitBtn" type="button">Submit</button>
+      <nav class="nav" aria-label="Move between tasks">
+        <button class="nav-button secondary" id="backBtn" type="button">Previous</button>
+        <button class="nav-button" id="nextBtn" type="button">Continue</button>
+        <button class="nav-button hidden" id="submitBtn" type="button">Hand in answers</button>
       </nav>
     </main>
   </div>
@@ -555,6 +517,7 @@
     const fillWords = ["cold", "hot", "bright"];
     const sortAnswers = { Apple: "Fruits", Banana: "Fruits", Carrot: "Vegetables", Broccoli: "Vegetables" };
     const fillAnswers = { sun: "bright", ice: "cold", soup: "hot" };
+    const correctNouns = ["teacher", "books", "table"];
 
     function scormFindApi(win) {
       let attempts = 0;
@@ -598,7 +561,9 @@
       document.getElementById("backBtn").disabled = state.screen === 0;
       document.getElementById("nextBtn").classList.toggle("hidden", state.screen === screens.length - 1);
       document.getElementById("submitBtn").classList.toggle("hidden", state.screen !== screens.length - 1 || state.submitted);
-      document.getElementById("progressLabel").textContent = state.submitted ? "Results" : `Activity ${state.screen + 1} of ${screens.length}`;
+      const chip = document.getElementById("progressLabel");
+      chip.querySelector(".num").textContent = state.submitted ? "✓" : String(state.screen + 1);
+      chip.querySelector(".chip-text").textContent = state.submitted ? "Your results" : `Item ${state.screen + 1} of ${screens.length}`;
       document.getElementById("progressBar").style.width = state.submitted ? "100%" : `${((state.screen + 1) / screens.length) * 100}%`;
       updateStatuses();
     }
@@ -608,14 +573,14 @@
     }
 
     function updateStatuses() {
-      setStatus("mcStatus", state.mc ? `Selected: ${state.mc}` : "No answer selected yet.");
-      setStatus("sortStatus", Object.keys(state.sort).length ? "Items placed: " + Object.keys(state.sort).length + " of 4." : "No items placed yet.");
-      setStatus("fillStatus", Object.keys(state.fill).length ? "Blanks filled: " + Object.keys(state.fill).length + " of 3." : "No blanks filled yet.");
-      setStatus("markStatus", state.marked.size ? "Selected words: " + [...state.marked].join(", ") : "No words selected yet.");
-      setStatus("tfStatus", state.tf ? `Selected: ${state.tf}` : "No answer selected yet.");
+      setStatus("mcStatus", state.mc ? `You chose: ${state.mc}` : "Nothing chosen so far.");
+      setStatus("sortStatus", Object.keys(state.sort).length ? "Grouped so far: " + Object.keys(state.sort).length + " of 4." : "Nothing grouped so far.");
+      setStatus("fillStatus", Object.keys(state.fill).length ? "Gaps completed: " + Object.keys(state.fill).length + " of 3." : "No gaps completed so far.");
+      setStatus("markStatus", state.marked.size ? "Words you tapped: " + [...state.marked].join(", ") : "No words tapped so far.");
+      setStatus("tfStatus", state.tf ? `You chose: ${state.tf === "true" ? "Fact" : "Fiction"}` : "Nothing chosen so far.");
       const submitStatus = document.getElementById("submitStatus");
       if (!state.submitted) {
-        submitStatus.textContent = allAnswered() ? "All five items are answered. Submit when ready." : "Answer all five items before submitting.";
+        submitStatus.textContent = allAnswered() ? "Every task has an answer. Hand in whenever you're ready." : "Give every task an answer before you hand in.";
       }
     }
 
@@ -654,7 +619,7 @@
         .forEach(word => fillBank.appendChild(makePill(word, "fill")));
       document.querySelectorAll(".blank").forEach(blank => {
         const value = state.fill[blank.dataset.blank];
-        blank.textContent = value || "Drop word";
+        blank.textContent = value || "Place word";
         blank.classList.toggle("filled", Boolean(value));
       });
     }
@@ -673,6 +638,7 @@
       pill.className = "pill" + (placed ? " placed" : "");
       pill.textContent = text;
       pill.draggable = true;
+      pill.setAttribute("aria-label", placed ? `${text} (tap to remove from group)` : text);
       pill.dataset[type === "sort" ? "sortItem" : "fillWord"] = text;
       pill.addEventListener("click", () => {
         if (type === "sort") {
@@ -688,6 +654,9 @@
       });
       if ((type === "sort" && state.selectedSortItem === text) || (type === "fill" && state.selectedFillWord === text)) {
         pill.classList.add("selected");
+        pill.setAttribute("aria-pressed", "true");
+      } else if (!placed) {
+        pill.setAttribute("aria-pressed", "false");
       }
       return pill;
     }
@@ -704,7 +673,9 @@
         button.setAttribute("aria-checked", String(selected));
       });
       document.querySelectorAll(".mark-word").forEach(button => {
-        button.classList.toggle("selected", state.marked.has(button.dataset.word));
+        const on = state.marked.has(button.dataset.word);
+        button.classList.toggle("selected", on);
+        button.setAttribute("aria-pressed", String(on));
       });
       buildSort();
       buildFill();
@@ -786,7 +757,7 @@
 
     document.getElementById("submitBtn").addEventListener("click", () => {
       if (!allAnswered()) {
-        document.getElementById("submitStatus").textContent = "Please answer all five items before submitting.";
+        document.getElementById("submitStatus").textContent = "A task is still unanswered. Go back and complete it before handing in.";
         return;
       }
       submitQuiz();
@@ -796,8 +767,8 @@
       const recorded = scorm.setScore(state.score);
       scorm.finish();
       document.getElementById("completeStatus").textContent = recorded
-        ? "Your score has been recorded."
-        : "Complete clicked. Score recording is available when launched in an LMS.";
+        ? "Done. Your score has been saved."
+        : "Done. Scores are saved automatically when this runs inside a learning platform.";
     });
 
     document.getElementById("retryBtn").addEventListener("click", () => {
@@ -819,15 +790,18 @@
       renderAll();
     });
 
+    function itemResults() {
+      return [
+        ["Pick One Answer", state.mc === "Mars"],
+        ["Put Things in Their Place", sortItems.every(item => state.sort[item] === sortAnswers[item])],
+        ["Finish the Sentences", Object.entries(fillAnswers).every(([blank, answer]) => state.fill[blank] === answer)],
+        ["Spot the Nouns", state.marked.size === correctNouns.length && correctNouns.every(word => state.marked.has(word))],
+        ["Fact or Fiction?", state.tf === "true"]
+      ];
+    }
+
     function scoreQuiz() {
-      let score = 0;
-      if (state.mc === "Mars") score += 1;
-      if (sortItems.every(item => state.sort[item] === sortAnswers[item])) score += 1;
-      if (Object.entries(fillAnswers).every(([blank, answer]) => state.fill[blank] === answer)) score += 1;
-      const correctNouns = ["teacher", "books", "table"];
-      if (state.marked.size === correctNouns.length && correctNouns.every(word => state.marked.has(word))) score += 1;
-      if (state.tf === "true") score += 1;
-      return score;
+      return itemResults().filter(([, correct]) => correct).length;
     }
 
     function submitQuiz() {
@@ -838,29 +812,22 @@
       scorm.setScore(state.score);
       document.getElementById("submitBtn").classList.add("hidden");
       document.getElementById("results").classList.remove("hidden");
-      document.getElementById("scoreText").textContent = `Total score: ${state.score} / 5`;
+      document.getElementById("scoreText").textContent = `You got ${state.score} out of 5`;
       document.getElementById("passFailText").innerHTML = passed
-        ? '<span class="pass">Pass.</span>'
-        : '<span class="fail">Fail.</span>';
-      document.getElementById("submitStatus").textContent = "Submitted. Review your result below, then use Complete and Record Score.";
+        ? '<span class="pass">That clears the bar. Nicely done.</span>'
+        : '<span class="fail">Not quite there yet. You need 4 of 5 to pass.</span>';
+      document.getElementById("submitStatus").textContent = "Answers handed in. Look over the breakdown below, then choose Finish and save my score.";
       renderReview();
       renderScreen();
     }
 
     function renderReview() {
-      const rows = [
-        ["Multiple Choice", state.mc === "Mars"],
-        ["Sorting Activity", sortItems.every(item => state.sort[item] === sortAnswers[item])],
-        ["Drag and Drop (Fill in the Blank)", Object.entries(fillAnswers).every(([blank, answer]) => state.fill[blank] === answer)],
-        ["Mark the Words Activity", state.marked.size === 3 && ["teacher", "books", "table"].every(word => state.marked.has(word))],
-        ["True or False", state.tf === "true"]
-      ];
       const reviewList = document.getElementById("reviewList");
       reviewList.innerHTML = "";
-      rows.forEach(([label, correct]) => {
+      itemResults().forEach(([label, correct], index) => {
         const li = document.createElement("li");
         li.className = correct ? "correct" : "incorrect";
-        li.textContent = `${label}: ${correct ? "Correct" : "Incorrect"}`;
+        li.textContent = `${index + 1}. ${label} — ${correct ? "Right" : "Missed"}`;
         reviewList.appendChild(li);
       });
     }

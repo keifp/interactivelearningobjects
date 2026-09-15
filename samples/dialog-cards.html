@@ -3,18 +3,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dialog Cards</title>
+    <title>Listen and Flip</title>
     <style>
       :root {
-        --green: #202d3c;
-        --accent2: #1dafa3;
-        --ink: #141414;
-        --muted: #52615a;
-        --surface: #ffffff;
-        --page: #f6f7f4;
-        --wrong: #ba1a1a;
-        --shadow: 0 18px 38px rgba(32, 45, 60, 0.16);
-        --radius: 8px;
+        --paper: #f7f3ec;
+        --surface: #fffdf9;
+        --ink: #23202b;
+        --muted: #5c5766;
+        --hairline: #e4ddd0;
+        --indigo: #3b3f8f;
+        --indigo-deep: #2c3070;
+        --coral: #e26d5c;
+        --coral-deep: #c4533f;
+        --success: #2e7d5b;
+        --error: #b3402f;
+        --shadow: 0 10px 28px rgba(35, 32, 43, 0.08);
+        --radius: 20px;
+        --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+        --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
 
       * {
@@ -24,52 +30,107 @@
       body {
         min-height: 100vh;
         margin: 0;
-        font-family: "Avenir Next", Helvetica,
-          Arial, sans-serif;
+        font-family: var(--sans);
         color: var(--ink);
-        background:
-          linear-gradient(180deg, rgba(29, 175, 163, 0.1), transparent 34%),
-          var(--page);
+        background: var(--paper);
       }
 
       .activity {
-        width: min(100%, 760px);
+        width: min(100%, 780px);
         margin: 0 auto;
-        padding: clamp(20px, 5vw, 44px) clamp(16px, 4vw, 28px) 28px;
+        padding: clamp(18px, 4vw, 36px) clamp(16px, 4vw, 28px) 32px;
       }
 
+      /* Header band: soft indigo gradient (distinctive touch #1) */
       header {
-        text-align: center;
+        position: relative;
+        overflow: hidden;
+        padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px);
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(135deg, rgba(59, 63, 143, 0.14) 0%, rgba(59, 63, 143, 0.04) 55%, rgba(226, 109, 92, 0.08) 100%),
+          var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--indigo), #6a6fc4 60%, var(--coral));
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--indigo);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
 
       h1 {
         margin: 0;
-        color: var(--green);
-        font-size: clamp(2rem, 8vw, 3.1rem);
+        color: var(--ink);
+        font-family: var(--serif);
+        font-size: clamp(2rem, 7vw, 2.9rem);
         font-weight: 700;
-        letter-spacing: 0;
+        letter-spacing: -0.02em;
         line-height: 1.05;
       }
 
       .instructions {
-        max-width: 650px;
-        margin: 12px auto 0;
-        color: #111;
-        font-size: clamp(1rem, 2.8vw, 1.15rem);
-        line-height: 1.45;
+        max-width: 600px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 2.6vw, 1.08rem);
+        line-height: 1.55;
       }
 
       .card-shell {
-        margin: clamp(24px, 5vw, 38px) auto 0;
+        margin: clamp(22px, 4vw, 32px) auto 0;
       }
 
       .progress-wrap {
-        margin: 0 0 22px;
+        margin: 0 0 20px;
+      }
+
+      .progress-copy {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .progress-copy strong {
+        color: var(--indigo);
+      }
+
+      .track {
+        width: 100%;
+        height: 10px;
+        margin-top: 8px;
+        overflow: hidden;
+        border: 1px solid var(--hairline);
+        border-radius: 999px;
+        background: var(--surface);
+      }
+
+      .bar {
+        width: 0%;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--indigo), var(--coral));
+        transition: width 240ms ease;
       }
 
       .flashcard {
         position: relative;
-        min-height: clamp(250px, 48vw, 310px);
+        min-height: clamp(260px, 46vw, 320px);
         perspective: 1200px;
       }
 
@@ -84,40 +145,65 @@
         transform: rotateY(180deg);
       }
 
+      /* Card face with left accent bar (distinctive touch #2) */
       .face {
         position: absolute;
         inset: 0;
         display: grid;
         grid-template-rows: 1fr auto;
         gap: 18px;
-        padding: clamp(18px, 4vw, 30px);
+        padding: clamp(20px, 4vw, 30px) clamp(20px, 4vw, 30px) clamp(20px, 4vw, 30px) clamp(26px, 5vw, 38px);
         background: var(--surface);
-        border: 2px solid rgba(32, 45, 60, 0.08);
-        border-top: 8px solid var(--accent2);
+        border: 1px solid var(--hairline);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         backface-visibility: hidden;
+        overflow: hidden;
+      }
+
+      .face::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 8px;
+        background: var(--indigo);
+      }
+
+      .face.back::before {
+        background: var(--coral);
       }
 
       .face.back {
         transform: rotateY(180deg);
       }
 
+      .face-label {
+        position: absolute;
+        top: 14px;
+        left: 26px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
       .card-content {
         display: grid;
         place-items: center;
         align-content: center;
-        gap: 22px;
+        gap: 20px;
         text-align: center;
       }
 
       .sound-button,
       .turn-button {
         border: 0;
-        color: var(--green);
-        background: var(--accent2);
         font: inherit;
-        font-weight: 800;
+        font-weight: 700;
         cursor: pointer;
         transition:
           transform 160ms ease,
@@ -127,24 +213,39 @@
 
       .sound-button {
         display: inline-grid;
-        width: 54px;
-        height: 54px;
+        width: 60px;
+        height: 60px;
         place-items: center;
         border-radius: 999px;
-        box-shadow: 0 8px 18px rgba(29, 175, 163, 0.32);
+        color: #fff;
+        background: var(--coral);
+        box-shadow: 0 8px 18px rgba(226, 109, 92, 0.3);
       }
 
       .sound-button svg {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
       }
 
-      .sound-button:hover,
+      .sound-button:hover {
+        transform: translateY(-1px);
+        background: var(--coral-deep);
+      }
+
+      .turn-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 112px;
+        color: #fff;
+        background: var(--indigo);
+        box-shadow: 0 6px 14px rgba(59, 63, 143, 0.22);
+      }
+
       .turn-button:hover {
         transform: translateY(-1px);
-        color: var(--accent2);
-        background: var(--green);
-        box-shadow: 0 10px 20px rgba(32, 45, 60, 0.18);
+        background: var(--indigo-deep);
       }
 
       .sound-button:active,
@@ -154,28 +255,30 @@
       }
 
       button:focus-visible {
-        outline: 4px solid rgba(29, 175, 163, 0.52);
+        outline: 3px solid var(--coral);
         outline-offset: 3px;
       }
 
       .phoneme {
         margin: 0;
-        color: #000;
-        font-size: clamp(3.1rem, 16vw, 5rem);
+        color: var(--ink);
+        font-family: var(--serif);
+        font-size: clamp(3.2rem, 16vw, 5.2rem);
         font-weight: 700;
+        letter-spacing: -0.02em;
         line-height: 1;
       }
 
       .detail-list {
         margin: 0;
         padding: 0;
-        color: #000;
-        font-size: clamp(1.08rem, 3.4vw, 1.35rem);
-        line-height: 1.45;
+        color: var(--ink);
+        font-size: clamp(1.06rem, 3.2vw, 1.3rem);
+        line-height: 1.5;
       }
 
       .detail-list div {
-        margin: 2px 0;
+        margin: 4px 0;
       }
 
       .detail-list dt,
@@ -185,7 +288,9 @@
       }
 
       .detail-list dt {
-        font-weight: 800;
+        color: var(--indigo);
+        font-family: var(--serif);
+        font-weight: 700;
       }
 
       .card-actions {
@@ -200,15 +305,15 @@
         min-height: 46px;
         border-radius: 999px;
         padding: 0 18px;
-        font-size: clamp(0.92rem, 2.8vw, 1rem);
+        font-size: clamp(0.9rem, 2.8vw, 0.98rem);
         white-space: nowrap;
       }
 
       .response-button {
-        border: 2px solid currentColor;
-        background: #fff;
+        border: 1.5px solid currentColor;
+        background: var(--surface);
         font: inherit;
-        font-weight: 800;
+        font-weight: 700;
         cursor: pointer;
         transition:
           transform 160ms ease,
@@ -219,34 +324,26 @@
 
       .response-button.wrong {
         justify-self: start;
-        color: var(--wrong);
+        color: var(--error);
       }
 
       .response-button.right {
         justify-self: end;
-        color: var(--green);
+        color: var(--success);
       }
 
       .response-button:hover {
         transform: translateY(-1px);
         color: #fff;
-        box-shadow: 0 10px 18px rgba(32, 45, 60, 0.14);
+        box-shadow: 0 8px 16px rgba(35, 32, 43, 0.12);
       }
 
       .response-button.wrong:hover {
-        background: var(--wrong);
+        background: var(--error);
       }
 
       .response-button.right:hover {
-        background: var(--green);
-      }
-
-      .turn-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-width: 112px;
+        background: var(--success);
       }
 
       .turn-button svg,
@@ -254,33 +351,6 @@
         flex: 0 0 auto;
         width: 18px;
         height: 18px;
-      }
-
-      .progress-copy {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        color: var(--green);
-        font-size: 0.98rem;
-        font-weight: 800;
-      }
-
-      .track {
-        width: 100%;
-        height: 16px;
-        margin-top: 8px;
-        overflow: hidden;
-        border: 2px solid rgba(32, 45, 60, 0.2);
-        border-radius: 999px;
-        background: #fff;
-      }
-
-      .bar {
-        width: 0%;
-        height: 100%;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--green), var(--accent2));
-        transition: width 240ms ease;
       }
 
       .bottom-actions {
@@ -293,13 +363,13 @@
         display: none;
         position: relative;
         margin-top: 28px;
-        padding: 24px 18px 18px;
-        border: 2px solid rgba(32, 45, 60, 0.12);
+        padding: 30px 20px 22px;
+        border: 1px solid var(--hairline);
         border-radius: var(--radius);
-        background: #fff;
-        color: var(--green);
+        background: var(--surface);
+        color: var(--ink);
         text-align: center;
-        box-shadow: 0 12px 24px rgba(32, 45, 60, 0.12);
+        box-shadow: var(--shadow);
       }
 
       .summary.is-visible {
@@ -316,11 +386,11 @@
         align-items: center;
         border-radius: 999px;
         padding: 0 18px;
-        color: var(--green);
-        background: var(--accent2);
-        font-size: 0.95rem;
-        font-weight: 900;
-        box-shadow: 0 8px 18px rgba(29, 175, 163, 0.28);
+        color: #fff;
+        background: var(--success);
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
       }
 
       .summary.is-complete .result-tab,
@@ -329,15 +399,15 @@
       }
 
       .summary.is-incomplete .result-tab {
-        color: #fff;
-        background: var(--wrong);
-        box-shadow: 0 8px 18px rgba(186, 26, 26, 0.18);
+        background: var(--error);
       }
 
       .summary p {
-        margin: 0 0 12px;
-        font-size: 1.1rem;
-        font-weight: 800;
+        margin: 0 0 14px;
+        font-family: var(--serif);
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
       }
 
       .restart-button,
@@ -345,18 +415,12 @@
         min-height: 44px;
         border: 0;
         border-radius: 999px;
-        padding: 0 18px;
-        color: var(--green);
-        background: var(--accent2);
+        padding: 0 20px;
+        color: #fff;
+        background: var(--coral);
         font: inherit;
-        font-weight: 800;
+        font-weight: 700;
         cursor: pointer;
-      }
-
-      .reset-button {
-        border: 2px solid var(--green);
-        color: var(--green);
-        background: #fff;
         transition:
           color 160ms ease,
           background-color 160ms ease,
@@ -364,12 +428,21 @@
           box-shadow 160ms ease;
       }
 
-      .reset-button:hover,
       .restart-button:hover {
-        color: var(--accent2);
-        background: var(--green);
+        background: var(--coral-deep);
         transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(32, 45, 60, 0.14);
+      }
+
+      .reset-button {
+        border: 1.5px solid var(--indigo);
+        color: var(--indigo);
+        background: var(--surface);
+      }
+
+      .reset-button:hover {
+        color: #fff;
+        background: var(--indigo);
+        transform: translateY(-1px);
       }
 
       .sr-only {
@@ -386,11 +459,16 @@
 
       @media (max-width: 540px) {
         .flashcard {
-          min-height: 330px;
+          min-height: 340px;
         }
 
         .face {
-          padding: 18px 14px;
+          padding: 24px 14px 16px 22px;
+        }
+
+        .face-label {
+          left: 22px;
+          top: 10px;
         }
 
         .card-actions {
@@ -409,7 +487,7 @@
         .response-button {
           width: 100%;
           padding: 0 10px;
-          font-size: 0.88rem;
+          font-size: 0.86rem;
         }
 
         .response-button.wrong {
@@ -440,24 +518,26 @@
   <body>
     <main class="activity" aria-labelledby="activity-title">
       <header>
-        <h1 id="activity-title">Dialog Cards</h1>
+        <p class="eyebrow">Letter sounds</p>
+        <h1 id="activity-title">Listen and Flip</h1>
         <p class="instructions">
-          Click the audio button to listen to the letter sound. Turn the card to
-          see the name, key word, and classification. Choose whether you got it
-          right or wrong to move to the next card.
+          Press the speaker to hear the sound, then say it back to yourself.
+          Flip the card to check the letter's name, an example word, and how the
+          sound is made. Tell us whether you had it right, and the next card
+          will appear.
         </p>
       </header>
 
-      <section class="card-shell" aria-label="Flashcard practice">
+      <section class="card-shell" aria-label="Sound card practice">
         <div class="progress-wrap">
           <div class="progress-copy">
             <span id="progressText">Card 1 of 3</span>
-            <span id="scoreText">0 right</span>
+            <span id="scoreText"><strong>0</strong> correct so far</span>
           </div>
           <div
             class="track"
             role="progressbar"
-            aria-label="Activity progress"
+            aria-label="Progress through the cards"
             aria-valuemin="0"
             aria-valuemax="3"
             aria-valuenow="1"
@@ -469,13 +549,14 @@
 
         <div class="flashcard" id="flashcard">
           <div class="flashcard-inner">
-            <article class="face front" id="frontFace" aria-label="Question side">
+            <article class="face front" id="frontFace" aria-label="Sound side">
+              <p class="face-label">Sound</p>
               <div class="card-content">
                 <button
                   class="sound-button"
                   id="soundButton"
                   type="button"
-                  aria-label="Play the sound for this letter"
+                  aria-label="Hear this letter's sound"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -489,36 +570,37 @@
 
               <div class="card-actions">
                 <button class="response-button wrong" type="button" data-result="wrong">
-                  I got it wrong
+                  Missed it
                 </button>
-                <button class="turn-button" id="turnFront" type="button" aria-label="Turn card over">
+                <button class="turn-button" id="turnFront" type="button" aria-label="Flip the card">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fill="currentColor"
                       d="M17.7 6.3A7.95 7.95 0 0 0 12 4a8 8 0 0 0-7.75 6H2l3.1 3.1L8.2 10H6.34A6 6 0 0 1 16.3 7.7a1 1 0 1 0 1.4-1.4ZM18.9 10.9 15.8 14h1.86A6 6 0 0 1 7.7 16.3a1 1 0 0 0-1.4 1.4A7.95 7.95 0 0 0 12 20a8 8 0 0 0 7.75-6H22l-3.1-3.1Z"
                     />
                   </svg>
-                  Turn
+                  Flip
                 </button>
                 <button class="response-button right" type="button" data-result="right">
-                  I got it right!
+                  Nailed it
                 </button>
               </div>
             </article>
 
-            <article class="face back" id="backFace" aria-label="Answer side" aria-hidden="true" inert>
+            <article class="face back" id="backFace" aria-label="Details side" aria-hidden="true" inert>
+              <p class="face-label">Details</p>
               <div class="card-content">
                 <dl class="detail-list">
                   <div>
-                    <dt>Name:</dt>
+                    <dt>Letter:</dt>
                     <dd id="name"></dd>
                   </div>
                   <div>
-                    <dt>Key Word:</dt>
+                    <dt>Example word:</dt>
                     <dd id="keyword"></dd>
                   </div>
                   <div>
-                    <dt>Classification:</dt>
+                    <dt>How it's made:</dt>
                     <dd id="classification"></dd>
                   </div>
                 </dl>
@@ -526,19 +608,19 @@
 
               <div class="card-actions">
                 <button class="response-button wrong" type="button" data-result="wrong">
-                  I got it wrong
+                  Missed it
                 </button>
-                <button class="turn-button" id="turnBack" type="button" aria-label="Turn card over">
+                <button class="turn-button" id="turnBack" type="button" aria-label="Flip the card">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fill="currentColor"
                       d="M17.7 6.3A7.95 7.95 0 0 0 12 4a8 8 0 0 0-7.75 6H2l3.1 3.1L8.2 10H6.34A6 6 0 0 1 16.3 7.7a1 1 0 1 0 1.4-1.4ZM18.9 10.9 15.8 14h1.86A6 6 0 0 1 7.7 16.3a1 1 0 0 0-1.4 1.4A7.95 7.95 0 0 0 12 20a8 8 0 0 0 7.75-6H22l-3.1-3.1Z"
                     />
                   </svg>
-                  Turn
+                  Flip
                 </button>
                 <button class="response-button right" type="button" data-result="right">
-                  I got it right!
+                  Nailed it
                 </button>
               </div>
             </article>
@@ -546,16 +628,16 @@
         </div>
 
         <div class="summary" id="summary" aria-live="polite">
-          <span class="result-tab" id="resultTab" aria-hidden="true">Complete</span>
+          <span class="result-tab" id="resultTab" aria-hidden="true">All done</span>
           <p id="summaryText"></p>
           <button class="restart-button" id="restartButton" type="button">
-            Start over
+            Go through them again
           </button>
         </div>
 
         <div class="bottom-actions">
           <button class="reset-button" id="resetButton" type="button">
-            Reset
+            Start from the first card
           </button>
         </div>
 
@@ -563,7 +645,6 @@
       </section>
     </main>
 
-    
     <script>
       const cards = [
         {
@@ -648,25 +729,20 @@
         nameText.textContent = ` ${card.name}`;
         keyword.textContent = ` ${card.keyword}`;
         classification.textContent = ` ${card.classification}`;
-        soundButton.setAttribute(
-          "aria-label",
-          `Play the sound for ${card.name}`
-        );
+        soundButton.setAttribute("aria-label", `Hear the sound for ${card.name}`);
         audioPlayer.pause();
         audioPlayer.currentTime = 0;
         audioPlayer.src = card.audio;
         audioPlayer.load();
         updateProgress();
-        status.textContent = `Showing card ${currentIndex + 1} of ${
-          cards.length
-        }: ${card.phoneme}`;
+        status.textContent = `Now on card ${currentIndex + 1} of ${cards.length}: ${card.phoneme}`;
       }
 
       function updateProgress() {
         const visibleIndex = Math.min(currentIndex + 1, cards.length);
         const percent = (visibleIndex / cards.length) * 100;
         progressText.textContent = `Card ${visibleIndex} of ${cards.length}`;
-        scoreText.textContent = `${rightCount} right`;
+        scoreText.innerHTML = `<strong>${rightCount}</strong> correct so far`;
         progressBar.style.width = `${percent}%`;
         progressTrack.setAttribute("aria-valuemax", cards.length);
         progressTrack.setAttribute("aria-valuenow", visibleIndex);
@@ -678,9 +754,9 @@
         audioPlayer.currentTime = 0;
         audioPlayer.play().catch(() => {
           status.textContent =
-            "Audio could not play. Check that the sound file is available.";
+            "The sound didn't play. Make sure the audio file is in place.";
         });
-        status.textContent = `Playing sound for ${card.name}.`;
+        status.textContent = `Playing the sound for ${card.name}.`;
       }
 
       function answerCard(result) {
@@ -706,13 +782,13 @@
         summary.classList.toggle("is-complete", isComplete);
         summary.classList.toggle("is-incomplete", !isComplete);
         summary.classList.add("is-visible");
-        resultTab.textContent = isComplete ? "Complete" : "Incomplete";
+        resultTab.textContent = isComplete ? "All done" : "Keep practicing";
         summaryText.textContent = isComplete
-          ? `Complete! You got all ${cards.length} right.`
-          : `Incomplete. You got ${rightCount} out of ${cards.length} right.`;
+          ? `Every one of the ${cards.length} sounds was right. Nicely done.`
+          : `You had ${rightCount} of ${cards.length} right. Another pass will help the rest stick.`;
         status.textContent = isComplete
-          ? "Activity complete. Perfect score."
-          : "Activity incomplete.";
+          ? "Finished with a perfect score."
+          : "Finished, but not every card was right.";
         reportScormStatus(isComplete ? "completed" : "incomplete", score);
         attemptFinished = true;
       }
@@ -738,7 +814,7 @@
         button.addEventListener("click", () => {
           const isFlipped = !flashcard.classList.contains("is-flipped");
           setFlipState(isFlipped);
-          status.textContent = isFlipped ? "Answer side shown." : "Question side shown.";
+          status.textContent = isFlipped ? "Details side showing." : "Sound side showing.";
         });
       });
 

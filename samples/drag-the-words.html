@@ -3,22 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Drag the Text</title>
+    <title>Complete the Passage</title>
     <style>
 :root {
-  --green: #202d3c;
-  --accent2: #1dafa3;
-  --ink: #19232e;
-  --muted: #5f7068;
-  --surface: #ffffff;
-  --soft-green: #e7f1ed;
-  --soft-gold: #dcfbf8;
-  --line: #cfddd7;
-  --danger: #b42318;
-  --danger-soft: #ffe5e2;
-  --success: #1f7a46;
-  --success-soft: #e2f5e8;
-  --shadow: 0 22px 60px rgba(32, 45, 60, 0.16);
+  --paper: #f7f3ec;
+  --surface: #fffdf9;
+  --ink: #23202b;
+  --muted: #5c5766;
+  --hairline: #e4ddd0;
+  --indigo: #3b3f8f;
+  --indigo-deep: #2c2f6b;
+  --indigo-soft: #eceef9;
+  --coral: #e26d5c;
+  --coral-soft: #fbe9e5;
+  --success: #2e7d5b;
+  --success-soft: #e6f3ec;
+  --error: #b3402f;
+  --error-soft: #f9e6e1;
+  --shadow: 0 8px 28px rgba(35, 32, 43, 0.07);
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -28,53 +32,21 @@
 body {
   min-height: 100vh;
   margin: 0;
-  font-family: "Proxima Nova", "Proxima Nova Alt", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--sans);
   color: var(--ink);
-  background:
-    radial-gradient(circle at top left, rgba(29, 175, 163, 0.28), transparent 30rem),
-    linear-gradient(135deg, #f7fbf8 0%, #eef7f3 100%);
+  background: var(--paper);
+  line-height: 1.5;
 }
 
 button {
   font: inherit;
 }
 
-.activity-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: clamp(1rem, 3vw, 2.5rem);
-}
-
-.activity-card {
-  width: min(100%, 68rem);
-  background: rgba(255, 255, 255, 0.94);
-  border: 2px solid rgba(32, 45, 60, 0.1);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  padding: clamp(1rem, 3vw, 2rem);
-}
-
-.activity-header,
-.activity-layout,
-.action-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.activity-header {
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.eyebrow {
-  margin: 0 0 0.35rem;
-  color: var(--green);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: uppercase;
+h1,
+h2 {
+  font-family: var(--serif);
+  letter-spacing: -0.01em;
+  font-weight: 600;
 }
 
 h1,
@@ -83,56 +55,109 @@ p {
   margin-top: 0;
 }
 
+.activity-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2.5rem) 1rem;
+}
+
+.activity-card {
+  width: min(100%, 64rem);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* Distinctive touch: soft indigo gradient band header */
+.activity-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1.4rem, 3vw, 2.2rem) clamp(1.1rem, 3vw, 2.2rem) 1.4rem;
+  background: linear-gradient(120deg, #2f327a 0%, var(--indigo) 55%, #5a5fb8 100%);
+  color: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d9dbf5;
+}
+
 h1 {
-  margin-bottom: 0;
-  font-size: clamp(2rem, 4vw, 3.3rem);
-  line-height: 1;
-  letter-spacing: 0;
-  color: var(--green);
+  margin-bottom: 0.45rem;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  line-height: 1.05;
+  color: #fff;
+}
+
+.lede {
+  margin: 0;
+  max-width: 40rem;
+  color: #e6e7fa;
+  font-size: 0.98rem;
 }
 
 .score-pill {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 5rem;
-  min-height: 3rem;
-  padding: 0.55rem 1rem;
+  align-items: baseline;
+  gap: 0.15rem;
+  padding: 0.55rem 1.1rem;
   border-radius: 999px;
-  background: var(--green);
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 800;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
+.score-pill small {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: #d9dbf5;
+  margin-left: 0.35rem;
+}
+
+.card-body {
+  padding: clamp(1.1rem, 3vw, 2rem);
+}
+
 .progress-area {
-  margin: -0.35rem 0 1.35rem;
-  padding: 0.85rem;
-  border: 2px solid var(--line);
-  border-radius: 8px;
-  background: #fbfffd;
+  margin-bottom: 1.5rem;
 }
 
 .progress-copy {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.55rem;
-  color: var(--green);
-  font-weight: 900;
+  margin-bottom: 0.45rem;
+  font-size: 0.86rem;
+  color: var(--muted);
 }
 
 .progress-copy p {
   margin-bottom: 0;
 }
 
+.progress-copy strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .progress-track {
-  height: 1rem;
+  height: 0.5rem;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--soft-green);
-  border: 1px solid rgba(32, 45, 60, 0.18);
+  background: #ece6da;
 }
 
 .progress-fill {
@@ -140,67 +165,177 @@ h1 {
   width: 0%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--green), var(--accent2));
+  background: linear-gradient(90deg, var(--indigo), var(--coral));
   transition: width 260ms ease;
 }
 
 .activity-layout {
-  align-items: stretch;
-  flex-direction: column;
-}
-
-.match-board {
-  flex: 1 1 auto;
   display: grid;
-  gap: 0.85rem;
+  gap: 1.25rem;
 }
 
-.board-title {
-  margin: 0 0 0.1rem;
-  color: var(--green);
+.section-title {
+  margin: 0 0 0.6rem;
   font-size: 1.15rem;
-  letter-spacing: 0;
+  color: var(--ink);
 }
 
-.sentence-card,
-.drop-zone,
 .word-panel {
-  border-radius: 8px;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: var(--paper);
+}
+
+.word-panel .hint {
+  margin: 0 0 0.8rem;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-height: 3rem;
+}
+
+/* Distinctive touch: indigo pill chips that turn coral while dragging */
+.word-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--indigo-deep);
+  border-radius: 999px;
+  background: var(--indigo);
+  color: #fff;
+  font-weight: 600;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(59, 63, 143, 0.18);
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.word-tile:hover,
+.word-tile:focus-visible {
+  background: var(--indigo-deep);
+  box-shadow: 0 6px 16px rgba(59, 63, 143, 0.26);
+  transform: translateY(-1px);
+}
+
+.word-tile:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.word-tile.selected {
+  background: var(--coral);
+  border-color: #c9553f;
+  color: var(--ink);
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.word-tile.dragging {
+  position: fixed;
+  z-index: 30;
+  width: var(--drag-width);
+  pointer-events: none;
+  cursor: grabbing;
+  background: var(--coral);
+  border-color: #c9553f;
+  color: var(--ink);
+  box-shadow: 0 16px 30px rgba(226, 109, 92, 0.35);
+  transform: scale(1.04) rotate(-1.5deg);
+}
+
+.word-tile.correct {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+  cursor: default;
+}
+
+.word-tile.incorrect {
+  background: var(--error);
+  border-color: var(--error);
+  color: #fff;
+}
+
+.word-tile.locked {
+  cursor: default;
+}
+
+.word-tile.correct:hover,
+.word-tile.correct:focus-visible,
+.word-tile.locked:hover,
+.word-tile.locked:focus-visible {
+  background: var(--success);
+  box-shadow: none;
+  transform: none;
+}
+
+.sentence-list {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .sentence-card {
+  position: relative;
   margin: 0;
-  min-height: 5.25rem;
-  padding: 1rem;
-  background: var(--soft-green);
-  border: 2px solid rgba(32, 45, 60, 0.18);
-  font-weight: 800;
-  line-height: 1.6;
+  padding: 1rem 1.1rem 1rem 1.3rem;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: var(--surface);
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  line-height: 2.1;
+}
+
+.sentence-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  bottom: 1rem;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--indigo-soft);
 }
 
 .drop-zone {
   position: relative;
-  min-height: 3.1rem;
-  width: min(100%, 12.5rem);
   display: inline-grid;
   place-items: center;
-  margin: 0 0.35rem;
-  padding: 0.35rem;
+  min-height: 2.75rem;
+  width: min(100%, 11rem);
+  margin: 0 0.3rem;
+  padding: 0.2rem;
   vertical-align: middle;
-  border: 2px dashed rgba(32, 45, 60, 0.45);
-  background: #fbfffd;
+  border: 1.5px dashed #b9b3c4;
+  border-radius: 999px;
+  background: var(--paper);
   color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.9rem;
   cursor: pointer;
-  font-weight: 900;
   transition: border-color 160ms ease, background 160ms ease;
 }
 
 .drop-zone:hover,
 .drop-zone.drop-hover,
 .drop-zone:focus-visible {
-  border-color: var(--accent2);
-  background: var(--soft-gold);
+  border-color: var(--coral);
+  background: var(--coral-soft);
   outline: none;
+}
+
+.drop-zone:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
 }
 
 .drop-zone.correct {
@@ -217,57 +352,17 @@ h1 {
 
 .drop-zone.incorrect {
   border-style: solid;
-  border-color: var(--danger);
-  background: var(--danger-soft);
+  border-color: var(--error);
+  background: var(--error-soft);
 }
 
 .drop-zone .placeholder {
   display: grid;
   place-items: center;
-  height: 100%;
-  min-height: 2.3rem;
-  color: inherit;
-  font-weight: 700;
+  min-height: 2.2rem;
+  font-weight: 500;
   position: relative;
   z-index: 1;
-}
-
-.word-panel {
-  width: 100%;
-  padding: 1rem;
-  background: var(--green);
-  color: white;
-}
-
-.word-panel h2 {
-  margin-bottom: 0.85rem;
-  font-size: 1.05rem;
-  letter-spacing: 0;
-}
-
-.word-bank {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-  min-height: 0;
-}
-
-.word-tile {
-  width: 100%;
-  min-height: 3.8rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.65rem 1rem;
-  border: 2px solid rgba(32, 45, 60, 0.12);
-  border-radius: 8px;
-  background: var(--accent2);
-  color: var(--green);
-  font-weight: 900;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .drop-zone .word-tile:not(.dragging) {
@@ -275,64 +370,12 @@ h1 {
   left: 50%;
   top: 50%;
   z-index: 2;
-  width: calc(100% - 0.7rem);
+  width: calc(100% - 0.4rem);
   transform: translate(-50%, -50%);
-}
-
-.word-tile:hover,
-.word-tile:focus-visible {
-  background: #1dafa3;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-  outline: 3px solid rgba(29, 175, 163, 0.4);
-  outline-offset: 2px;
-  transform: translateY(-2px);
 }
 
 .drop-zone .word-tile:not(.dragging):hover,
-.drop-zone .word-tile:not(.dragging):focus-visible {
-  transform: translate(-50%, -50%);
-}
-
-.word-tile.dragging {
-  position: fixed;
-  z-index: 30;
-  width: var(--drag-width);
-  pointer-events: none;
-  cursor: grabbing;
-  box-shadow: 0 18px 34px rgba(32, 45, 60, 0.28);
-  transform: scale(1.03);
-}
-
-.word-tile.selected {
-  outline: 3px solid white;
-  outline-offset: 3px;
-}
-
-.word-tile.correct {
-  background: var(--success);
-  color: white;
-  cursor: default;
-}
-
-.word-tile.incorrect {
-  background: var(--danger);
-  color: white;
-}
-
-.word-tile.locked {
-  cursor: default;
-}
-
-.word-tile.correct:hover,
-.word-tile.correct:focus-visible,
-.word-tile.locked:hover,
-.word-tile.locked:focus-visible {
-  background: var(--success);
-  box-shadow: none;
-  outline: none;
-  transform: none;
-}
-
+.drop-zone .word-tile:not(.dragging):focus-visible,
 .drop-zone .word-tile.correct:not(.dragging),
 .drop-zone .word-tile.locked:not(.dragging),
 .drop-zone .word-tile.correct:not(.dragging):hover,
@@ -343,53 +386,41 @@ h1 {
 }
 
 .feedback-tabs {
-  display: grid;
-  gap: 0;
-  margin-top: 1rem;
-  border: 2px solid var(--line);
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-}
-
-.tab-list {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.4rem;
-  background: var(--soft-green);
+  margin-top: 1.4rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--paper);
 }
 
 .tab {
-  min-height: 2.6rem;
-  justify-self: start;
   display: inline-flex;
   align-items: center;
-  margin: 0.4rem 0 0 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--green);
-  font-weight: 800;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: var(--indigo);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.tab.active {
-  background: var(--green);
-  color: white;
+.feedback-tabs.status-error .tab {
+  background: var(--error);
 }
 
-.feedback-tabs.status-error .tab.active {
-  background: var(--danger);
-}
-
-.feedback-tabs.status-success .tab.active {
+.feedback-tabs.status-success .tab {
   background: var(--success);
 }
 
 .tab-panel {
-  padding: 1rem;
-  font-weight: 700;
+  flex: 1 1 14rem;
+  color: var(--ink);
 }
 
 .tab-panel p {
@@ -397,40 +428,53 @@ h1 {
 }
 
 .action-row {
+  display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
 .primary-button,
 .secondary-button {
-  min-height: 3rem;
-  border-radius: 8px;
-  padding: 0.75rem 1.1rem;
-  font-weight: 900;
+  min-height: 2.9rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.5rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .primary-button {
-  border: 2px solid var(--accent2);
-  background: var(--accent2);
-  color: var(--green);
+  border: 1px solid #c9553f;
+  background: var(--coral);
+  color: var(--ink);
+}
+
+.primary-button:hover {
+  background: #d8604e;
 }
 
 .secondary-button {
-  border: 2px solid var(--green);
-  background: white;
-  color: var(--green);
+  border: 1px solid var(--indigo);
+  background: transparent;
+  color: var(--indigo);
+}
+
+.secondary-button:hover {
+  background: var(--indigo-soft);
 }
 
 .primary-button:hover,
-.secondary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(35, 32, 43, 0.12);
+}
+
 .primary-button:focus-visible,
 .secondary-button:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 9px 20px rgba(32, 45, 60, 0.14);
-  outline: none;
+  outline: 3px solid var(--indigo);
+  outline-offset: 3px;
 }
 
 .completion-modal {
@@ -440,7 +484,7 @@ h1 {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: rgba(32, 45, 60, 0.62);
+  background: rgba(35, 32, 43, 0.55);
 }
 
 .completion-modal[hidden] {
@@ -448,18 +492,27 @@ h1 {
 }
 
 .completion-card {
-  width: min(100%, 25rem);
-  padding: 1.4rem;
-  border-radius: 8px;
-  background: white;
-  box-shadow: var(--shadow);
+  width: min(100%, 26rem);
+  padding: 1.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  box-shadow: 0 24px 60px rgba(35, 32, 43, 0.25);
+}
+
+.completion-card .eyebrow {
+  color: var(--coral);
 }
 
 .completion-card h2 {
-  margin-bottom: 0.6rem;
-  color: var(--green);
-  font-size: 1.8rem;
-  letter-spacing: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.7rem;
+  color: var(--ink);
+}
+
+.completion-card p:last-of-type {
+  color: var(--muted);
+  margin-bottom: 1.2rem;
 }
 
 .sr-only {
@@ -474,40 +527,34 @@ h1 {
   border: 0;
 }
 
-@media (max-width: 760px) {
-  .activity-header {
-    align-items: flex-start;
+@media (min-width: 761px) {
+  .activity-layout {
+    grid-template-columns: 15rem 1fr;
+    align-items: start;
   }
 
-  .drop-zone {
-    width: min(100%, 11.5rem);
+  .word-panel {
+    position: sticky;
+    top: 1rem;
+  }
+
+  .word-bank {
+    flex-direction: column;
+  }
+
+  .word-bank .word-tile {
+    width: 100%;
   }
 }
 
 @media (max-width: 520px) {
-  .activity-shell {
-    padding: 0.75rem;
-  }
-
-  .activity-card {
-    padding: 0.85rem;
-  }
-
   .activity-header {
     flex-direction: column;
+    align-items: flex-start;
   }
 
-  .score-pill {
-    align-self: flex-start;
-  }
-
-  .progress-copy {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .word-bank {
-    grid-template-columns: 1fr;
+  .drop-zone {
+    width: min(100%, 9.5rem);
   }
 
   .action-row {
@@ -528,82 +575,89 @@ h1 {
       <section class="activity-card">
         <header class="activity-header">
           <div>
-            <p class="eyebrow">Word Match</p>
-            <h1 id="activity-title">Drag the Text</h1>
+            <p class="eyebrow">Fill the gaps</p>
+            <h1 id="activity-title">Complete the Passage</h1>
+            <p class="lede">Move each animal name into the sentence it belongs to. Drag a chip with your mouse, or select a chip and then select a gap.</p>
           </div>
           <div class="score-pill" aria-live="polite">
             <span id="score-count">0</span><span aria-hidden="true">/3</span>
-            <span class="sr-only">correct answers</span>
+            <small aria-hidden="true">right</small>
+            <span class="sr-only">correct so far</span>
           </div>
         </header>
 
-        <section class="progress-area" aria-labelledby="progress-label">
-          <div class="progress-copy">
-            <p id="progress-label">Progress</p>
-            <p id="progress-text">0% complete</p>
-          </div>
-          <div class="progress-track" role="progressbar" aria-labelledby="progress-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <span class="progress-fill" id="progress-fill"></span>
-          </div>
-        </section>
-
-        <div class="activity-layout">
-          <aside class="word-panel" aria-labelledby="word-bank-title">
-            <h2 id="word-bank-title">Answers</h2>
-            <div class="word-bank" id="word-bank" aria-label="Word choices">
-              <button class="word-tile" type="button" data-word="dolphin">dolphin</button>
-              <button class="word-tile" type="button" data-word="eagle">eagle</button>
-              <button class="word-tile" type="button" data-word="salmon">salmon</button>
+        <div class="card-body">
+          <section class="progress-area" aria-labelledby="progress-label">
+            <div class="progress-copy">
+              <p id="progress-label"><strong>Your progress</strong></p>
+              <p id="progress-text">0% done</p>
             </div>
-          </aside>
-
-          <section class="match-board" aria-labelledby="sentences-title">
-            <h2 class="board-title" id="sentences-title">Sentences</h2>
-            <p class="sentence-card">
-              The
-              <button class="drop-zone" type="button" data-answer="dolphin" aria-label="Blank answer for the animal known for being intelligent and living in the ocean">
-                <span class="placeholder">__________</span>
-              </button>
-              is known for being intelligent and living in the ocean.
-            </p>
-
-            <p class="sentence-card">
-              The
-              <button class="drop-zone" type="button" data-answer="eagle" aria-label="Blank answer for the animal with strong wings and excellent eyesight">
-                <span class="placeholder">__________</span>
-              </button>
-              has strong wings and excellent eyesight.
-            </p>
-
-            <p class="sentence-card">
-              Many people watch the
-              <button class="drop-zone" type="button" data-answer="salmon" aria-label="Blank answer for the animal people watch swim upstream during spawning season">
-                <span class="placeholder">__________</span>
-              </button>
-              swim upstream during spawning season.
-            </p>
+            <div class="progress-track" role="progressbar" aria-labelledby="progress-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span class="progress-fill" id="progress-fill"></span>
+            </div>
           </section>
-        </div>
 
-        <section class="feedback-tabs" aria-live="polite">
-          <div class="tab active" id="feedback-tab" aria-controls="feedback-panel">Status</div>
-          <div class="tab-panel active" id="feedback-panel">
-            <p id="status-message">Check answers when the blanks are filled.</p>
+          <div class="activity-layout">
+            <aside class="word-panel" aria-labelledby="word-bank-title">
+              <h2 class="section-title" id="word-bank-title">Word choices</h2>
+              <p class="hint">Each word fits exactly one gap.</p>
+              <div class="word-bank" id="word-bank" aria-label="Available words">
+                <button class="word-tile" type="button" data-word="dolphin">dolphin</button>
+                <button class="word-tile" type="button" data-word="eagle">eagle</button>
+                <button class="word-tile" type="button" data-word="salmon">salmon</button>
+              </div>
+            </aside>
+
+            <section class="match-board" aria-labelledby="sentences-title">
+              <h2 class="section-title" id="sentences-title">The passage</h2>
+              <div class="sentence-list">
+                <p class="sentence-card">
+                  Famous for its intelligence, the
+                  <button class="drop-zone" type="button" data-answer="dolphin" aria-label="Gap: the ocean animal famous for its intelligence">
+                    <span class="placeholder">drop here</span>
+                  </button>
+                  makes its home in the ocean.
+                </p>
+
+                <p class="sentence-card">
+                  With powerful wings and remarkable eyesight, the
+                  <button class="drop-zone" type="button" data-answer="eagle" aria-label="Gap: the bird with powerful wings and remarkable eyesight">
+                    <span class="placeholder">drop here</span>
+                  </button>
+                  hunts from high above.
+                </p>
+
+                <p class="sentence-card">
+                  Every spawning season, crowds gather to see the
+                  <button class="drop-zone" type="button" data-answer="salmon" aria-label="Gap: the fish crowds watch travel upstream each spawning season">
+                    <span class="placeholder">drop here</span>
+                  </button>
+                  push its way upstream.
+                </p>
+              </div>
+            </section>
           </div>
-        </section>
 
-        <footer class="action-row">
-          <button class="secondary-button" type="button" id="reset-button">Reset</button>
-          <button class="primary-button" type="button" id="check-button">Check Answers</button>
-        </footer>
+          <section class="feedback-tabs" aria-live="polite">
+            <div class="tab" id="feedback-tab" aria-controls="feedback-panel">Note</div>
+            <div class="tab-panel" id="feedback-panel">
+              <p id="status-message">Fill every gap, then press Check my answers.</p>
+            </div>
+          </section>
+
+          <footer class="action-row">
+            <button class="secondary-button" type="button" id="reset-button">Start over</button>
+            <button class="primary-button" type="button" id="check-button">Check my answers</button>
+          </footer>
+        </div>
       </section>
 
       <div class="completion-modal" id="completion-modal" role="dialog" aria-modal="true" aria-labelledby="complete-title" hidden>
         <div class="completion-card">
-          <p class="eyebrow">Complete</p>
-          <h2 id="complete-title">All answers are correct.</h2>
-          <p>Great work completing the sentences.</p>
-          <button class="primary-button" type="button" id="retry-button">Retry Activity</button>
+          <p class="eyebrow">Finished</p>
+          <h2 id="complete-title">Every gap is filled correctly.</h2>
+          <p>Nicely done. The passage now reads exactly as it should.</p>
+          <button class="primary-button" type="button" id="retry-button">Try it again</button>
         </div>
       </div>
     </main>
@@ -716,6 +770,9 @@ const statusMessage = document.querySelector("#status-message");
 const completionModal = document.querySelector("#completion-modal");
 const zones = [...document.querySelectorAll(".drop-zone")];
 
+const IDLE_LABEL = "Note";
+const IDLE_MESSAGE = "Fill every gap, then press Check my answers.";
+
 let selectedTile = null;
 let dragState = null;
 const dragThreshold = 8;
@@ -765,7 +822,7 @@ function placeTile(tile, target) {
   clearResultStyles(tile);
   if (target.classList?.contains("drop-zone")) resetZone(target);
   updatePlaceholders();
-  updateFeedback("Status", "Ready to check.");
+  updateFeedback(IDLE_LABEL, "Placed. Check whenever you are ready.");
 }
 
 function updatePlaceholders() {
@@ -778,14 +835,20 @@ function updatePlaceholders() {
 function updateProgress(correctCount) {
   const percent = Math.round((correctCount / zones.length) * 100);
   progressFill.style.width = `${percent}%`;
-  progressText.textContent = `${percent}% complete`;
+  progressText.textContent = `${percent}% done`;
   progressTrack.setAttribute("aria-valuenow", String(percent));
 }
 
 function setSelectedTile(tile) {
-  if (selectedTile) selectedTile.classList.remove("selected");
+  if (selectedTile) {
+    selectedTile.classList.remove("selected");
+    selectedTile.removeAttribute("aria-pressed");
+  }
   selectedTile = tile && !tile.classList.contains("locked") ? tile : null;
-  if (selectedTile) selectedTile.classList.add("selected");
+  if (selectedTile) {
+    selectedTile.classList.add("selected");
+    selectedTile.setAttribute("aria-pressed", "true");
+  }
 }
 
 function getDropTarget(x, y) {
@@ -881,6 +944,7 @@ function checkAnswers() {
       zone.disabled = true;
       tile.classList.add("correct", "locked");
       tile.classList.remove("incorrect", "selected");
+      tile.removeAttribute("aria-pressed");
       tile.setAttribute("aria-disabled", "true");
     } else {
       incorrect += 1;
@@ -895,21 +959,23 @@ function checkAnswers() {
     }
   });
 
+  if (selectedTile?.classList.contains("locked")) setSelectedTile(null);
+
   scoreCount.textContent = String(correct);
   updateProgress(correct);
   const score = Math.round((correct / zones.length) * 100);
 
   if (correct === zones.length) {
-    updateFeedback("All correct", "All answers are correct and locked.", "success");
+    updateFeedback("Complete", "Every word is in the right place, and the gaps are now locked.", "success");
     SCORMActivity.setComplete(100);
     completionModal.hidden = false;
     retryButton.focus();
   } else if (correct > 0) {
-    const plural = incorrect === 1 ? "blank still needs" : "blanks still need";
-    updateFeedback("Something's wrong", `${incorrect} ${plural} a different word. Correct answers are locked.`, "error");
+    const noun = incorrect === 1 ? "gap still needs" : "gaps still need";
+    updateFeedback("Not quite", `${incorrect} ${noun} a different word. The correct ones are locked in place.`, "error");
     SCORMActivity.setIncomplete(score);
   } else {
-    updateFeedback("Something's wrong", "Try again. The answers need different words.", "error");
+    updateFeedback("Not quite", "None of these fit yet. Move the words around and check again.", "error");
     SCORMActivity.setIncomplete(0);
   }
 
@@ -930,13 +996,14 @@ function resetActivity() {
     tile.className = "word-tile";
     tile.removeAttribute("aria-disabled");
     tile.removeAttribute("aria-invalid");
+    tile.removeAttribute("aria-pressed");
     tile.style.left = "";
     tile.style.top = "";
   });
 
   scoreCount.textContent = "0";
   updateProgress(0);
-  updateFeedback("Status", "Check answers when the blanks are filled.");
+  updateFeedback(IDLE_LABEL, IDLE_MESSAGE);
   SCORMActivity.setIncomplete(0);
   updatePlaceholders();
 }
@@ -974,6 +1041,18 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     completionModal.hidden = true;
     setSelectedTile(null);
+    return;
+  }
+
+  // Backspace/Delete on a filled, unlocked gap returns its word to the bank.
+  if (event.key === "Backspace" || event.key === "Delete") {
+    const zone = document.activeElement?.closest?.(".drop-zone");
+    const tile = zone?.querySelector(".word-tile:not(.locked)");
+    if (zone && tile) {
+      event.preventDefault();
+      placeTile(tile, wordBank);
+      zone.focus();
+    }
   }
 });
 

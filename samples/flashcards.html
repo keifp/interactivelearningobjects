@@ -3,22 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flashcards</title>
+    <title>Recall Deck</title>
     <style>
       :root {
-        --primary: #202d3c;
-        --accent2: #1dafa3;
-        --cream: #ebfcfb;
-        --ink: #131a22;
-        --muted: #5f716a;
-        --line: rgba(32, 45, 60, 0.18);
-        --disabled: #d7d9d6;
-        --disabled-ink: #68716d;
-        --correct: #197a43;
-        --incorrect: #b3261e;
-        --white: #ffffff;
+        --paper: #f7f3ec;
+        --surface: #fffdf9;
+        --ink: #23202b;
+        --muted: #5c5766;
+        --hairline: #e4ddd0;
+        --indigo: #3b3f8f;
+        --indigo-deep: #2c2f6e;
+        --coral: #e26d5c;
+        --coral-deep: #c9533f;
+        --success: #2e7d5b;
+        --error: #b3402f;
+        --disabled: #ece6db;
+        --disabled-ink: #625c6c;
+        --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+        --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         color-scheme: light;
-        font-family: "Avenir Next", Avenir, Helvetica, Arial, sans-serif;
+        font-family: var(--sans);
       }
 
       * {
@@ -28,11 +32,9 @@
       body {
         min-height: 100vh;
         margin: 0;
-        background:
-          linear-gradient(135deg, rgba(32, 45, 60, 0.08), transparent 34%),
-          linear-gradient(225deg, rgba(29, 175, 163, 0.23), transparent 32%),
-          var(--cream);
+        background: var(--paper);
         color: var(--ink);
+        line-height: 1.5;
       }
 
       button,
@@ -40,52 +42,95 @@
         font: inherit;
       }
 
+      :focus-visible {
+        outline: 3px solid var(--coral);
+        outline-offset: 3px;
+      }
+
       .app {
-        width: min(100%, 920px);
+        width: min(100%, 880px);
         min-height: 100svh;
         margin: 0 auto;
-        padding: clamp(16px, 3vw, 34px);
+        padding: clamp(16px, 3vw, 36px);
         display: grid;
         grid-template-rows: auto minmax(0, 1fr);
-        gap: clamp(12px, 2vw, 20px);
+        gap: clamp(14px, 2.4vw, 26px);
       }
 
       .topbar {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         gap: 16px;
-        color: var(--primary);
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .title-block {
+        display: grid;
+        gap: 6px;
       }
 
       h1 {
         margin: 0;
-        font-size: clamp(1.45rem, 4.6vw, 2.55rem);
-        line-height: 1.02;
-        letter-spacing: 0;
+        font-family: var(--serif);
+        font-size: clamp(1.7rem, 4.8vw, 2.6rem);
+        font-weight: 600;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+
+      .tagline {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
       }
 
       .progress {
-        min-width: 96px;
-        padding: 10px 14px;
-        border: 2px solid var(--primary);
-        border-radius: 8px;
-        background: var(--accent2);
-        color: var(--primary);
-        font-weight: 800;
+        flex-shrink: 0;
+        min-width: 88px;
+        padding: 8px 16px;
+        border: 1px solid var(--hairline);
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--indigo);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
         text-align: center;
+        letter-spacing: 0.02em;
       }
 
       .stage {
         display: grid;
         grid-template-rows: minmax(0, 1fr) auto;
-        gap: 12px;
+        gap: 14px;
         min-height: 0;
       }
 
       .card-shell {
+        position: relative;
         perspective: 1300px;
         min-height: 0;
+      }
+
+      /* Left accent bar: indigo on the front, coral once the card is flipped */
+      .card-shell::before {
+        content: "";
+        position: absolute;
+        top: 22px;
+        bottom: 22px;
+        left: 0;
+        width: 7px;
+        border-radius: 999px;
+        background: var(--indigo);
+        transition: background-color 320ms ease;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .card-shell.is-flipped::before {
+        background: var(--coral);
       }
 
       .flashcard {
@@ -107,51 +152,51 @@
         grid-template-rows: auto minmax(0, 1fr) auto;
         justify-items: center;
         gap: clamp(14px, 2vw, 22px);
-        padding: clamp(22px, 4.4vw, 46px);
-        border: 3px solid var(--primary);
-        border-radius: 8px;
+        padding: clamp(24px, 4.4vw, 48px);
+        border: 1px solid var(--hairline);
+        border-radius: 22px;
+        background: var(--surface);
         backface-visibility: hidden;
-        box-shadow: 0 22px 50px rgba(32, 45, 60, 0.18);
+        box-shadow: 0 6px 24px rgba(35, 32, 43, 0.06);
         overflow: auto;
       }
 
       .card-front {
-        background: var(--white);
+        background: var(--surface);
       }
 
       .card-back {
-        background: var(--primary);
-        color: var(--white);
+        background: var(--surface);
+        color: var(--ink);
         transform: rotateY(180deg);
       }
 
       .label {
         margin: 0;
-        color: inherit;
-        font-size: 0.86rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
       }
 
       .question,
       .answer {
         width: 100%;
-        max-width: 680px;
+        max-width: 640px;
         margin: 0;
-        font-size: clamp(1.7rem, 5.2vw, 3rem);
-        font-weight: 850;
-        line-height: 1.08;
+        font-family: var(--serif);
+        font-size: clamp(1.6rem, 4.8vw, 2.7rem);
+        font-weight: 500;
+        line-height: 1.15;
+        letter-spacing: -0.015em;
         text-align: center;
         overflow-wrap: anywhere;
+        color: var(--ink);
       }
 
       .answer {
-        color: var(--accent2);
-      }
-
-      .card-back .button {
-        border-color: var(--accent2);
+        color: var(--indigo);
       }
 
       .front-content,
@@ -165,7 +210,7 @@
       }
 
       .controls {
-        width: min(100%, 680px);
+        width: min(100%, 640px);
         display: grid;
         gap: 12px;
       }
@@ -173,66 +218,73 @@
       .answer-row {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto auto;
-        gap: 12px;
+        gap: 10px;
         align-items: end;
       }
 
       .field {
         display: grid;
-        gap: 8px;
+        gap: 6px;
       }
 
       .field label {
-        color: var(--primary);
-        font-size: 0.98rem;
-        font-weight: 800;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 600;
       }
 
       .answer-input {
         width: 100%;
-        min-height: 58px;
-        padding: 15px 16px;
-        border: 2px solid var(--primary);
-        border-radius: 8px;
-        background: var(--white);
+        min-height: 54px;
+        padding: 13px 18px;
+        border: 1px solid var(--hairline);
+        border-radius: 999px;
+        background: var(--paper);
         color: var(--ink);
-        font-size: clamp(1.06rem, 3.6vw, 1.25rem);
+        font-size: clamp(1.02rem, 3.4vw, 1.15rem);
         outline: none;
         transition:
           border-color 160ms ease,
           box-shadow 160ms ease,
-          background-color 160ms ease,
-          transform 160ms ease;
+          background-color 160ms ease;
       }
 
-      .answer-input:hover,
+      .answer-input::placeholder {
+        color: #8a8492;
+      }
+
+      .answer-input:hover {
+        border-color: #cdc4b4;
+      }
+
       .answer-input:focus {
-        background: #f8fefe;
-        box-shadow: 0 0 0 5px rgba(29, 175, 163, 0.28);
-        transform: translateY(-1px);
+        border-color: var(--indigo);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px rgba(59, 63, 143, 0.16);
       }
 
       .answer-input.is-correct {
-        border-color: var(--correct);
-        box-shadow: 0 0 0 5px rgba(25, 122, 67, 0.18);
+        border-color: var(--success);
+        box-shadow: 0 0 0 4px rgba(46, 125, 91, 0.16);
       }
 
       .answer-input.is-incorrect {
-        border-color: var(--incorrect);
-        box-shadow: 0 0 0 5px rgba(179, 38, 30, 0.16);
+        border-color: var(--error);
+        box-shadow: 0 0 0 4px rgba(179, 64, 47, 0.14);
       }
 
       .button {
-        min-height: 58px;
-        padding: 0 18px;
-        border: 2px solid var(--primary);
-        border-radius: 8px;
-        background: var(--primary);
-        color: var(--white);
-        font-weight: 850;
+        min-height: 54px;
+        padding: 0 22px;
+        border: 1px solid var(--coral);
+        border-radius: 999px;
+        background: var(--coral);
+        color: #ffffff;
+        font-weight: 700;
         cursor: pointer;
         transition:
           background-color 160ms ease,
+          border-color 160ms ease,
           color 160ms ease,
           transform 160ms ease,
           box-shadow 160ms ease;
@@ -240,15 +292,15 @@
 
       .button:hover:not(:disabled),
       .button:focus-visible:not(:disabled) {
-        background: var(--accent2);
-        color: var(--primary);
-        box-shadow: 0 8px 18px rgba(32, 45, 60, 0.18);
+        background: var(--coral-deep);
+        border-color: var(--coral-deep);
+        box-shadow: 0 6px 16px rgba(226, 109, 92, 0.28);
         transform: translateY(-1px);
       }
 
       .button:disabled {
         cursor: not-allowed;
-        border-color: #aeb5b1;
+        border-color: var(--hairline);
         background: var(--disabled);
         color: var(--disabled-ink);
         opacity: 1;
@@ -256,20 +308,23 @@
       }
 
       .button.secondary {
-        background: var(--accent2);
-        color: var(--primary);
-      }
-
-      .button.secondary:disabled {
-        border-color: #aeb5b1;
-        background: var(--disabled);
-        color: var(--disabled-ink);
+        background: var(--surface);
+        border-color: var(--indigo);
+        color: var(--indigo);
       }
 
       .button.secondary:hover:not(:disabled),
       .button.secondary:focus-visible:not(:disabled) {
-        background: var(--primary);
-        color: var(--white);
+        background: var(--indigo);
+        border-color: var(--indigo);
+        color: #ffffff;
+        box-shadow: 0 6px 16px rgba(59, 63, 143, 0.22);
+      }
+
+      .button.secondary:disabled {
+        border-color: var(--hairline);
+        background: var(--disabled);
+        color: var(--disabled-ink);
       }
 
       .controls.is-unlocked {
@@ -288,18 +343,18 @@
       }
 
       .feedback {
-        min-height: 28px;
+        min-height: 26px;
         margin: 0;
-        font-weight: 800;
+        font-weight: 600;
         line-height: 1.4;
       }
 
       .feedback.correct {
-        color: var(--correct);
+        color: var(--success);
       }
 
       .feedback.incorrect {
-        color: var(--incorrect);
+        color: var(--error);
       }
 
       .nav {
@@ -311,21 +366,34 @@
       }
 
       .nav .button {
-        min-width: 120px;
+        min-width: 130px;
       }
 
       .completion {
+        position: relative;
         min-height: 0;
         display: grid;
         align-content: center;
         justify-items: center;
-        gap: 22px;
-        padding: clamp(28px, 7vw, 64px);
-        border: 3px solid var(--primary);
-        border-radius: 8px;
-        background: var(--white);
-        box-shadow: 0 22px 50px rgba(32, 45, 60, 0.18);
+        gap: 20px;
+        padding: clamp(32px, 7vw, 68px);
+        border: 1px solid var(--hairline);
+        border-radius: 22px;
+        background: var(--surface);
+        box-shadow: 0 6px 24px rgba(35, 32, 43, 0.06);
         text-align: center;
+        overflow: hidden;
+      }
+
+      .completion::before {
+        content: "";
+        position: absolute;
+        top: 22px;
+        bottom: 22px;
+        left: 0;
+        width: 7px;
+        border-radius: 999px;
+        background: var(--coral);
       }
 
       .completion[hidden] {
@@ -334,23 +402,25 @@
 
       .completion h2 {
         margin: 0;
-        color: var(--primary);
-        font-size: clamp(2.2rem, 9vw, 5rem);
+        font-family: var(--serif);
+        font-weight: 600;
+        color: var(--indigo);
+        font-size: clamp(2.2rem, 8vw, 4.4rem);
         line-height: 1;
-        letter-spacing: 0;
+        letter-spacing: -0.02em;
       }
 
       .completion p {
         max-width: 520px;
         margin: 0;
         color: var(--ink);
-        font-size: clamp(1rem, 3vw, 1.25rem);
-        font-weight: 750;
-        line-height: 1.4;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        line-height: 1.5;
       }
 
       .score-note {
-        color: var(--primary);
+        color: var(--muted);
+        font-size: 0.95rem;
       }
 
       @media (max-width: 720px) {
@@ -382,17 +452,17 @@
           padding: 12px;
         }
 
-        .flashcard {
-          min-height: 0;
+        .card-face {
+          padding: 22px 18px 18px 22px;
         }
 
-        .card-face {
-          padding: 18px;
+        .card-shell::before {
+          width: 5px;
         }
 
         .question,
         .answer {
-          font-size: clamp(1.45rem, 8vw, 2rem);
+          font-size: clamp(1.4rem, 7.5vw, 1.9rem);
         }
 
         .nav {
@@ -415,33 +485,36 @@
   <body>
     <main class="app" aria-live="polite">
       <header class="topbar">
-        <h1>Flashcards</h1>
-        <div class="progress" id="progress">1 / 3</div>
+        <div class="title-block">
+          <h1>Recall Deck</h1>
+          <p class="tagline">Write your answer, check it, then turn the card over to confirm.</p>
+        </div>
+        <div class="progress" id="progress">1 of 3</div>
       </header>
 
-      <section class="stage" id="stage" aria-label="Flashcard practice">
-        <div class="card-shell">
+      <section class="stage" id="stage" aria-label="Recall deck practice">
+        <div class="card-shell" id="cardShell">
           <article class="flashcard" id="flashcard">
             <div class="card-face card-front">
-              <p class="label">Front</p>
+              <p class="label">Prompt</p>
               <div class="front-content">
-                <p class="question" id="question">What planet is known as the Red Planet?</p>
+                <p class="question" id="question">Which planet goes by the nickname "the Red Planet"?</p>
                 <form class="controls" id="answerForm" autocomplete="off">
                   <div class="answer-row">
                     <div class="field">
-                      <label for="answerInput">Type your answer</label>
+                      <label for="answerInput">Your response</label>
                       <input
                         class="answer-input"
                         id="answerInput"
                         name="answer"
                         type="text"
                         inputmode="text"
-                        placeholder="Enter answer before flipping"
+                        placeholder="Write it here, then check"
                         aria-describedby="feedback"
                       />
                     </div>
-                    <button class="button" type="submit" id="checkButton">Check</button>
-                    <button class="button secondary" type="button" id="flipButton" disabled>Flip</button>
+                    <button class="button" type="submit" id="checkButton">Check it</button>
+                    <button class="button secondary" type="button" id="flipButton" disabled>Turn over</button>
                   </div>
                   <p class="feedback" id="feedback" aria-live="polite"></p>
                 </form>
@@ -449,45 +522,45 @@
               <span aria-hidden="true"></span>
             </div>
             <div class="card-face card-back">
-              <p class="label">Back</p>
+              <p class="label">Answer</p>
               <div class="back-content">
                 <p class="answer" id="answer">Mars</p>
-                <button class="button secondary" type="button" id="showQuestionButton">Show question</button>
+                <button class="button secondary" type="button" id="showQuestionButton">Back to prompt</button>
               </div>
               <span aria-hidden="true"></span>
             </div>
           </article>
         </div>
 
-        <nav class="nav" aria-label="Flashcard navigation">
-          <button class="button secondary" type="button" id="previousButton">Previous</button>
-          <button class="button secondary" type="button" id="nextButton">Next</button>
+        <nav class="nav" aria-label="Move between cards">
+          <button class="button secondary" type="button" id="previousButton">Back</button>
+          <button class="button secondary" type="button" id="nextButton">Forward</button>
         </nav>
       </section>
 
       <section class="completion" id="completion" hidden>
-        <p class="label">Complete</p>
-        <h2>Complete</h2>
-        <p>You answered every flashcard correctly.</p>
+        <p class="label">All done</p>
+        <h2>Deck cleared</h2>
+        <p>Every card in the deck has been answered correctly.</p>
         <p class="score-note" id="scoreNote"></p>
-        <button class="button secondary" type="button" id="retryButton">Retry</button>
+        <button class="button secondary" type="button" id="retryButton">Start over</button>
       </section>
     </main>
 
     <script>
       const cards = [
         {
-          front: "What planet is known as the Red Planet?",
+          front: 'Which planet goes by the nickname "the Red Planet"?',
           back: "Mars",
           accepted: ["mars"],
         },
         {
-          front: "What is the largest ocean on Earth?",
+          front: "Which ocean is the biggest one on Earth?",
           back: "Pacific Ocean",
           accepted: ["pacific ocean", "the pacific ocean", "pacific"],
         },
         {
-          front: "How many continents are there?",
+          front: "How many continents does the world have?",
           back: "7",
           accepted: ["7", "seven"],
         },
@@ -511,6 +584,7 @@
 
       const stage = document.querySelector("#stage");
       const completion = document.querySelector("#completion");
+      const cardShell = document.querySelector("#cardShell");
       const flashcard = document.querySelector("#flashcard");
       const question = document.querySelector("#question");
       const answer = document.querySelector("#answer");
@@ -525,6 +599,11 @@
       const nextButton = document.querySelector("#nextButton");
       const retryButton = document.querySelector("#retryButton");
       const scoreNote = document.querySelector("#scoreNote");
+
+      function setFlipped(flipped) {
+        flashcard.classList.toggle("is-flipped", flipped);
+        cardShell.classList.toggle("is-flipped", flipped);
+      }
 
       function normalize(value) {
         return value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -648,13 +727,13 @@
       function showCompletion() {
         stage.hidden = true;
         completion.hidden = false;
-        progress.textContent = "Complete";
+        progress.textContent = "Done";
 
         const score = calculateScore();
         scoreNote.textContent =
           score === 100
-            ? "Score: 100%. SCORM status: complete."
-            : `Score: ${score}%. SCORM status: incomplete because a perfect score was not achieved.`;
+            ? "Your score is 100%, and the activity has been recorded as complete."
+            : `Your score is ${score}%. The activity stays marked incomplete because not every first try was correct.`;
         updateScormProgress();
       }
 
@@ -664,7 +743,7 @@
         state.flipped[state.current] = false;
         answerForm.classList.remove("is-unlocked");
         flipButton.disabled = true;
-        flashcard.classList.remove("is-flipped");
+        setFlipped(false);
         saveFeedback("", "");
       }
 
@@ -689,8 +768,8 @@
         state.flipped[state.current] = false;
         answerForm.classList.remove("is-unlocked");
         flipButton.disabled = true;
-        flashcard.classList.remove("is-flipped");
-        saveFeedback("Incorrect. Fix your answer to unlock the card.", "incorrect");
+        setFlipped(false);
+        saveFeedback("Not quite. Revise your response to turn the card over.", "incorrect");
         updateScormProgress();
       }
 
@@ -700,7 +779,7 @@
         if (!normalize(value)) {
           if (showEmpty) {
             recordFirstAttempt(false);
-            saveFeedback("Type an answer first.", "incorrect");
+            saveFeedback("Write a response before checking.", "incorrect");
           } else {
             saveFeedback("", "");
           }
@@ -709,7 +788,7 @@
           state.flipped[state.current] = false;
           answerForm.classList.remove("is-unlocked");
           flipButton.disabled = true;
-          flashcard.classList.remove("is-flipped");
+          setFlipped(false);
           updateScormProgress();
           return false;
         }
@@ -730,10 +809,10 @@
         const solved = state.solved[state.current];
         question.textContent = card.front;
         answer.textContent = card.back;
-        progress.textContent = `${state.current + 1} / ${cards.length}`;
+        progress.textContent = `${state.current + 1} of ${cards.length}`;
         answerInput.value = state.responses[state.current];
         answerForm.classList.toggle("is-unlocked", solved);
-        flashcard.classList.toggle("is-flipped", solved && state.flipped[state.current]);
+        setFlipped(solved && state.flipped[state.current]);
         flipButton.disabled = !solved;
         previousButton.disabled = state.current === 0;
         nextButton.disabled = state.current === cards.length - 1;
@@ -773,12 +852,12 @@
           return;
         }
         state.flipped[state.current] = !state.flipped[state.current];
-        flashcard.classList.toggle("is-flipped", state.flipped[state.current]);
+        setFlipped(state.flipped[state.current]);
       });
 
       showQuestionButton.addEventListener("click", () => {
         state.flipped[state.current] = false;
-        flashcard.classList.remove("is-flipped");
+        setFlipped(false);
       });
 
       previousButton.addEventListener("click", () => {
